@@ -21,7 +21,7 @@ from django.urls.conf import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api/users/", include("account.urls", namespace="account")),
+    path("api/users/", include("users.urls", namespace="users")),
 
     ### API ###
     path('api/', include('rest_framework.urls')),
