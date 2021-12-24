@@ -18,7 +18,7 @@ urlpatterns = [
 
     ## Update ##
     path("profile_update/skills/", views.UpdateSkillsView.as_view(), name="update_skills"),
-    path("profile_update/intrests/", views.UpdateInterestsView.as_view())
+    path("profile_update/intrests/", views.UpdateInterestsView.as_view()),
 
     ## toekn ##
     path('refresh_token/', TokenRefreshView.as_view(), name='refresh_token'),
