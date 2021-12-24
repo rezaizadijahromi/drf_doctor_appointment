@@ -125,7 +125,7 @@ class Profile(views.APIView):
         serializer = UserSerializer(request.user, many=False)
         return Response(serializer.data)
 
-class UserProfileUpdateView(views.APIView):
+class UserProfileUpdateViewV2(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserProfileSerializer
 
@@ -152,6 +152,28 @@ class UserProfileUpdateView(views.APIView):
                 'user': UserSerializer(user).data,
                 'updated_email': new_email
             }, status=status.HTTP_200_OK)
+
+class UserPofileView(views.APIView):
+    permission_classes  = [permissions.IsAuthenticated]
+
+    def patch(self, request):
+        new_email = request.data.get('email')
+        email_valid_check_result = email_validator(new_email)
+
+        if new_email is not None and email_valid_check_result:
+            request.user.email = new_email
+            request.user.email_verified = False
+
+            request.user.save()
+            serializer = UserSerializer(request.user, many=False)
+
+        return Response({
+            "success": True,
+            "message": "successfully updated your profile",
+            "updated_email": new_email,
+            "user": serializer.data
+        }, status=status.HTTP_200_OK)
+        
 
 class UpdateSkillsView(views.APIView):
     permission_classes  = [permissions.IsAuthenticated]
