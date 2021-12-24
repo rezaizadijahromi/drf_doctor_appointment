@@ -118,9 +118,36 @@ def users(request):
 
 
 class Profile(views.APIView):
-    
     peromission_classes = [permissions.IsAuthenticated]
-    
     def get(self, request):
         serializer = UserSerializer(request.user, many=False)
+        return Response(serializer.data)
+
+class UpdateSkillsView(views.APIView):
+    peromission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request):
+        user_profile = request.user.userprofile
+        skills = request.data
+        user_profile.skills.set(
+            SkillTag.objects.get_or_create(name=skill['name'])[0] for skill in skills
+        )
+        user_profile.save()
+        serializer = UserProfileSerializer(user_profile, many=False)
+
+        return Response(serializer.data)
+
+class UpdateInterestsView(views.APIView):
+    peromission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request):
+        user_profile = request.user.userprofile
+        intrests = request.data
+        user_profile.intrests.set(
+            TopicTag.objects.get_or_create(name=interest['name'])[0] for interest in intrests
+        )
+
+        user_profile.save()
+        serializer = UserProfileSerializer(user_profile, many=False)
+
         return Response(serializer.data)
