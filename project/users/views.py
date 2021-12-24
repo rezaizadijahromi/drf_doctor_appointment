@@ -130,7 +130,7 @@ class UserProfileUpdateView(views.APIView):
     serializer_class = UserProfileSerializer
 
     def patch(self, request):
-        profile = request.user_profile
+        profile = request.user.userprofile
         serializer = self.serializer_class(
             profile, data=request.data, partial=True
         )
@@ -138,8 +138,9 @@ class UserProfileUpdateView(views.APIView):
         if serializer.is_valid():
             user = serializer.save().user
             new_email = request.data.get('email')
+            email_valid_check_result = email_validator(new_email)
             user = request.user
-            if new_email is not None:
+            if new_email is not None and email_valid_check_result:
                 user.email = new_email
                 profile.email_verified = False
                 user.save()
