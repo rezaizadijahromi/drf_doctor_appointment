@@ -17,6 +17,7 @@ urlpatterns = [
     path('login/', views.MyTokenObtainPairView.as_view(), name='login'),
 
     ## Update ##
+    path("profile_update/", views.UserProfileUpdateView.as_view(), name="update_profile"),
     path("profile_update/skills/", views.UpdateSkillsView.as_view(), name="update_skills"),
     path("profile_update/intrests/", views.UpdateInterestsView.as_view()),
 

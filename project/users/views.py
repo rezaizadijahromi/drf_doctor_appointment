@@ -1,8 +1,10 @@
 ## Python modules
 import datetime
+from functools import partialmethod
 import uuid
 import random
 import os.path
+from django.http import response
 
 ## email validator packege
 from email_validator import validate_email, EmailNotValidError
@@ -118,13 +120,40 @@ def users(request):
 
 
 class Profile(views.APIView):
-    peromission_classes = [permissions.IsAuthenticated]
+    permission_classes  = [permissions.IsAuthenticated]
     def get(self, request):
         serializer = UserSerializer(request.user, many=False)
         return Response(serializer.data)
 
+class UserProfileUpdateView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserProfileSerializer
+
+    def patch(self, request):
+        profile = request.user_profile
+        serializer = self.serializer_class(
+            profile, data=request.data, partial=True
+        )
+
+        if serializer.is_valid():
+            user = serializer.save().user
+            new_email = request.data.get('email')
+            user = request.user
+            if new_email is not None:
+                user.email = new_email
+                profile.email_verified = False
+                user.save()
+                profile.save()
+
+            return Response({
+                'success':True, 
+                'message': 'successfully updated your profile',
+                'user': UserSerializer(user).data,
+                'updated_email': new_email
+            }, status=status.HTTP_200_OK)
+
 class UpdateSkillsView(views.APIView):
-    peromission_classes = [permissions.IsAuthenticated]
+    permission_classes  = [permissions.IsAuthenticated]
 
     def patch(self, request):
         user_profile = request.user.userprofile
@@ -138,7 +167,7 @@ class UpdateSkillsView(views.APIView):
         return Response(serializer.data)
 
 class UpdateInterestsView(views.APIView):
-    peromission_classes = [permissions.IsAuthenticated]
+    permission_classes  = [permissions.IsAuthenticated]
 
     def patch(self, request):
         user_profile = request.user.userprofile
