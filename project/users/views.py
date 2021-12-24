@@ -14,12 +14,14 @@ from django.shortcuts import render
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q , Count
+from django.core.files.storage import default_storage
 
 ## django restframework
 from rest_framework import permissions, serializers, views, status
 from rest_framework.views import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import FileUploadParser
 
 ## drf jwt
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -173,7 +175,29 @@ class UserPofileView(views.APIView):
             "updated_email": new_email,
             "user": serializer.data
         }, status=status.HTTP_200_OK)
-        
+
+class ProfilePictureUpdateView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classe = (FileUploadParser,)
+
+    def patch(self, request):
+        random_number = random.Random()
+        profile_pic = request.FILES["profile_pic"]
+        extension = os.path.splitext(profile_pic.name)[1]
+        profile_pic.name = f"{uuid.UUID(int=random_number.getrandbits(128))}{extension}"
+        filename = default_storage.save(profile_pic.name, profile_pic)
+        setattr(request.user.userprofile, "profile_pic", filename)
+
+        if filename:
+            request.user.userprofile.save()
+            serializer = UserProfileSerializer(request.user.userprofile, many=False)
+
+        return Response({
+            "success": True,
+            "message": "Profile picture has been successfully updated",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+    
 
 class UpdateSkillsView(views.APIView):
     permission_classes  = [permissions.IsAuthenticated]

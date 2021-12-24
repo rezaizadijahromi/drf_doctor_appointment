@@ -18,6 +18,7 @@ urlpatterns = [
 
     ## Update ##
     path("profile_update/", views.UserPofileView.as_view(), name="update_profile"),
+    path("profile_update/photo/", views.ProfilePictureUpdateView.as_view(), name="update_profile_picture"),
     path("profile_update/skills/", views.UpdateSkillsView.as_view(), name="update_skills"),
     path("profile_update/intrests/", views.UpdateInterestsView.as_view()),
 
