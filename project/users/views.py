@@ -247,6 +247,45 @@ class Activate(views.APIView):
                 'message': 'something went wrong, please try againg'
             }, status=status.HTTP_406_NOT_ACCEPTABLE)
 
+class PasswordChangeView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        data = request.data
+        new_password = data.get('new_password')
+        new_password_confirm = data.get("new_password_confirm")
+
+        if new_password and new_password_confirm is not None:
+            if new_password == new_password_confirm:
+                user.set_password(new_password)
+                user.save()
+                return Response({
+                    "success": True,
+                    'message': "Password changed successfully"
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'success': False,
+                    'message': "password doesn't match"
+                })
+        elif new_password == user.password:
+            return Response({
+                    'success': False,
+                    'message': "new password is same as old password try again"
+            })
+        elif new_password is None:
+            return Response({
+                    'success': False,
+                    'message': "new password field required"
+                })
+        elif new_password_confirm is None:
+            return Response({
+                    'success': False,
+                    'message': "new password confirm field required"
+                })
+
+
 class ProfilePictureUpdateView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
     parser_classe = (FileUploadParser,)
@@ -268,6 +307,18 @@ class ProfilePictureUpdateView(views.APIView):
             "message": "Profile picture has been successfully updated",
             "data": serializer.data
         }, status=status.HTTP_200_OK)
+
+class ProfilePictureDeleteView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user.userprofile
+        user.profile_pic.url = 'default.png'
+
+        return Response({
+            'success': True,
+            'message': 'Profile picture deleted'
+        })
     
 
 class UpdateSkillsView(views.APIView):
