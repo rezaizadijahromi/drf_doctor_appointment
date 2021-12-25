@@ -4,18 +4,23 @@ from functools import partialmethod
 import uuid
 import random
 import os.path
+from django.core.checks import messages
 from django.http import response
 
 ## email validator packege
 from email_validator import validate_email, EmailNotValidError
-
+from django.contrib.auth.tokens import default_token_generator
+from django.core.files.storage import default_storage
+from django.core.mail import EmailMessage
 ## django imports
 from django.shortcuts import render
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.db.models import Q , Count
 from django.core.files.storage import default_storage
-
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 ## django restframework
 from rest_framework import permissions, serializers, views, status
 from rest_framework.views import Response
@@ -175,6 +180,49 @@ class UserPofileView(views.APIView):
             "updated_email": new_email,
             "user": serializer.data
         }, status=status.HTTP_200_OK)
+
+class UserProfileDelete(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        request.user.delete()
+
+        return Response({
+            'success': True,
+            'message': 'account deleted successfully'
+        }, status=status.HTTP_200_OK)
+
+class SendActivationEmail(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user_profile = UserProfile.objects.get(user=request.user)
+
+        try:
+            email_subject = 'Verify your account'
+            message = render_to_string('verify-email.html', {
+                'user': user_profile,
+                'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                'token': default_token_generator.make_token(request.user)
+            })
+            to_email = request.user.email
+            email = EmailMessage(
+                email_subject, message, to=[to_email]
+            )
+
+            email.send()
+            return Response({
+                'success': 'True',
+                'message': 'Email send successfully'
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': f'{e}'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+
 
 class ProfilePictureUpdateView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
