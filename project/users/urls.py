@@ -28,6 +28,6 @@ urlpatterns = [
 
     ## Email verification ## 
     path('email/send-email-activation/', views.SendActivationEmail.as_view(), name='send-activation-email'),
-    path('verify<uidb64>/<token>/', views.Activate.as_view(), name='verify')
+    path('verify/<uidb64>/<token>/', views.Activate.as_view(), name='verify')
 ]
 
