@@ -222,7 +222,29 @@ class SendActivationEmail(views.APIView):
                 'message': f'{e}'
             }, status=status.HTTP_403_FORBIDDEN)
 
+class Activate(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, uidb64, token):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User._default_manager.get(pk=uid)
+
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None and default_token_generator.check_token(user, token):
+            user_profile = UserProfile.objects.get(user=user)
+            user_profile.email_verified = True
+            user_profile.save()
+            return Response({
+                'successfull': True,
+                'message': 'email verified'
+            })
+        else:
+            return Response({
+                'success':False,
+                'message': 'something went wrong, please try againg'
+            }, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 class ProfilePictureUpdateView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
