@@ -205,6 +205,7 @@ class SendActivationEmail(views.APIView):
                 'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
                 'token': default_token_generator.make_token(request.user)
             })
+
             to_email = request.user.email
             email = EmailMessage(
                 email_subject, message, to=[to_email]

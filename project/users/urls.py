@@ -27,7 +27,7 @@ urlpatterns = [
     path('refresh_token/', TokenRefreshView.as_view(), name='refresh_token'),
 
     ## Email verification ## 
-    path('email/send-email-activation', views.SendActivationEmail.as_view(), name='send-activation-email'),
+    path('email/send-email-activation/', views.SendActivationEmail.as_view(), name='send-activation-email'),
     path('verify<uidb64>/<token>/', views.Activate.as_view(), name='verify')
 ]
 
