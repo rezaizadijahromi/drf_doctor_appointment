@@ -1,5 +1,6 @@
 import re
 from django.contrib.auth.models import User
+from django.http import response
 from django.test import client
 from rest_framework.test import APIClient
 import json
@@ -46,4 +47,28 @@ class AccountTest(APITestCase):
         client.force_authenticate(user=self.test_user)
         response = client.patch(reversed_url,data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_user_email_valid_view(self):
+        email = "test@gmail.com"
+        self.assertEqual(email_validator(email), "test@gmail.com")
+
+    def test_user_password_change_view(self):
+        url = reverse('users:change-password')
+        client = APIClient()
+        client.force_authenticate(user=self.test_user)
+        data = {
+            'new_password': "TEST@123",
+            'new_password_confirm': "TEST@123"
+        }
+        response = client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_send_activate_email_view(self):
+        url = reverse('users:send-activation-email')
+        client = APIClient()
+        client.force_authenticate(user=self.test_user)
+        response = client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    
 
