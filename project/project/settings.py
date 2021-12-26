@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     "users",
+    "booking",
     "rest_framework",
     'rest_framework_simplejwt.token_blacklist',
 ]
