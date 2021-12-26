@@ -21,7 +21,7 @@ urlpatterns = [
     path("profile_update/photo/", views.ProfilePictureUpdateView.as_view(), name="update_profile_picture"),
     path('delete-profile/', views.UserProfileDelete.as_view(), name="delete-user"),
     path("profile_update/skills/", views.UpdateSkillsView.as_view(), name="update_skills"),
-    path("profile_update/intrests/", views.UpdateInterestsView.as_view()),
+    path("profile_update/intrests/", views.UpdateInterestsView.as_view(), name='update_interests'),
 
     ## Delete ##
     path('delete_profile/', views.UserProfileDelete.as_view(), name="delete-user"),

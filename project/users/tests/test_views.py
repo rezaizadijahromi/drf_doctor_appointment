@@ -70,5 +70,29 @@ class AccountTest(APITestCase):
         response = client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    
+   
+    def test_update_interests(self):
+        url = 'users:update_interests'
+        reversed_url = reverse(url)
+        self.client.force_authenticate(user=self.test_user)
+        data = [
+            {'name': 'brain'}
+        ]
+        response = self.client.patch(reversed_url, data, format='json')
+        tag = TopicTag.objects.get(name='brain')
+        self.assertEqual(tag.name, 'brain')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_skills(self):
+        url = 'users:update_skills'
+        reversed_url = reverse(url)
+        self.client.force_authenticate(user=self.test_user)
+        data = [
+            {'name': 'heart'}
+        ]
+        response = self.client.patch(reversed_url, data, format='json')
+        tag = SkillTag.objects.get(name='heart')
+        self.assertEqual(tag.name, 'heart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
