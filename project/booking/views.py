@@ -49,12 +49,12 @@ class RoomView(views.APIView):
 class RoomFreeTime(views.APIView):
     def post(self, request):
         try:
-            date, roomID = request.data["date"], request.data["id"]
-            todayDate, todayTime = str(datetime.date.today()), datetime.datetime.today().time()
+            # date, roomID = request.data["date"], request.data["id"]
+            # todayDate, todayTime = str(datetime.date.today()), datetime.datetime.today().time()
 
-            allBookingTime = Booking.objects.filter(
-                booking_date__exact=date, room__exact=roomID
-            )
+            # allBookingTime = Booking.objects.filter(
+            #     booking_date__exact=date, room__exact=roomID
+            # )
 
 
             res, date, roomID = [], request.data["date"], request.data["id"]
@@ -78,8 +78,8 @@ class RoomFreeTime(views.APIView):
             todayDate, todayTime = str(datetime.date.today()), datetime.datetime.today().time()
 
             buffer = datetime.timedelta(minutes=10)
-            start = datetime.datetime(2021, 12, 27, 8, 0, 0)
-            end = datetime.datetime(2021, 12, 27, 21, 0, 0)
+            start = datetime.datetime(2000, 1, 1, 8, 0, 0)
+            end = datetime.datetime(2000, 1, 1, 19, 00, 0)
             delta = datetime.timedelta(hours=1, minutes=30)
 
             while start <= end:
@@ -115,6 +115,10 @@ class RoomFreeTime(views.APIView):
 
                 
             return Response(sorted(res, key=lambda i: i['start_timing']))
+
+        except Exception as IndexError:
+            return Response({"message": "no booking time is availabel"}, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as e:
             return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
 
