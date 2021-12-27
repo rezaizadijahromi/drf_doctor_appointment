@@ -87,16 +87,28 @@ class RoomFreeTime(views.APIView):
                     if todayDate == date and (start+buffer).time() <= todayTime:
                         start += delta
                         continue
-                    y = {"start_timing": start.time(),
-                         "end_timing": (start+delta).time(),
-                         "admin_did_accept": False,
-                         "is_pending": False,
-                         "availabel": True
-                         }
+
+                    if start.time().hour == 8:
+                        y = {"start_timing": start.time(),
+                            "end_timing": (start+delta).time(),
+                            "admin_did_accept": False,
+                            "is_pending": False,
+                            "availabel": True
+                            }
+                    else:
+                        y = {"start_timing": (start + buffer).time(),
+                            "end_timing": (start+delta).time(),
+                            "admin_did_accept": False,
+                            "is_pending": False,
+                            "availabel": True
+                            }
 
                     for time in check:
                         if time[1].hour == y["start_timing"].hour and time[1].minute > y["start_timing"].minute:
                             y["availabel"] = False
+                        if time[0].hour == y["start_timing"].hour:
+                            y["availabel"] = False
+
                     if y["availabel"] == True:
                         res.append(y)
                 start += delta
