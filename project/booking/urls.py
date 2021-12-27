@@ -6,5 +6,5 @@ app_name = "booking"
 
 urlpatterns = [
     path("room/", views.RoomView.as_view(), name="room"),
-    path("room-detail/", views.DetailRoomView.as_view(), name="room-detail")
+    path("room-detail/", views.RoomFreeTime.as_view(), name="room-detail")
 ]

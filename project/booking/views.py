@@ -46,39 +46,66 @@ class RoomView(views.APIView):
                 'message': e
             })
 
-class DetailRoomView(views.APIView):
+class RoomFreeTime(views.APIView):
     def post(self, request):
         try:
-            res, date = [], request.data["date"]
-            for item in Booking.objects.filter(booking_date__exact=date).order_by('start_timing', '-admin_did_accept', '-is_pending').distinct('start_timing'):
+            date, roomID = request.data["date"], request.data["id"]
+            todayDate, todayTime = str(datetime.date.today()), datetime.datetime.today().time()
+
+            allBookingTime = Booking.objects.filter(
+                booking_date__exact=date, room__exact=roomID
+            )
+
+
+            res, date, roomID = [], request.data["date"], request.data["id"]
+            for item in Booking.objects.filter(booking_date__exact=date, room__exact=roomID).order_by('start_timing', '-admin_did_accept', '-is_pending').distinct('start_timing'):
+
                 x = {"start_timing": item.start_timing,
                      "end_timing": item.end_timing,
                      "admin_did_accept": item.admin_did_accept,
-                     "is_pending": item.is_pending}
+                     "is_pending": item.is_pending,
+                    "availabel" : False
+                     }
                 res.append(x)
             # Create and append empty slots
-            check = list(i['start_timing'] for i in res)
+            # check = list(i['start_timing']for i in res)
+            check = list()
+            for i in res:
+                check.append((i["start_timing"],i["end_timing"]))
+            print(check)
+
+
             todayDate, todayTime = str(datetime.date.today()), datetime.datetime.today().time()
+
             buffer = datetime.timedelta(minutes=10)
-            start = datetime.datetime(2000, 1, 1, 8, 0, 0)
-            end = datetime.datetime(2000, 1, 1, 19, 00, 0)
+            start = datetime.datetime(2021, 12, 27, 8, 0, 0)
+            end = datetime.datetime(2021, 12, 27, 21, 0, 0)
             delta = datetime.timedelta(hours=1, minutes=30)
+
             while start <= end:
-                if start.time() not in check:
-                    if start == datetime.datetime(2000, 1, 1, 12, 30, 0):
-                        start += datetime.timedelta(minutes=30)
+                if start.time() not in check[0]:
                     if todayDate == date and (start+buffer).time() <= todayTime:
                         start += delta
                         continue
                     y = {"start_timing": start.time(),
                          "end_timing": (start+delta).time(),
                          "admin_did_accept": False,
-                         "is_pending": False}
-                    res.append(y)
+                         "is_pending": False,
+                         "availabel": True
+                         }
+
+                    for time in check:
+                        if time[1].hour == y["start_timing"].hour and time[1].minute > y["start_timing"].minute:
+                            y["availabel"] = False
+                    if y["availabel"] == True:
+                        res.append(y)
                 start += delta
+
+                
             return Response(sorted(res, key=lambda i: i['start_timing']))
-        except:
-            return Response({"message": "Invalid/Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class AllBookingView(views.APIView):
