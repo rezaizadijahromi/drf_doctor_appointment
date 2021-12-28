@@ -49,16 +49,18 @@ class RoomView(views.APIView):
 class RoomFreeTime(views.APIView):
     def post(self, request):
         try:
-            # date, roomID = request.data["date"], request.data["id"]
-            # todayDate, todayTime = str(datetime.date.today()), datetime.datetime.today().time()
-
-            # allBookingTime = Booking.objects.filter(
-            #     booking_date__exact=date, room__exact=roomID
-            # )
-
-
-            res, date, roomID = [], request.data["date"], request.data["id"]
-            for item in Booking.objects.filter(booking_date__exact=date, room__exact=roomID).order_by('start_timing', '-admin_did_accept', '-is_pending').distinct('start_timing'):
+            res, date = [], request.data["date"]
+            roomID = request.data["id"]
+            
+            for item in Booking.objects.filter(
+                    booking_date__exact=date,
+                    room__exact=roomID
+                 ).order_by(
+                        'start_timing',
+                        '-admin_did_accept',
+                        '-is_pending')\
+                            .distinct(
+                            'start_timing'):
 
                 x = {"start_timing": item.start_timing,
                      "end_timing": item.end_timing,
