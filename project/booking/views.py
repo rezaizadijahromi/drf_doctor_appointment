@@ -141,33 +141,62 @@ class BookRoomSlotView(views.APIView):
                 purpose = data["purpose_of_booking"]
             except:
                 purpose = "Purpose not provided"
+
             start = datetime.datetime.strptime(data["startTime"],"%H:%M:%S").time()
             end = datetime.datetime.strptime(data["endTime"], "%H:%M:%S").time()
-            print(start)
+
             roomId, date = data["id"], data["date"]
-            # if (start not in BookRoomSlotView.startTimes) or (end not in BookRoomSlotView.endTimes):
+
+            # if (start not in self.startTimes) or (end not in self.endTimes):
             #     return Response("This slot does not exist. Booking not possible")
 
-            if Booking.objects.filter(booking_date__exact=date, start_timing=start, end_timing=end).exclude(admin_did_accept=False, is_pending=False).count() >= 1:
-                return Response("You have already booked this timing. You cannot book 2 slots at the same time", status.HTTP_409_CONFLICT)
+            if Booking.objects.filter(
+                    booking_date__exact=date,
+                    start_timing=start,
+                    end_timing=end
+                  ).exclude(admin_did_accept=False, is_pending=False).count() >= 1:
+                
+                return Response({
+                    "success": False,
+                    "message":"You have already booked this timing. You cannot book 2 slots at the same time"
+                    }, status.HTTP_409_CONFLICT)
             
             for item in Booking.objects.filter(booking_date__exact=date, room__exact=roomId):
                 if (end <= item.start_timing or start >= item.end_timing):
                     # no clashes if the entire for loop doesn't break then the following else is executed
+
                     continue
                 elif (item.admin_did_accept == True):
                     # Already booked
-                    return Response("This slot has already been booked", status=status.HTTP_306_RESERVED)
+                    return Response({
+                        "success": False,
+                        "message":"This slot has already been booked"
+                     }, status=status.HTTP_306_RESERVED)
                 else:
                     # empty slot with many bookings
                     room = Room.objects.get(id__exact=roomId)
-                    b = Booking.objects.create(room=room, booking_date=date, start_timing=start, end_timing=end, purpose_of_booking=purpose, is_pending=True)
-                    return Response("Booking has been added to the already existing queue", status=status.HTTP_202_ACCEPTED)
+                    b = Booking.objects.create(
+                        room=room,
+                        booking_date=date,
+                        start_timing=start,
+                        end_timing=end,
+                        purpose_of_booking=purpose,
+                        is_pending=True
+                    )
+                        
+                    return Response(
+                        {
+                            "success":True,
+                            "message":"Booking has been added to the existing queue"}
+                        ,status=status.HTTP_202_ACCEPTED)
             else:
-                # no clashes executed if for loop doesnt  break
-                room = Room.objects.get(id__exact=roomId)
-                b = Booking.objects.create(room=room, booking_date=date, start_timing=start, end_timing=end, purpose_of_booking=purpose, is_pending=True)
-                return Response("Booking has been added to the queue", status=status.HTTP_202_ACCEPTED)
+                # no clashes executed if for loop doesnt break show this response 
+                return Response(
+                    {
+                        "success":False,
+                        "message":"invalid data"
+                    }, status=status.HTTP_202_ACCEPTED)
+
         except Exception as e:
             return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
 
