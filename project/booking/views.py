@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from .slot_generator import slot_generator
 
 from .models import Booking, Room
-from .serializer import BookingSerializer, RoomSerializer
+from .serializer import BookingSerializer, RoomSerializer, RoomDetailSerializer
 
 class RoomView(views.APIView):
     def get(self, request):
@@ -128,6 +128,49 @@ class RoomDetailTime(views.APIView):
 
         except Exception as e:
             return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+class RoomDetail(views.APIView):
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = RoomDetailSerializer
+
+    def get(self, request, roomId):
+        try:
+            
+            data = request.data
+
+            date = data["date"]
+            room = Room.objects.get(id__exact=roomId)
+
+
+            times = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date
+            ).order_by(
+                'start_timing', '-admin_did_accept',
+                '-is_pending'
+            )
+
+            print("debug")
+
+         
+
+
+            return Response({
+                "status": "success",
+                "data": [
+                    RoomDetailSerializer(times, many=True).data
+                ]
+            })  
+        except Exception as e:
+            return Response({
+                "status": "success",
+                'message': e
+            })
+
+
+
+
 
 
 class BookRoomSlotView(views.APIView):
