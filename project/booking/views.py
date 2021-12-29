@@ -8,6 +8,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
+from .slot_generator import slot_generator
+
 from .models import Booking, Room
 from .serializer import BookingSerializer, RoomSerializer
 
@@ -46,12 +48,12 @@ class RoomView(views.APIView):
                 'message': e
             })
 
-class RoomFreeTime(views.APIView):
+class RoomDetailTime(views.APIView):
     def post(self, request):
         try:
             res, date = [], request.data["date"]
             roomID = request.data["id"]
-            
+
             for item in Booking.objects.filter(
                     booking_date__exact=date,
                     room__exact=roomID
@@ -128,14 +130,13 @@ class RoomFreeTime(views.APIView):
             return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
 class BookRoomSlotView(views.APIView):
     startTimes = [datetime.time(8, 0), datetime.time(9, 30), datetime.time(11, 0), datetime.time(13, 0), datetime.time(14, 30), datetime.time(16, 0), datetime.time(17, 30), datetime.time(19, 0)]
     endTimes = [datetime.time(9, 30), datetime.time(11, 0), datetime.time(12, 30), datetime.time(14, 30), datetime.time(16, 0), datetime.time(17, 30), datetime.time(19, 0), datetime.time(20, 30)]
 
-    parser_classes = [JSONParser]
+    # time_slots = slot_generator()
 
+    
     def post(self, request):
         try:
             res, data = [], request.data
@@ -144,13 +145,10 @@ class BookRoomSlotView(views.APIView):
             except:
                 purpose = "Purpose not provided"
 
-            start = datetime.datetime.strptime(data["startTime"],"%H:%M:%S").time()
-            end = datetime.datetime.strptime(data["endTime"], "%H:%M:%S").time()
+            start = datetime.datetime.strptime(data["startTime"],"%H:%M:%S")
+            end = datetime.datetime.strptime(data["endTime"], "%H:%M:%S")
 
             roomId, date = data["id"], data["date"]
-
-            # if (start not in self.startTimes) or (end not in self.endTimes):
-            #     return Response("This slot does not exist. Booking not possible")
 
             if Booking.objects.filter(
                     booking_date__exact=date,
@@ -163,10 +161,12 @@ class BookRoomSlotView(views.APIView):
                     "message":"You have already booked this timing. You cannot book 2 slots at the same time"
                     }, status.HTTP_409_CONFLICT)
             
-            for item in Booking.objects.filter(booking_date__exact=date, room__exact=roomId):
+            for item in Booking.objects.filter(
+                    booking_date__exact=date,
+                    room__exact=roomId
+                ):
                 if (end <= item.start_timing or start >= item.end_timing):
                     # no clashes if the entire for loop doesn't break then the following else is executed
-
                     continue
                 elif (item.admin_did_accept == True):
                     # Already booked
@@ -201,6 +201,62 @@ class BookRoomSlotView(views.APIView):
 
         except Exception as e:
             return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+class AdminCreateSlotView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            res = []
+            data = request.data
+            minute, startH, endH = data['minute'], data["startH"], data["endH"]
+
+            #time_slots --> [((start, min, s), (end, min, s))]
+
+            time_slots = slot_generator(minute, startH, endH)
+            date = data["date"]
+            length = data["length"]
+            room = data["roomId"]
+
+            roomId = Room.objects.get(id__exact=room)
+            
+            print("debug0")
+
+            for slot in time_slots[0:length]:
+                print("debug1")
+                b = Booking.objects.create(
+                    room=roomId,
+                    booking_date=date,
+                    start_timing=slot[0],
+                    end_timing=slot[1],
+                    is_pending=True,
+                    admin_did_accept=False
+                )
+                print("debug2")
+
+                res.append({
+                    "start":b.start_timing,
+                    "end": b.end_timing,
+                    "is_pending": True,
+                    "admin_did_accept": b.admin_did_accept
+                })
+
+            print("dubg3")
+            
+            return Response({
+                "success":True,
+                "message":"Slots has been created",
+                "data": {
+                    "room-id": room,
+                    "rooms":[i for i in res]
+                }
+            })
+            
+        except Exception as e:
+            return Response({
+                'success':False,
+                'message': e
+            })
 
 
 class UserPastBookingsView(views.APIView):
