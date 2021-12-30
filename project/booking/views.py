@@ -151,22 +151,19 @@ class RoomDetail(views.APIView):
                 '-is_pending'
             )
 
-            print("debug")
-
-         
-
-
+            serializer_data = RoomDetailSerializer(times, many=True).data 
             return Response({
                 "status": "success",
-                "data": [
-                    RoomDetailSerializer(times, many=True).data
-                ]
+                "data": serializer_data
+                
             })  
         except Exception as e:
             return Response({
                 "status": "success",
                 'message': e
             })
+
+    
 
 
 
