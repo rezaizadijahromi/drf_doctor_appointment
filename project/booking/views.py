@@ -2,6 +2,7 @@ import datetime
 import uuid
 
 from django.contrib.auth import get_user_model
+from django.core.checks.messages import Error
 from django.db.models import Avg, Count, Max, Min, Sum
 from rest_framework import generics, serializers, status, permissions, views
 from rest_framework.parsers import JSONParser
@@ -231,12 +232,90 @@ class AdminView(views.APIView):
 
         except Exception as e:
             return Response({
-                "status": "fail",
+                "status": "failed",
                 'message': e
             })
 
     def put(self, request):
-        pass
+        
+        actions_list = [
+            "DELETE", "ACCEPT"
+        ]
+
+        try:
+            data  = request.data
+
+            date = data["date"]
+            roomId = data["roomId"]
+            slot_id = data["slot_id"]
+            action = data["action"]
+
+            try:
+                feed_back = data["admin_feedback"]
+            except:
+                feed_back = ""
+
+            room = Room.objects.get(
+                id__exact=roomId
+            )
+
+            slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                is_pending=False,
+                id=slot_id
+            )
+
+
+
+            if action in actions_list:
+                # TODO Send email and say why request has been rejected
+                # TODO Send email and say their request has been accepted
+
+                if action == "DELETE":
+                    if slots[0].admin_did_accept:
+                    
+                        slots.update(
+                            patient=None,
+                            is_pending=True,
+                            admin_did_accept=False
+                        )
+
+                        return Response({
+                            "status":"success",
+                            "message": "request has been rejected"
+                        }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({
+                            "status":"success",
+                            "message": "request not been assign"
+                        }, status=status.HTTP_200_OK)
+
+                elif action == "ACCEPT":
+
+                    if not slots[0].admin_did_accept:
+                        slots.update(
+                            admin_did_accept=True,
+                            admin_feedback=feed_back
+                        )
+
+                        return Response({
+                            "status":"success",
+                            "message": "request has been accepted"
+                        }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({
+                            "status": "success",
+                            "message": "already accepted"
+                        })
+            else:
+              raise TypeError("action type not finde")  
+
+        except Exception as e:
+            return Response({
+                "status": "failed",
+                'message': e
+            })
 
     def post(self, request):
         try:
