@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from .slot_generator import slot_generator
 
 from .models import Booking, Room
-from .serializer import BookingSerializer, RoomSerializer, RoomDetailSerializer
+from .serializer import BookingSerializer, RoomSerializer, RoomDetailBookSerializer
 
 class RoomView(views.APIView):
     def get(self, request):
@@ -132,7 +132,6 @@ class RoomDetailTime(views.APIView):
 class RoomDetail(views.APIView):
 
     permission_classes = [IsAuthenticated]
-    serializer_class = RoomDetailSerializer
 
     def get(self, request, roomId):
         try:
@@ -151,7 +150,7 @@ class RoomDetail(views.APIView):
                 '-is_pending'
             )
 
-            serializer_data = RoomDetailSerializer(times, many=True).data 
+            serializer_data = RoomDetailBookSerializer(times, many=True).data 
             return Response({
                 "status": "success",
                 "data": serializer_data
@@ -163,10 +162,37 @@ class RoomDetail(views.APIView):
                 'message': e
             })
 
-    
+    def post(self, request, roomId):
+        try:
+            data  = request.data
 
+            slot_id = data["slot_id"]
+            date = data["date"]
 
+            room = Room.objects.get(
+                id__exact=roomId
+            )
 
+            slot = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                id=slot_id
+            )
+
+            slot.update(
+                patient=request.user.userprofile
+            )
+
+            return Response({
+                "status": "success",
+                "message": "You booked a slot wait for admin confirmation"
+            })
+            
+        except Exception as e:
+            return Response({
+                "status": "success",
+                'message': e
+            })
 
 
 
