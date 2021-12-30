@@ -148,7 +148,7 @@ class RoomDetail(views.APIView):
             ).order_by(
                 'start_timing', '-admin_did_accept',
                 '-is_pending'
-            )
+            ).exclude(admin_did_accept=True, is_pending=False)
 
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
             return Response({
@@ -179,8 +179,13 @@ class RoomDetail(views.APIView):
                 id=slot_id
             )
 
+            # slot.update(
+            #     patient=request.user.userprofile
+            # )
+
             slot.update(
-                patient=request.user.userprofile
+                patient=request.user.userprofile,
+                is_pending=False
             )
 
             return Response({
@@ -190,86 +195,48 @@ class RoomDetail(views.APIView):
             
         except Exception as e:
             return Response({
-                "status": "success",
+                "status": "fail",
                 'message': e
             })
 
+class AdminView(views.APIView):
+    permission_classes = [IsAdminUser]
 
-
-class BookRoomSlotView(views.APIView):
-    startTimes = [datetime.time(8, 0), datetime.time(9, 30), datetime.time(11, 0), datetime.time(13, 0), datetime.time(14, 30), datetime.time(16, 0), datetime.time(17, 30), datetime.time(19, 0)]
-    endTimes = [datetime.time(9, 30), datetime.time(11, 0), datetime.time(12, 30), datetime.time(14, 30), datetime.time(16, 0), datetime.time(17, 30), datetime.time(19, 0), datetime.time(20, 30)]
-
-    # time_slots = slot_generator()
-
-    
-    def post(self, request):
+    def get(self, request):
         try:
-            res, data = [], request.data
-            try:
-                purpose = data["purpose_of_booking"]
-            except:
-                purpose = "Purpose not provided"
+            data  = request.data
 
-            start = datetime.datetime.strptime(data["startTime"],"%H:%M:%S")
-            end = datetime.datetime.strptime(data["endTime"], "%H:%M:%S")
+            date = data["date"]
+            roomId = data["roomId"]
 
-            roomId, date = data["id"], data["date"]
+            room = Room.objects.get(
+                id__exact=roomId
+            )
 
-            if Booking.objects.filter(
-                    booking_date__exact=date,
-                    start_timing=start,
-                    end_timing=end
-                  ).exclude(admin_did_accept=False, is_pending=False).count() >= 1:
-                
-                return Response({
-                    "success": False,
-                    "message":"You have already booked this timing. You cannot book 2 slots at the same time"
-                    }, status.HTTP_409_CONFLICT)
-            
-            for item in Booking.objects.filter(
-                    booking_date__exact=date,
-                    room__exact=roomId
-                ):
-                if (end <= item.start_timing or start >= item.end_timing):
-                    # no clashes if the entire for loop doesn't break then the following else is executed
-                    continue
-                elif (item.admin_did_accept == True):
-                    # Already booked
-                    return Response({
-                        "success": False,
-                        "message":"This slot has already been booked"
-                     }, status=status.HTTP_306_RESERVED)
-                else:
-                    # empty slot with many bookings
-                    room = Room.objects.get(id__exact=roomId)
-                    b = Booking.objects.create(
-                        room=room,
-                        booking_date=date,
-                        start_timing=start,
-                        end_timing=end,
-                        purpose_of_booking=purpose,
-                        is_pending=True
-                    )
-                        
-                    return Response(
-                        {
-                            "success":True,
-                            "message":"Booking has been added to the existing queue"}
-                        ,status=status.HTTP_202_ACCEPTED)
-            else:
-                # no clashes executed if for loop doesnt break show this response 
-                return Response(
-                    {
-                        "success":False,
-                        "message":"invalid data"
-                    }, status=status.HTTP_202_ACCEPTED)
+            print("here0")
+
+
+            slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                is_pending=False
+            )
+
+            slot_serializers = RoomDetailBookSerializer(slots, many=True).data
+
+            return Response({
+                "status":"success",
+                "data": slot_serializers
+            })
 
         except Exception as e:
-            return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "status": "fail",
+                'message': e
+            })
 
-class AdminCreateSlotView(views.APIView):
-    permission_classes = [IsAuthenticated]
+    def put(self, request):
+        pass
 
     def post(self, request):
         try:
@@ -353,4 +320,74 @@ class AllBookingView(views.APIView):
         return Response(bookings)
 
 
+# class BookRoomSlotView(views.APIView):
+#     startTimes = [datetime.time(8, 0), datetime.time(9, 30), datetime.time(11, 0), datetime.time(13, 0), datetime.time(14, 30), datetime.time(16, 0), datetime.time(17, 30), datetime.time(19, 0)]
+#     endTimes = [datetime.time(9, 30), datetime.time(11, 0), datetime.time(12, 30), datetime.time(14, 30), datetime.time(16, 0), datetime.time(17, 30), datetime.time(19, 0), datetime.time(20, 30)]
 
+#     # time_slots = slot_generator()
+
+    
+#     def post(self, request):
+#         try:
+#             res, data = [], request.data
+#             try:
+#                 purpose = data["purpose_of_booking"]
+#             except:
+#                 purpose = "Purpose not provided"
+
+#             start = datetime.datetime.strptime(data["startTime"],"%H:%M:%S")
+#             end = datetime.datetime.strptime(data["endTime"], "%H:%M:%S")
+
+#             roomId, date = data["id"], data["date"]
+
+#             if Booking.objects.filter(
+#                     booking_date__exact=date,
+#                     start_timing=start,
+#                     end_timing=end
+#                   ).exclude(admin_did_accept=False, is_pending=False).count() >= 1:
+                
+#                 return Response({
+#                     "success": False,
+#                     "message":"You have already booked this timing. You cannot book 2 slots at the same time"
+#                     }, status.HTTP_409_CONFLICT)
+            
+#             for item in Booking.objects.filter(
+#                     booking_date__exact=date,
+#                     room__exact=roomId
+#                 ):
+#                 if (end <= item.start_timing or start >= item.end_timing):
+#                     # no clashes if the entire for loop doesn't break then the following else is executed
+#                     continue
+#                 elif (item.admin_did_accept == True):
+#                     # Already booked
+#                     return Response({
+#                         "success": False,
+#                         "message":"This slot has already been booked"
+#                      }, status=status.HTTP_306_RESERVED)
+#                 else:
+#                     # empty slot with many bookings
+#                     room = Room.objects.get(id__exact=roomId)
+#                     b = Booking.objects.create(
+#                         room=room,
+#                         booking_date=date,
+#                         start_timing=start,
+#                         end_timing=end,
+#                         purpose_of_booking=purpose,
+#                         is_pending=True
+#                     )
+                        
+#                     return Response(
+#                         {
+#                             "success":True,
+#                             "message":"Booking has been added to the existing queue"}
+#                         ,status=status.HTTP_202_ACCEPTED)
+#             else:
+#                 # no clashes executed if for loop doesnt break show this response 
+#                 return Response(
+#                     {
+#                         "success":False,
+#                         "message":"invalid data"
+#                     }, status=status.HTTP_202_ACCEPTED)
+
+#         except Exception as e:
+#             return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)

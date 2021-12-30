@@ -17,7 +17,7 @@ class Room(models.Model):
 
 class Booking(models.Model):
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
-    doctor = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=False, related_name="doctor")
+    doctor = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name="doctor")
     patient = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=False, related_name="patient")
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="booking")
     booking_date = models.DateField(default=datetime.date.today)

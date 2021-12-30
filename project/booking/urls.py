@@ -10,9 +10,10 @@ urlpatterns = [
 
     path("detail-room/<str:roomId>/", views.RoomDetail.as_view(), name="detail"),
 
-    path("slotview/", views.BookRoomSlotView.as_view()),
     path("past/", views.UserPastBookingsView.as_view()),
 
     ## admin ##
-    path("admin-add-slot/", views.AdminCreateSlotView.as_view(), name="admin-add-slot")
+    path("admin/", views.AdminView.as_view(), name="admin"),
+
 ]
+    # path("slotview/", views.BookRoomSlotView.as_view()),
