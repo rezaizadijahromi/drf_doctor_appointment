@@ -8,11 +8,11 @@
   </head>
   <body>
     <h1>This is email from {{sender}}</h1>
-    {% if action == "accept" %}
-    <p>{{reciever}} your metting has been booked</p>
-    {% if action == "delete" %}
-    <p>{{reciever}} your metting has been cancelled call the support team</p>
+    {% if action %} {% if action == "accept" %}
+    <p>{{reciever}} your metting has been accepted by the admin</p>
     {% else %}
+    <p>{{reciever}} your metting has been rejected by the admin</p>
+    {% endif %} {% else %}
     <p>{{reciever}} your metting has been booked</p>
     {% endif %}
   </body>
