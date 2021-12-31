@@ -358,8 +358,6 @@ class AdminView(views.APIView):
 
 
             if action in actions_list:
-                # TODO Send email and say why request has been rejected
-                # TODO Send email and say their request has been accepted
 
                 if action == "DELETE":
                     if slots[0].admin_did_accept:
