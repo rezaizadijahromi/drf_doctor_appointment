@@ -193,8 +193,6 @@ class RoomDetail(views.APIView):
                 id=slot_id
             )
 
-            # TODO Check to not spam
-
             if slot[0].is_pending:
 
                 slot.update(
@@ -202,8 +200,6 @@ class RoomDetail(views.APIView):
                     is_pending=False
                 )
                 
-                # sending a email
-                # TODO sending email
                 email_subject = "Metting has been booked"
                 message = render_to_string(
                     'email_booked.html',
@@ -240,6 +236,8 @@ class RoomDetail(views.APIView):
             })
 
     def delete(request, roomId):
+        user_profile = request.user.userprofile
+
         try:
             data  = request.data
 
@@ -260,6 +258,26 @@ class RoomDetail(views.APIView):
                 patient=None,
                 is_pending=True
             )
+
+              
+            email_subject = "Metting has been cancelled"
+            message = render_to_string(
+                'email_cancell.html',
+                {
+                    "sender": 'punisher1234@gmail.com',
+                    "reciever": user_profile,
+                    'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                    'token': default_token_generator.make_token(request.user)
+                }
+            )
+
+            to_email = request.user.email
+            email = EmailMessage(
+                email_subject, message,
+                to=[to_email]
+            )
+
+            email.send()
 
             return Response({
                 "status": "success",
@@ -309,7 +327,7 @@ class AdminView(views.APIView):
             })
 
     def put(self, request):
-        
+        user_profile = request.user.userprofile
         actions_list = [
             "DELETE", "ACCEPT"
         ]
@@ -339,7 +357,6 @@ class AdminView(views.APIView):
             )
 
 
-
             if action in actions_list:
                 # TODO Send email and say why request has been rejected
                 # TODO Send email and say their request has been accepted
@@ -352,6 +369,27 @@ class AdminView(views.APIView):
                             is_pending=True,
                             admin_did_accept=False
                         )
+
+                                    
+                        email_subject = "Your request has been rejected"
+                        message = render_to_string(
+                            'email_cancell.html',
+                            {
+                                "sender": 'punisher1234@gmail.com',
+                                "reciever": user_profile,
+                                'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                                'token': default_token_generator.make_token(request.user),
+                                "action": "delete"
+                            }
+                        )
+
+                        to_email = request.user.email
+                        email = EmailMessage(
+                            email_subject, message,
+                            to=[to_email]
+                        )
+
+                        email.send()
 
                         return Response({
                             "status":"success",
@@ -370,6 +408,26 @@ class AdminView(views.APIView):
                             admin_did_accept=True,
                             admin_feedback=feed_back
                         )
+
+                                                  
+                        email_subject = "Your request for meeting has been accepted"
+                        message = render_to_string(
+                            'email_cancell.html',
+                            {
+                                "sender": 'punisher1234@gmail.com',
+                                "reciever": user_profile,
+                                'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                                'token': default_token_generator.make_token(request.user),
+                                "action": "accept"
+                            }
+                        )
+                        to_email = request.user.email
+                        email = EmailMessage(
+                            email_subject, message,
+                            to=[to_email]
+                        )
+
+                        email.send()
 
                         return Response({
                             "status":"success",
