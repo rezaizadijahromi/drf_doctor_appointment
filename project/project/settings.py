@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "booking",
     "rest_framework",
     'rest_framework_simplejwt.token_blacklist',
+    "django_apscheduler"
 ]
 
 REST_FRAMEWORK = {
