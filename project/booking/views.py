@@ -1,13 +1,23 @@
 import datetime
 import uuid
+from django.contrib.auth.tokens import default_token_generator
 
-from django.contrib.auth import get_user_model
+from django.core.files.storage import default_storage
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.core.mail import EmailMessage
+
+
+
 from django.core.checks.messages import Error
 from django.db.models import Avg, Count, Max, Min, Sum
 from rest_framework import generics, serializers, status, permissions, views
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+
+from users.models import UserProfile
 
 from .slot_generator import slot_generator
 
@@ -164,6 +174,9 @@ class RoomDetail(views.APIView):
             })
 
     def post(self, request, roomId):
+        user_profile = UserProfile.objects.get(
+            user=request.user
+        )
         try:
             data  = request.data
 
@@ -180,20 +193,79 @@ class RoomDetail(views.APIView):
                 id=slot_id
             )
 
-            # slot.update(
-            #     patient=request.user.userprofile
-            # )
+            # TODO Check to not spam
+
+            if slot[0].is_pending:
+
+                slot.update(
+                    patient=request.user.userprofile,
+                    is_pending=False
+                )
+                
+                # sending a email
+                # TODO sending email
+                email_subject = "Metting has been booked"
+                message = render_to_string(
+                    'email_booked.html',
+                    {
+                        "sender": 'punisher1234@gmail.com',
+                        "reciever": user_profile,
+                        'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                        'token': default_token_generator.make_token(request.user)
+                    }
+                )
+
+                to_email = request.user.email
+                email = EmailMessage(
+                    email_subject, message,
+                    to=[to_email]
+                )
+
+                email.send()
+
+                return Response({
+                    "status": "success",
+                    "message": "You booked a slot wait for admin confirmation"
+                })
+            else:
+                return Response({
+                    "status": "success",
+                    "message": "slot has been in queue"
+                })
+            
+        except Exception as e:
+            return Response({
+                "status": "fail",
+                'message': e
+            })
+
+    def delete(request, roomId):
+        try:
+            data  = request.data
+
+            slot_id = data["slot_id"]
+            date = data["date"]
+
+            room = Room.objects.get(
+                id__exact=roomId
+            )
+
+            slot = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                id=slot_id
+            )
 
             slot.update(
-                patient=request.user.userprofile,
-                is_pending=False
+                patient=None,
+                is_pending=True
             )
 
             return Response({
                 "status": "success",
-                "message": "You booked a slot wait for admin confirmation"
+                "message": "meeting has been cancelled"
             })
-            
+
         except Exception as e:
             return Response({
                 "status": "fail",
