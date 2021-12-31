@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta, date
+import datetime
+# from datetime import datetime, timedelta, date
+
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore, register_events, register_job
@@ -6,7 +8,7 @@ from django_apscheduler.jobstores import DjangoJobStore, register_events, regist
 from .models import Booking, Room
 
 scheduler = BackgroundScheduler()
-scheduler.add_jobstore(DjangoJobStore(), "default", seconds=10)
+scheduler.add_jobstore(DjangoJobStore(), "default", seconds=50)
 
 
 # @register_job(scheduler, "cron", minute=0, replace_existing=True)
@@ -36,6 +38,32 @@ def update_req():
         #             feedback = "Declined on first come first serve basis"
         #             reject.update(admin_did_accept=False,
         #                           is_pending=False, admin_feedback=feedback)
+
+        buffer = datetime.timedelta(minutes=5)
+        todayDate, todayTime = str(datetime.date.today()), datetime.datetime.today().time()
+
+        c_date = "2021-12-26"
+
+
+        for room in Room.objects.all():
+            booking = Booking.objects.filter(is_pending=True, booking_date=c_date, room=room)
+
+
+            now = datetime.datetime.now()
+            now_5_10 = now + datetime.timedelta(minutes = 10)
+
+            # print(now.today().time())
+            # print(now_5_10.time())
+
+
+            for b in booking:
+
+                print(now_5_10.time())
+                if (now_5_10.time()) >= b.start_timing and (now_5_10.time()) <= b.end_timing:
+                    print("need to send email")
+                    print(f"{b.start_timing} to {b.end_timing}")
+
+
         print("Successfully ran the jobs")
     except Exception as e:
         print("Some error occured: "+str(e))
@@ -47,6 +75,6 @@ def update_req():
 
 
 def start():
-    scheduler.add_job(update_req, "interval", seconds=5)
+    scheduler.add_job(update_req, "interval", minutes=1)
     scheduler.start()
     print("Scheduler started!")
