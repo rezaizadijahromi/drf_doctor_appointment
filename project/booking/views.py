@@ -119,8 +119,6 @@ class RoomDetailTime(views.APIView):
                         if time[1].hour == y["start_timing"].hour and time[1].minute > y["start_timing"].minute:
                             y["availabel"] = False
                         elif time[1].hour == y["end_timing"].hour and time[1].minute == y["end_timing"].minute:
-                            print("check: ", time[1].hour, time[1].minute)
-                            print("y: ", y["start_timing"].hour, y["start_timing"].minute)
                             y["start_timing"]
                             # y["availabel"] = False
                             y["end_timing"] = time[0] 
@@ -304,8 +302,6 @@ class AdminView(views.APIView):
                 id__exact=roomId
             )
 
-            print("here0")
-
 
             slots = Booking.objects.filter(
                 room=room,
@@ -460,10 +456,7 @@ class AdminView(views.APIView):
 
             roomId = Room.objects.get(id__exact=room)
             
-            print("debug0")
-
             for slot in time_slots[0:length]:
-                print("debug1")
                 b = Booking.objects.create(
                     room=roomId,
                     booking_date=date,
@@ -472,7 +465,6 @@ class AdminView(views.APIView):
                     is_pending=True,
                     admin_did_accept=False
                 )
-                print("debug2")
 
                 res.append({
                     "start":b.start_timing,
@@ -481,7 +473,6 @@ class AdminView(views.APIView):
                     "admin_did_accept": b.admin_did_accept
                 })
 
-            print("dubg3")
             
             return Response({
                 "success":True,
@@ -525,6 +516,8 @@ class AllBookingView(views.APIView):
     def get(self, request):
         bookings = Booking.objects.all()
         return Response(bookings)
+
+
 
 
 # class BookRoomSlotView(views.APIView):

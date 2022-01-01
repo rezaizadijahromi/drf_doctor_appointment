@@ -10,16 +10,11 @@ def create_profile(sender, instance, created, *args, **kwargs):
             username=instance.username
         )
 
-        print("---test profile created---")
-
 def update_profile(sender, instance, created, *args, **kwargs):
     user_profile, _ = UserProfile.objects.get_or_create(user=instance)
     if not created:
         user_profile.username = instance.username
         user_profile.save()
-
-        print("---test profile updated---")
-
 
 post_save.connect(create_profile, sender=User)
 post_save.connect(update_profile, sender=User)
