@@ -14,6 +14,7 @@ urlpatterns = [
 
     ## admin ##
     path("admin/", views.AdminView.as_view(), name="admin"),
+    path("admin-room/", views.AdminAddRoom.as_view(), name="admin-room")
 
 ]
     # path("slotview/", views.BookRoomSlotView.as_view()),

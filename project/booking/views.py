@@ -517,7 +517,46 @@ class AllBookingView(views.APIView):
         bookings = Booking.objects.all()
         return Response(bookings)
 
+class AdminAddRoom(views.APIView):
+    permission_classes = [IsAdminUser]
 
+    def post(self, request):
+        try:
+            data = request.data
+            room_name = data['name']
+            try:
+                description = data['description']
+            except:
+                description = 'No description'
+            doctor_name = data["doctor_name"]
+
+            doc = UserProfile.objects.get(
+                username=doctor_name
+            )
+            if doc:
+                room = Room.objects.create(
+                    room_name=room_name,
+                    description=description,
+                    doctor=doc
+                )
+
+                serializer_data = RoomSerializer(room).data
+
+                return Response({
+                    'status':'success',
+                    'data': serializer_data
+                })
+            else:
+                return Response({
+                    "status": 'failed',
+                    "message": 'doctor not fund'
+                })
+            
+        except Exception as e:
+            return Response({
+                'status':'failed',
+                'message': e
+            })
 
 
 # class BookRoomSlotView(views.APIView):
