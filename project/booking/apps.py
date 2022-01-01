@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from time import sleep
 
 
 class BookingConfig(AppConfig):
@@ -6,5 +7,6 @@ class BookingConfig(AppConfig):
     name = 'booking'
 
     def ready(self):
-        from .updater import start
-        start()
+        from .updater import startfunc
+        # sleep(5000)
+        startfunc()
