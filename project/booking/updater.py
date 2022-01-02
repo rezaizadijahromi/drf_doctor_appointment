@@ -17,11 +17,13 @@ scheduler = BackgroundScheduler()
 
 
 def send_reminder():
+    print("send reminder")
     try:
-        c_date = "2021-12-26"
+        now = datetime.datetime.now()
+
 
         for room in Room.objects.all():
-            booking = Booking.objects.filter(is_pending=False, booking_date=c_date, room=room)
+            booking = Booking.objects.filter(is_pending=False, booking_date=now, room=room)
 
 
             now = datetime.datetime.now()
@@ -61,13 +63,13 @@ def send_reminder():
 def accpet_request():
     try:
         now = datetime.datetime.now()
-        rounded = (now - (now - datetime.min) % datetime.timedelta(minutes=30)).strftime("%H:%M")
+        rounded = (now - (now - datetime.datetime.min) % datetime.timedelta(minutes=30)).strftime("%H:%M")
 
         print(rounded)
 
         for room in Room.objects.all():
             booking = Booking.objects.filter(
-                is_pending=True, booking_date=datetime.date.today(),room=room
+                is_pending=False,admin_did_accept=False, booking_date=datetime.date.today(),room=room
             )
 
             if not booking.exists():
@@ -95,6 +97,6 @@ def accpet_request():
 
 
 def startfunc():
-    scheduler.add_job(send_reminder, "interval",minutes=2)
+    scheduler.add_job(send_reminder, "interval",minutes=10)
     scheduler.add_job(accpet_request, "interval",minutes=2)
     scheduler.start()
