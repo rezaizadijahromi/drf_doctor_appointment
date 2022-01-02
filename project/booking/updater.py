@@ -63,19 +63,25 @@ def send_reminder():
 def accpet_request():
     try:
         now = datetime.datetime.now()
-        rounded = (now - (now - datetime.datetime.min) % datetime.timedelta(minutes=30)).strftime("%H:%M")
+        rounded = (now - (now - datetime.datetime.min) % datetime.timedelta(minutes=15)).strftime("%H:%M")
 
         print(rounded)
+        print(datetime.date.today())
 
         for room in Room.objects.all():
+            print(room)
             booking = Booking.objects.filter(
-                is_pending=False,admin_did_accept=False, booking_date=datetime.date.today(),room=room
+                is_pending=True,admin_did_accept=False, booking_date=datetime.date.today(),room=room
             )
+
+            print(booking)
 
             if not booking.exists():
                 print("No data to take action upon")
             else:
                 slots = booking.filter(start_timing=rounded)
+
+                print(slots)
                 if not slots.exists():
                     print("This slot doesn't have any pending request") 
                 else:
@@ -98,5 +104,5 @@ def accpet_request():
 
 def startfunc():
     scheduler.add_job(send_reminder, "interval",minutes=10)
-    scheduler.add_job(accpet_request, "interval",minutes=2)
+    scheduler.add_job(accpet_request, "interval",minutes=1)
     scheduler.start()

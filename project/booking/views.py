@@ -157,7 +157,7 @@ class RoomDetail(views.APIView):
             ).order_by(
                 'start_timing', '-admin_did_accept',
                 '-is_pending'
-            ).exclude(admin_did_accept=True, is_pending=False)
+            ).exclude(admin_did_accept=True, is_pending=True)
 
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
             return Response({
@@ -195,7 +195,7 @@ class RoomDetail(views.APIView):
 
                 slot.update(
                     patient=request.user.userprofile,
-                    is_pending=False
+                    is_pending=True
                 )
                 
                 email_subject = "Metting has been booked"
@@ -254,7 +254,7 @@ class RoomDetail(views.APIView):
 
             slot.update(
                 patient=None,
-                is_pending=True
+                is_pending=False
             )
 
               
@@ -306,7 +306,7 @@ class AdminView(views.APIView):
             slots = Booking.objects.filter(
                 room=room,
                 booking_date__exact=date,
-                is_pending=False
+                is_pending=True
             )
 
             slot_serializers = RoomDetailBookSerializer(slots, many=True).data
@@ -348,7 +348,7 @@ class AdminView(views.APIView):
             slots = Booking.objects.filter(
                 room=room,
                 booking_date__exact=date,
-                is_pending=False,
+                is_pending=True,
                 id=slot_id
             )
 
@@ -360,7 +360,7 @@ class AdminView(views.APIView):
                     
                         slots.update(
                             patient=None,
-                            is_pending=True,
+                            is_pending=False,
                             admin_did_accept=False
                         )
 
@@ -462,14 +462,14 @@ class AdminView(views.APIView):
                     booking_date=date,
                     start_timing=slot[0],
                     end_timing=slot[1],
-                    is_pending=True,
+                    is_pending=False,
                     admin_did_accept=False
                 )
 
                 res.append({
                     "start":b.start_timing,
                     "end": b.end_timing,
-                    "is_pending": True,
+                    "is_pending": False,
                     "admin_did_accept": b.admin_did_accept
                 })
 
