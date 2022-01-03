@@ -8,7 +8,7 @@ import Typography from "@material-ui/core/Typography";
 import Icon from "@material-ui/core/Icon";
 import { makeStyles } from "@material-ui/core/styles";
 import axios from "axios";
-import { unstable_HistoryRouter } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { apiConfig } from "../config";
 
@@ -39,9 +39,9 @@ const useStyles = makeStyles((theme) => ({
 
 const SignIn = () => {
   const classes = useStyles();
-  const history = unstable_HistoryRouter();
+  let navigate = useNavigate();
   const [values, setValues] = useState({
-    email: "",
+    username: "",
     password: "",
     error: "",
     redirectToReferrer: false,
@@ -49,11 +49,18 @@ const SignIn = () => {
 
   const clickSubmit = async () => {
     const user = {
-      email: values.email,
+      username: values.username,
       password: values.password,
     };
 
-    const response = await axios.post(apiConfig + "/users/login", user);
+    // const response = await axios.post(`${apiConfig}/users/login`, user);
+
+    const response = await axios.post(
+      `${apiConfig.baseUrl}/users/login/`,
+      user,
+    );
+
+    console.log(response);
 
     localStorage.setItem("userInfo", JSON.stringify(response));
 
@@ -61,15 +68,15 @@ const SignIn = () => {
       setValues({ ...values, error: response.error });
     } else {
       setValues({ ...values, error: "" });
-      history.push("/profile/");
-      window.location.reload();
+      // navigate("/profile");
+      // window.location.reload();
     }
   };
 
-  const handleEmail = (e) => {
+  const handleUsername = (e) => {
     setValues({
       ...values,
-      email: e.target.value,
+      username: e.target.value,
     });
   };
 
@@ -87,12 +94,12 @@ const SignIn = () => {
           Sign In
         </Typography>
         <TextField
-          id="email"
-          type="email"
-          label="Email"
+          id="username"
+          type="text"
+          label="username"
           className={classes.textField}
-          value={values.email}
-          onChange={handleEmail}
+          value={values.username}
+          onChange={handleUsername}
           margin="normal"
         />
         <br />
