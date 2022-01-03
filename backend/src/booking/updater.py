@@ -17,7 +17,6 @@ scheduler = BackgroundScheduler()
 
 
 def send_reminder():
-    print("send reminder")
     try:
         now = datetime.datetime.now()
 
@@ -36,8 +35,6 @@ def send_reminder():
                 user = UserProfile.objects.get(
                     username=b.patient
                 )
-
-                print(user)
 
                 if (now_5_10.time()) >= b.start_timing and (now_5_10.time()) <= b.end_timing:
                     email_subject = "Metting reminder"
