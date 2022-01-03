@@ -1,19 +1,16 @@
-import MainRouter from "./MainRouter";
-import { BrowserRouter } from "react-router-dom";
-import { hot } from "react-hot-loader";
-import { ThemeProvider } from "@material-ui/styles";
-import theme from "./them";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import SignIn from "./AuthComponents/SignIn";
 
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <ThemeProvider theme={theme}>
-          <MainRouter />
-        </ThemeProvider>
-      </BrowserRouter>
+      <Router>
+        <Routes>
+          <Route path="/signin" element={<SignIn />}></Route>
+        </Routes>
+      </Router>
     </div>
   );
 }
 
-export default hot(module)(App);
+export default App;
