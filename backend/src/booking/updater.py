@@ -99,5 +99,5 @@ def accpet_request():
 
 def startfunc():
     scheduler.add_job(send_reminder, "interval",minutes=10)
-    scheduler.add_job(accpet_request, "interval",minutes=1)
+    scheduler.add_job(accpet_request, "interval",minutes=10)
     scheduler.start()
