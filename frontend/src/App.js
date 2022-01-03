@@ -1,25 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
+import MainRouter from "./MainRouter";
+import { BrowserRouter } from "react-router-dom";
+import { hot } from "react-hot-loader";
+import { ThemeProvider } from "@material-ui/styles";
+import theme from "./them";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <MainRouter />
+        </ThemeProvider>
+      </BrowserRouter>
     </div>
   );
 }
 
-export default App;
+export default hot(module)(App);
