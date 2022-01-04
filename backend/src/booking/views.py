@@ -27,7 +27,8 @@ from .serializer import BookingSerializer, RoomSerializer, RoomDetailBookSeriali
 class RoomView(views.APIView):
     def get(self, request):
         rooms = Room.objects.all()
-        return Response(rooms)
+        serializer = RoomSerializer(rooms, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
         try:
