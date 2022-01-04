@@ -42,6 +42,15 @@ const useStyles = makeStyles((theme) => ({
     margin: "auto",
     marginBottom: theme.spacing(2),
   },
+  appBar: {
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  link: {
+    margin: theme.spacing(1, 1.5),
+  },
+  toolbarTitle: {
+    flexGrow: 1,
+  },
 }));
 
 const Home = () => {
@@ -86,8 +95,13 @@ const Home = () => {
           <Grid container spacing={4}>
             {room.map((r, index) => (
               <Grid item key={index} xs={12} sm={6} md={4}>
-                <Card spacing={8}>
-                  <CardMedia component="img" src={r.image}></CardMedia>
+                <Card className={classes.card} spacing={8}>
+                  <CardMedia
+                    className={{
+                      paddingTop: "56.25%",
+                    }}
+                    component="img"
+                    src={r.image}></CardMedia>
                   <CardContent>
                     <Typography gutterBottom variant="h5" component="h2">
                       Room code:{r.id.substring(1, 5)}
@@ -95,9 +109,21 @@ const Home = () => {
                     <Typography>Room Name: {r.room_name}</Typography>
                     <Typography>Doctor Name: {r.doctor_name}</Typography>
                   </CardContent>
-                  <CardActions>
+
+                  <nav>
+                    <Link
+                      color="textPrimary"
+                      href="#"
+                      className={classes.link}
+                      component={NavLink}
+                      to={`room/${r.id}/`}>
+                      Go To Room
+                    </Link>
+                  </nav>
+
+                  {/* <CardActions>
                     <NavLink to={`room/${r.id}/`}>Go To Room</NavLink>
-                  </CardActions>
+                  </CardActions> */}
                 </Card>
               </Grid>
             ))}
