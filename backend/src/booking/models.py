@@ -12,6 +12,8 @@ class Room(models.Model):
     room_name = models.CharField(max_length=255, blank=False, null=False)
     description = models.TextField(null=True, blank=True)
     doctor = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name="doctor")
+    image = models.ImageField(blank = True, null=True, default = "default.png")
+
 
     def doctor_name(self):
         return self.doctor.username
