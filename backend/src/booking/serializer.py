@@ -14,7 +14,7 @@ class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = (
-            "id", "doctor", "room_name", "doctor_name", "description"
+            "id", "doctor", "room_name", "doctor_name", "description", "image"
         )
 
 class RoomDetailBookSerializer(serializers.ModelSerializer):
