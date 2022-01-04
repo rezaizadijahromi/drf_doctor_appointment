@@ -1,5 +1,8 @@
 from django.db.models import fields
 from rest_framework import serializers
+
+from users.serializers import UserProfileSerializer
+
 from .models import Room, Booking
 
 class BookingSerializer(serializers.ModelSerializer):
@@ -8,11 +11,11 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class RoomSerializer(serializers.ModelSerializer):
-    # booking = Booking(many=True, read_only=True)
-
     class Meta:
         model = Room
-        fields = "__all__"
+        fields = (
+            "id", "doctor", "room_name", "doctor_name", "description"
+        )
 
 class RoomDetailBookSerializer(serializers.ModelSerializer):
     class Meta:

@@ -13,6 +13,9 @@ class Room(models.Model):
     description = models.TextField(null=True, blank=True)
     doctor = models.ForeignKey(UserProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name="doctor")
 
+    def doctor_name(self):
+        return self.doctor.username
+
     def __str__(self):
         return f'{self.room_name} with id {self.id} is full'
 
