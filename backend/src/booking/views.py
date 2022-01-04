@@ -161,6 +161,7 @@ class RoomDetail(views.APIView):
             ).exclude(admin_did_accept=True, is_pending=True)
 
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
+
             return Response({
                 "status": "success",
                 "data": serializer_data
@@ -168,7 +169,7 @@ class RoomDetail(views.APIView):
             })  
         except Exception as e:
             return Response({
-                "status": "success",
+                "status": "failed",
                 'message': e
             })
 

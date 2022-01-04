@@ -6,9 +6,10 @@ app_name = "booking"
 
 urlpatterns = [
     path("room/", views.RoomView.as_view(), name="room"),
+    path("room/<str:roomId>/", views.RoomDetail.as_view(), name="detail"),
+    
     path("room-detail/", views.RoomDetailTime.as_view(), name="room-detail"),
 
-    path("room/<str:roomId>/", views.RoomDetail.as_view(), name="detail"),
 
     path("past/", views.UserPastBookingsView.as_view()),
 
