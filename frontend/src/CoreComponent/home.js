@@ -5,16 +5,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
 import { apiConfig } from "../config";
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
-import Icon from "@material-ui/core/Icon";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
 import { CardMedia, Container, Grid } from "@material-ui/core";
 import { NavLink } from "react-router-dom";
 
@@ -41,6 +32,15 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: "auto",
     marginBottom: theme.spacing(2),
+  },
+  appBar: {
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  link: {
+    margin: theme.spacing(1, 1.5),
+  },
+  toolbarTitle: {
+    flexGrow: 1,
   },
 }));
 
@@ -86,8 +86,13 @@ const Home = () => {
           <Grid container spacing={4}>
             {room.map((r, index) => (
               <Grid item key={index} xs={12} sm={6} md={4}>
-                <Card spacing={8}>
-                  <CardMedia component="img" src={r.image}></CardMedia>
+                <Card className={classes.card} spacing={8}>
+                  <CardMedia
+                    className={{
+                      paddingTop: "56.25%",
+                    }}
+                    component="img"
+                    src={r.image}></CardMedia>
                   <CardContent>
                     <Typography gutterBottom variant="h5" component="h2">
                       Room code:{r.id.substring(1, 5)}
@@ -95,9 +100,21 @@ const Home = () => {
                     <Typography>Room Name: {r.room_name}</Typography>
                     <Typography>Doctor Name: {r.doctor_name}</Typography>
                   </CardContent>
-                  <CardActions>
+
+                  <nav>
+                    <Link
+                      color="textPrimary"
+                      href="#"
+                      className={classes.link}
+                      component={NavLink}
+                      to={`room/${r.id}/`}>
+                      Go To Room
+                    </Link>
+                  </nav>
+
+                  {/* <CardActions>
                     <NavLink to={`room/${r.id}/`}>Go To Room</NavLink>
-                  </CardActions>
+                  </CardActions> */}
                 </Card>
               </Grid>
             ))}
