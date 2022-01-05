@@ -1,12 +1,18 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import { Link } from "react-router-dom";
 import { apiConfig } from "../config";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import { CardMedia, Container, Grid } from "@material-ui/core";
+
+import {
+  Card,
+  Typography,
+  CardContent,
+  Grid,
+  CardMedia,
+  Container,
+} from "@mui/material";
+
 import { NavLink } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -22,22 +28,16 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     marginTop: theme.spacing(2),
-    // color: theme.palette.openTitle,
+    color: theme.palette.openTitle,
   },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: 300,
+    width: 250,
   },
   submit: {
     margin: "auto",
     marginBottom: theme.spacing(2),
-  },
-  appBar: {
-    borderBottom: `1px solid ${theme.palette.divider}`,
-  },
-  link: {
-    margin: theme.spacing(1, 1.5),
   },
   toolbarTitle: {
     flexGrow: 1,
@@ -94,11 +94,19 @@ const Home = () => {
                     component="img"
                     src={r.image}></CardMedia>
                   <CardContent>
-                    <Typography gutterBottom variant="h5" component="h2">
+                    <Typography
+                      className={classes.textField}
+                      gutterBottom
+                      variant="h5"
+                      component="h2">
                       Room code:{r.id.substring(1, 5)}
                     </Typography>
-                    <Typography>Room Name: {r.room_name}</Typography>
-                    <Typography>Doctor Name: {r.doctor_name}</Typography>
+                    <Typography className={classes.textField}>
+                      Room Name: {r.room_name}
+                    </Typography>
+                    <Typography className={classes.textField}>
+                      Doctor Name: {r.doctor_name}
+                    </Typography>
                   </CardContent>
 
                   <nav>

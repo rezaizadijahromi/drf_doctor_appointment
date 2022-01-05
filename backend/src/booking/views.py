@@ -147,8 +147,10 @@ class RoomDetail(views.APIView):
         try:
             
             data = request.data
-
-            date = data["date"]
+            try:
+                date = data["date"]
+            except:
+                date = "2022-01-02 "
             room = Room.objects.get(id__exact=roomId)
 
 

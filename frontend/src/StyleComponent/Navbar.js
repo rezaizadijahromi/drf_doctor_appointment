@@ -1,19 +1,23 @@
 import React from "react";
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
+
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  CssBaseline,
+  Link,
+  Button,
+} from "@mui/material";
 import { NavLink } from "react-router-dom";
-import Link from "@material-ui/core/Link";
-import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
     borderBottom: `1px solid ${theme.palette.divider}`,
   },
   link: {
-    margin: theme.spacing(1, 1.5),
+    margin: theme.spacing(10),
+    padding: theme.spacing(1, 1.5),
   },
   toolbarTitle: {
     flexGrow: 1,
