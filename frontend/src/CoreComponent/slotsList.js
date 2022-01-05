@@ -1,22 +1,13 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+// import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@mui/styles";
 import { apiConfig } from "../config";
-import Card from "@material-ui/core/Card";
-// import CardContent from "@material-ui/core/CardContent";
-// import { Calendar, MuiPickersUtilsProvider } from "@material-ui/pickers";
-// import DateFnsUtils from "@date-io/date-fns";
-import {
-  Box,
-  ButtonGroup,
-  CardContent,
-  FormControl,
-  Grid,
-  InputLabel,
-  Paper,
-} from "@material-ui/core";
+import { Box, ButtonGroup, Grid, Paper, Button } from "@mui/material";
+// import AdapterDateFns from "@mui/lab/AdapterDateFns";
+// import LocalizationProvider from "@mui/lab/LocalizationProvider";
+// import DateTimePicker from "@mui/lab/DateTimePicker";
 
 import { useParams } from "react-router-dom";
 
@@ -33,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     marginTop: theme.spacing(2),
-    // color: theme.palette.openTitle,
+    color: theme.palette.openTitle,
   },
   textField: {
     marginLeft: theme.spacing(1),
@@ -62,8 +53,8 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-end",
+    justifyContent: "flex-end",
   },
   formControl: {
     margin: theme.spacing(1),
@@ -117,7 +108,6 @@ const SlotList = ({ match }) => {
         `${apiConfig.baseUrl}/booking/room/${id}`,
         config,
       );
-      console.log(data.data.data);
       setValue(data.data.data);
     }
   };
@@ -135,28 +125,21 @@ const SlotList = ({ match }) => {
     <Box className={classes.outerbox}>
       <Paper className={classes.paper} elevation={3}>
         <Box m={3}>
-          <Grid item sm>
-            <ButtonGroup size="large" color="primary">
+          <Grid item xs={12}>
+            <Grid container justifyContent="center" spacing={2}>
               {value.map((slots, index) => (
-                <Card lassName="my-3 p-3 rounded" key={slots.id}>
-                  <CardContent>
-                    <Link to={`/room/${slots.id}`}>
-                      <Typography as="div">
-                        <strong>{slots.id}</strong>
-                      </Typography>
-                    </Link>
-                  </CardContent>
-
-                  <Typography as="div">{slots.start_timing}</Typography>
-                  <Typography as="div">{slots.end_timing}</Typography>
-                </Card>
+                <Grid key={value} item>
+                  <ButtonGroup
+                    variant="contained"
+                    aria-label="outlined primary button group">
+                    <Button>
+                      {slots.start_timing} - {slots.end_timing}
+                    </Button>
+                  </ButtonGroup>
+                </Grid>
               ))}
-            </ButtonGroup>
+            </Grid>
           </Grid>
-
-          <Box mt={5} mb={5}>
-            <Grid container></Grid>
-          </Box>
         </Box>
       </Paper>
     </Box>
@@ -164,3 +147,22 @@ const SlotList = ({ match }) => {
 };
 
 export default SlotList;
+
+// <Grid item sm>
+// <ButtonGroup size="large" color="primary">
+//   {value.map((slots, index) => (
+//     <Card key={slots.id}>
+//       <CardContent>
+//         <Link to={`/room/${slots.id}`}>
+//           <Typography>
+//             <strong>{slots.id}</strong>
+//           </Typography>
+//         </Link>
+//       </CardContent>
+
+//       <Typography>{slots.start_timing}</Typography>
+//       <Typography>{slots.end_timing}</Typography>
+//     </Card>
+//   ))}
+// </ButtonGroup>
+// </Grid>

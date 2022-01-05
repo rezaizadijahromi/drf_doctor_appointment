@@ -1,12 +1,18 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@mui/styles";
 import { Link } from "react-router-dom";
 import { apiConfig } from "../config";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import { CardMedia, Container, Grid } from "@material-ui/core";
+
+import {
+  Card,
+  Typography,
+  CardContent,
+  Grid,
+  CardMedia,
+  Container,
+} from "@mui/material";
+
 import { NavLink } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
