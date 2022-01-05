@@ -28,22 +28,16 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     marginTop: theme.spacing(2),
-    // color: theme.palette.openTitle,
+    color: theme.palette.openTitle,
   },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
-    width: 300,
+    width: 250,
   },
   submit: {
     margin: "auto",
     marginBottom: theme.spacing(2),
-  },
-  appBar: {
-    borderBottom: `1px solid ${theme.palette.divider}`,
-  },
-  link: {
-    margin: theme.spacing(1, 1.5),
   },
   toolbarTitle: {
     flexGrow: 1,
@@ -100,11 +94,19 @@ const Home = () => {
                     component="img"
                     src={r.image}></CardMedia>
                   <CardContent>
-                    <Typography gutterBottom variant="h5" component="h2">
+                    <Typography
+                      className={classes.textField}
+                      gutterBottom
+                      variant="h5"
+                      component="h2">
                       Room code:{r.id.substring(1, 5)}
                     </Typography>
-                    <Typography>Room Name: {r.room_name}</Typography>
-                    <Typography>Doctor Name: {r.doctor_name}</Typography>
+                    <Typography className={classes.textField}>
+                      Room Name: {r.room_name}
+                    </Typography>
+                    <Typography className={classes.textField}>
+                      Doctor Name: {r.doctor_name}
+                    </Typography>
                   </CardContent>
 
                   <nav>

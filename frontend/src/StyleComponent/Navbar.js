@@ -16,7 +16,8 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: `1px solid ${theme.palette.divider}`,
   },
   link: {
-    margin: theme.spacing(1, 3),
+    margin: theme.spacing(10),
+    padding: theme.spacing(1, 1.5),
   },
   toolbarTitle: {
     flexGrow: 1,
