@@ -145,14 +145,13 @@ class RoomDetail(views.APIView):
 
     def get(self, request, roomId):
         try:
-            
+            now = datetime.datetime.now().date()
             data = request.data
             try:
                 date = data["date"]
             except:
-                date = "2022-01-02"
+                date = now
             room = Room.objects.get(id__exact=roomId)
-
 
             times = Booking.objects.filter(
                 room=room,
@@ -164,11 +163,22 @@ class RoomDetail(views.APIView):
 
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
 
-            return Response({
-                "status": "success",
-                "data": serializer_data
-                
-            })  
+            room_serializer = RoomSerializer(room).data
+
+            if len(serializer_data) > 0:
+                return Response({
+                    "status": "success",
+                    "data": serializer_data,
+                    "date": date,
+                    "doctor_information": room_serializer
+                })  
+            else:
+                return Response({
+                    "status": "success",
+                    "data": [],
+                    "date": date,
+                    "doctor_information": room_serializer
+                })
         except Exception as e:
             return Response({
                 "status": "failed",

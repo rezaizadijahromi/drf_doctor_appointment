@@ -18,6 +18,9 @@ class Room(models.Model):
     def doctor_name(self):
         return self.doctor.username
 
+    def get_vote_ratio(self):
+        return self.doctor.vote_ratio
+
     def __str__(self):
         return f'{self.room_name} with id {self.id} is full'
 
