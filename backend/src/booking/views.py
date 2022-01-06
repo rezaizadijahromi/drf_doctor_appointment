@@ -170,14 +170,18 @@ class RoomDetail(views.APIView):
                     "status": "success",
                     "data": serializer_data,
                     "date": date,
-                    "doctor_information": room_serializer
+                    "doctor_information": room_serializer,
+                    "skills": room.doctor.get_skills(),
+                    "intrests": room.doctor.get_intrests(),
                 })  
             else:
                 return Response({
                     "status": "success",
                     "data": [],
                     "date": date,
-                    "doctor_information": room_serializer
+                    "doctor_information": room_serializer,
+                    "skills": room.doctor.get_skills(),
+                    "intrests": room.doctor.get_intrests(),
                 })
         except Exception as e:
             return Response({
