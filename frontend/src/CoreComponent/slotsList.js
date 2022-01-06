@@ -27,6 +27,8 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 300,
+    marginTop: 10,
+    paddingTop: 5,
   },
   textFieldInline: {
     marginLeft: theme.spacing(1),
@@ -36,6 +38,8 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-block",
     border: `1px solid ${theme.palette.divider}`,
     backgroundColor: "darkgray",
+    marginTop: 10,
+    marginBottom: 5,
   },
   submit: {
     margin: "auto",
@@ -56,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   paper1: {
     margin: theme.spacing(2),
     width: theme.spacing(75),
-    height: theme.spacing(80),
+    height: theme.spacing(55),
   },
   outerbox: {
     height: "100%",
@@ -77,20 +81,55 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
   },
-
   card: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
     maxWidth: 600,
     margin: "auto",
     textAlign: "center",
     marginTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
   },
+
+  leftContentContainer: {
+    gridColumn: 1,
+    marginTop: 5,
+  },
+  rightContentContainer: {
+    gridColumn: 2,
+    marginLeft: 10,
+    border: "1px solid #000",
+  },
+  imgContainer: {
+    height: 170,
+    width: 250,
+  },
+  DateContainer: {
+    marginTop: 20,
+  },
 }));
 
 const SlotList = ({ match }) => {
   const classes = useStyles();
+  let newTime = new Date();
+  let todayTime =
+    newTime.getHours() +
+    ":" +
+    newTime.getMinutes() +
+    ":" +
+    newTime.getSeconds();
 
-  const [date, setDate] = useState(new Date(""));
+  var todayDate = `${newTime.getFullYear()}-${
+    newTime.getMonth() + 1
+  }-${newTime.getDate()}`;
+
+  // console.log(todayDate);
+  console.log(`${todayDate}T${todayTime}`);
+
+  // 2022-1-6T12:57:32
+  // '2014-08-18T21:11:54'
+
+  const [date, setDate] = useState(new Date(`${todayDate}T${todayTime}`));
   const [value, setValue] = useState([
     {
       id: "",
@@ -161,36 +200,16 @@ const SlotList = ({ match }) => {
           <Paper className={classes.paper1} elevation={1}>
             <Box m={3}>
               <Grid item xs={12}>
-                <Grid container justifyContent="center" spacing={2}>
-                  <LocalizationProvider dateAdapter={AdapterDateFns}>
-                    <DateTimePicker
-                      label="Date&Time picker"
-                      value={value}
-                      onChange={handelDate}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </LocalizationProvider>
-                </Grid>
                 <div className={classes.card}>
-                  <Typography
-                    className={classes.textField}
-                    gutterBottom
-                    variant="h5"
-                    component="h1">
-                    Doctor Information
-                  </Typography>
-                  <CardMedia
-                    className={{
-                      paddingTop: "56.25%",
-                    }}
-                    component="img"
-                    src={doctorImage}></CardMedia>
-                  <CardContent>
-                    <Typography
-                      className={classes.textField}
-                      gutterBottom
-                      variant="h5"
-                      component="h2">
+                  <div className={classes.imgContainer}>
+                    <CardMedia
+                      className={classes.ImageDoc}
+                      component="img"
+                      src={doctorImage}></CardMedia>
+                  </div>
+
+                  <div className={classes.rightContentContainer}>
+                    <Typography className={classes.textField} gutterBottom>
                       Room Name:{docInfo.room_name}
                     </Typography>
                     <Typography className={classes.textField}>
@@ -240,9 +259,22 @@ const SlotList = ({ match }) => {
                     ) : (
                       ""
                     )}
-                  </CardContent>
+                  </div>
                 </div>
               </Grid>
+
+              <div className={classes.DateContainer}>
+                <Grid container justifyContent="center" spacing={2}>
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <DateTimePicker
+                      label="Date&Time picker"
+                      value={date}
+                      onChange={handelDate}
+                      renderInput={(params) => <TextField {...params} />}
+                    />
+                  </LocalizationProvider>
+                </Grid>
+              </div>
             </Box>
           </Paper>
         </Box>
