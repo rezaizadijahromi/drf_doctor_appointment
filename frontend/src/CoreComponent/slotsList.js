@@ -10,6 +10,7 @@ import {
   Paper,
   Button,
   TextField,
+  Typography,
 } from "@mui/material";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 // import AdapterDateFns from "@mui/lab/AdapterDateFns";
@@ -80,6 +81,17 @@ const SlotList = ({ match }) => {
     },
   ]);
 
+  const [docInfo, setDocInfo] = useState({
+    room_name: "",
+    doctor_name: "",
+    description: "",
+    get_vote_ratio: 0,
+  });
+
+  const [skills, setSkills] = useState([]);
+  const [intrests, setIntrests] = useState([]);
+  const [error, setError] = useState(false);
+
   let { id } = useParams();
 
   const slotListData = async () => {
@@ -96,8 +108,15 @@ const SlotList = ({ match }) => {
         `${apiConfig.baseUrl}/booking/room/${id}`,
         config,
       );
-      setValue(data.data.data);
-      setDate(data.data.date);
+      if (data.data.status === "success") {
+        setValue(data.data.data);
+        setDate(data.data.date);
+        setDocInfo(data.data.doctor_information);
+        setSkills(data.data.skills);
+        setIntrests(data.data.intrests);
+      } else {
+        setError(true);
+      }
 
       console.log(data.data);
     }
@@ -130,6 +149,15 @@ const SlotList = ({ match }) => {
                     />
                   </LocalizationProvider>
                 </Grid>
+                <Typography variant="h5" component="h5" mt={2}>
+                  {docInfo.room_name}
+                </Typography>
+                <Typography variant="h5" component="h5" mt={2}>
+                  {docInfo.doctor_name}
+                </Typography>
+                <Typography variant="h5" component="h5" mt={2}>
+                  {docInfo.get_vote_ratio}
+                </Typography>
               </Grid>
             </Box>
           </Paper>
