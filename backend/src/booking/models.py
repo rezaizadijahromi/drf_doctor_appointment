@@ -27,6 +27,13 @@ class Room(models.Model):
     def get_intrests(self):
         return self.intrests.all().values_list('name', flat=True).distinct()
 
+    def get_profile_pic(self):
+        try:
+            pic = self.doctor.profile_pic.url
+        except:
+            pic = None
+        return pic
+
     def __str__(self):
         return f'{self.room_name} with id {self.id} is full'
 
