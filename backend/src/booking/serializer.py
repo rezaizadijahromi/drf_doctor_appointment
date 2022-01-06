@@ -17,6 +17,9 @@ class RoomSerializer(serializers.ModelSerializer):
             "id", "doctor", "room_name", "doctor_name", "description", "image", "get_vote_ratio"
         )
 
+    def get_skills(self):
+        return self.get_skills()
+
 class RoomDetailBookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking

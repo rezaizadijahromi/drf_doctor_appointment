@@ -21,6 +21,12 @@ class Room(models.Model):
     def get_vote_ratio(self):
         return self.doctor.vote_ratio
 
+    def get_skills(self):
+        return self.skills.all().values_list('name', flat=True).distinct()
+
+    def get_intrests(self):
+        return self.intrests.all().values_list('name', flat=True).distinct()
+
     def __str__(self):
         return f'{self.room_name} with id {self.id} is full'
 

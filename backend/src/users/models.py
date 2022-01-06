@@ -26,5 +26,12 @@ class UserProfile(models.Model):
     email_verified = models.BooleanField(default=False)
     id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
 
+
+    def get_skills(self):
+        return self.skills.all().values_list('name', flat=True).distinct()
+
+    def get_intrests(self):
+        return self.intrests.all().values_list('name', flat=True).distinct()
+
     def __str__(self):
         return str(self.user.username) 
