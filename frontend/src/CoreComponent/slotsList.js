@@ -11,6 +11,9 @@ import {
   Button,
   TextField,
   Typography,
+  Card,
+  CardMedia,
+  CardContent,
 } from "@mui/material";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 // import AdapterDateFns from "@mui/lab/AdapterDateFns";
@@ -24,6 +27,15 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 300,
+  },
+  textFieldInline: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 100,
+    paddingLeft: theme.spacing(1),
+    display: "inline-block",
+    border: `1px solid ${theme.palette.divider}`,
+    backgroundColor: "darkgray",
   },
   submit: {
     margin: "auto",
@@ -44,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
   paper1: {
     margin: theme.spacing(2),
     width: theme.spacing(75),
-    height: theme.spacing(55),
+    height: theme.spacing(80),
   },
   outerbox: {
     height: "100%",
@@ -64,6 +76,14 @@ const useStyles = makeStyles((theme) => ({
   rightBox: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
+  },
+
+  card: {
+    maxWidth: 600,
+    margin: "auto",
+    textAlign: "center",
+    marginTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
 }));
 
@@ -88,6 +108,7 @@ const SlotList = ({ match }) => {
     get_vote_ratio: 0,
   });
 
+  const [doctorImage, setDoctorImage] = useState("");
   const [skills, setSkills] = useState([]);
   const [intrests, setIntrests] = useState([]);
   const [error, setError] = useState(false);
@@ -114,6 +135,7 @@ const SlotList = ({ match }) => {
         setDocInfo(data.data.doctor_information);
         setSkills(data.data.skills);
         setIntrests(data.data.intrests);
+        setDoctorImage(data.data.doctor_pic);
       } else {
         setError(true);
       }
@@ -149,15 +171,77 @@ const SlotList = ({ match }) => {
                     />
                   </LocalizationProvider>
                 </Grid>
-                <Typography variant="h5" component="h5" mt={2}>
-                  {docInfo.room_name}
-                </Typography>
-                <Typography variant="h5" component="h5" mt={2}>
-                  {docInfo.doctor_name}
-                </Typography>
-                <Typography variant="h5" component="h5" mt={2}>
-                  {docInfo.get_vote_ratio}
-                </Typography>
+                <div className={classes.card}>
+                  <Typography
+                    className={classes.textField}
+                    gutterBottom
+                    variant="h5"
+                    component="h1">
+                    Doctor Information
+                  </Typography>
+                  <CardMedia
+                    className={{
+                      paddingTop: "56.25%",
+                    }}
+                    component="img"
+                    src={doctorImage}></CardMedia>
+                  <CardContent>
+                    <Typography
+                      className={classes.textField}
+                      gutterBottom
+                      variant="h5"
+                      component="h2">
+                      Room Name:{docInfo.room_name}
+                    </Typography>
+                    <Typography className={classes.textField}>
+                      Doctor Name: {docInfo.doctor_name}
+                    </Typography>
+                    <Typography className={classes.textField}>
+                      Vote Ratio: {docInfo.get_vote_ratio}/5
+                    </Typography>
+
+                    {docInfo.description ? (
+                      <Typography className={classes.textField}>
+                        {" "}
+                        {docInfo.description}{" "}
+                      </Typography>
+                    ) : (
+                      ""
+                    )}
+
+                    {skills.length > 0 ? (
+                      <Typography className={classes.textField}>
+                        {skills.map((skill, index) => {
+                          return (
+                            <Typography
+                              className={classes.textFieldInline}
+                              key={index}>
+                              {skill}
+                            </Typography>
+                          );
+                        })}{" "}
+                      </Typography>
+                    ) : (
+                      ""
+                    )}
+
+                    {intrests.length > 0 ? (
+                      <Typography className={classes.textField}>
+                        {intrests.map((intrest, index) => {
+                          return (
+                            <Typography
+                              className={classes.textFieldInline}
+                              key={index}>
+                              {intrest}
+                            </Typography>
+                          );
+                        })}{" "}
+                      </Typography>
+                    ) : (
+                      ""
+                    )}
+                  </CardContent>
+                </div>
               </Grid>
             </Box>
           </Paper>
