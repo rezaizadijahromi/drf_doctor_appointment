@@ -10,6 +10,10 @@ import {
   Paper,
   Button,
   TextField,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
 } from "@mui/material";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 // import AdapterDateFns from "@mui/lab/AdapterDateFns";
@@ -23,6 +27,19 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     width: 300,
+    marginTop: 10,
+    paddingTop: 5,
+  },
+  textFieldInline: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    width: 100,
+    paddingLeft: theme.spacing(1),
+    display: "inline-block",
+    border: `1px solid ${theme.palette.divider}`,
+    backgroundColor: "darkgray",
+    marginTop: 10,
+    marginBottom: 5,
   },
   submit: {
     margin: "auto",
@@ -64,12 +81,55 @@ const useStyles = makeStyles((theme) => ({
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
   },
+  card: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    maxWidth: 600,
+    margin: "auto",
+    textAlign: "center",
+    marginTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+  },
+
+  leftContentContainer: {
+    gridColumn: 1,
+    marginTop: 5,
+  },
+  rightContentContainer: {
+    gridColumn: 2,
+    marginLeft: 10,
+    border: "1px solid #000",
+  },
+  imgContainer: {
+    height: 170,
+    width: 250,
+  },
+  DateContainer: {
+    marginTop: 20,
+  },
 }));
 
 const SlotList = ({ match }) => {
   const classes = useStyles();
+  let newTime = new Date();
+  let todayTime =
+    newTime.getHours() +
+    ":" +
+    newTime.getMinutes() +
+    ":" +
+    newTime.getSeconds();
 
-  const [date, setDate] = useState(new Date(""));
+  var todayDate = `${newTime.getFullYear()}-${
+    newTime.getMonth() + 1
+  }-${newTime.getDate()}`;
+
+  // console.log(todayDate);
+  console.log(`${todayDate}T${todayTime}`);
+
+  // 2022-1-6T12:57:32
+  // '2014-08-18T21:11:54'
+
+  const [date, setDate] = useState(new Date(`${todayDate}T${todayTime}`));
   const [value, setValue] = useState([
     {
       id: "",
@@ -79,6 +139,18 @@ const SlotList = ({ match }) => {
       patient: "",
     },
   ]);
+
+  const [docInfo, setDocInfo] = useState({
+    room_name: "",
+    doctor_name: "",
+    description: "",
+    get_vote_ratio: 0,
+  });
+
+  const [doctorImage, setDoctorImage] = useState("");
+  const [skills, setSkills] = useState([]);
+  const [intrests, setIntrests] = useState([]);
+  const [error, setError] = useState(false);
 
   let { id } = useParams();
 
@@ -96,8 +168,16 @@ const SlotList = ({ match }) => {
         `${apiConfig.baseUrl}/booking/room/${id}`,
         config,
       );
-      setValue(data.data.data);
-      setDate(data.data.date);
+      if (data.data.status === "success") {
+        setValue(data.data.data);
+        setDate(data.data.date);
+        setDocInfo(data.data.doctor_information);
+        setSkills(data.data.skills);
+        setIntrests(data.data.intrests);
+        setDoctorImage(data.data.doctor_pic);
+      } else {
+        setError(true);
+      }
 
       console.log(data.data);
     }
@@ -120,17 +200,81 @@ const SlotList = ({ match }) => {
           <Paper className={classes.paper1} elevation={1}>
             <Box m={3}>
               <Grid item xs={12}>
+                <div className={classes.card}>
+                  <div className={classes.imgContainer}>
+                    <CardMedia
+                      className={classes.ImageDoc}
+                      component="img"
+                      src={doctorImage}></CardMedia>
+                  </div>
+
+                  <div className={classes.rightContentContainer}>
+                    <Typography className={classes.textField} gutterBottom>
+                      Room Name:{docInfo.room_name}
+                    </Typography>
+                    <Typography className={classes.textField}>
+                      Doctor Name: {docInfo.doctor_name}
+                    </Typography>
+                    <Typography className={classes.textField}>
+                      Vote Ratio: {docInfo.get_vote_ratio}/5
+                    </Typography>
+
+                    {docInfo.description ? (
+                      <Typography className={classes.textField}>
+                        {" "}
+                        {docInfo.description}{" "}
+                      </Typography>
+                    ) : (
+                      ""
+                    )}
+
+                    {skills.length > 0 ? (
+                      <Typography className={classes.textField}>
+                        {skills.map((skill, index) => {
+                          return (
+                            <Typography
+                              className={classes.textFieldInline}
+                              key={index}>
+                              {skill}
+                            </Typography>
+                          );
+                        })}{" "}
+                      </Typography>
+                    ) : (
+                      ""
+                    )}
+
+                    {intrests.length > 0 ? (
+                      <Typography className={classes.textField}>
+                        {intrests.map((intrest, index) => {
+                          return (
+                            <Typography
+                              className={classes.textFieldInline}
+                              key={index}>
+                              {intrest}
+                            </Typography>
+                          );
+                        })}{" "}
+                      </Typography>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </div>
+              </Grid>
+
+              <div className={classes.DateContainer}>
                 <Grid container justifyContent="center" spacing={2}>
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DateTimePicker
                       label="Date&Time picker"
-                      value={value}
+                      value={date}
                       onChange={handelDate}
                       renderInput={(params) => <TextField {...params} />}
                     />
                   </LocalizationProvider>
                 </Grid>
-              </Grid>
+              </div>
             </Box>
           </Paper>
         </Box>

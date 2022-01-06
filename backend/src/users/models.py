@@ -33,5 +33,12 @@ class UserProfile(models.Model):
     def get_intrests(self):
         return self.intrests.all().values_list('name', flat=True).distinct()
 
+    def get_profile_pic(self):
+        try:
+            pic = self.profile_pic.url
+        except:
+            pic = None
+        return pic
+
     def __str__(self):
         return str(self.user.username) 

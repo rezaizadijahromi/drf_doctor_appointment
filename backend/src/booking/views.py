@@ -164,6 +164,8 @@ class RoomDetail(views.APIView):
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
 
             room_serializer = RoomSerializer(room).data
+        
+            print(room.doctor.get_profile_pic())
 
             if len(serializer_data) > 0:
                 return Response({
@@ -173,6 +175,7 @@ class RoomDetail(views.APIView):
                     "doctor_information": room_serializer,
                     "skills": room.doctor.get_skills(),
                     "intrests": room.doctor.get_intrests(),
+                    "doctor_pic": room.doctor.get_profile_pic()
                 })  
             else:
                 return Response({
@@ -182,6 +185,7 @@ class RoomDetail(views.APIView):
                     "doctor_information": room_serializer,
                     "skills": room.doctor.get_skills(),
                     "intrests": room.doctor.get_intrests(),
+                    "doctor_pic": room.doctor.get_profile_pic()
                 })
         except Exception as e:
             return Response({
