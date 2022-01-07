@@ -257,6 +257,7 @@ class BookAppointment(views.APIView):
 
             date = data["date"]
             slot_id = data["slot_id"]
+
             room = Room.objects.get(
                 id__exact=roomId
             )
@@ -267,42 +268,48 @@ class BookAppointment(views.APIView):
                 id=slot_id
             )
 
-            if slot[0].is_pending:
+            if len(slot):
 
-                slot.update(
-                    patient=request.user.userprofile,
-                    is_pending=True
-                )
-                
-                email_subject = "Metting has been booked"
-                message = render_to_string(
-                    'email_booked.html',
-                    {
-                        "sender": 'punisher1234@gmail.com',
-                        "reciever": user_profile,
-                        'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
-                        'token': default_token_generator.make_token(request.user)
-                    }
-                )
+                if not slot[0].is_pending:
 
-                to_email = request.user.email
-                email = EmailMessage(
-                    email_subject, message,
-                    to=[to_email]
-                )
+                    slot.update(
+                        patient=request.user.userprofile,
+                        is_pending=True
+                    )
+                    
+                    email_subject = "Metting has been booked"
+                    message = render_to_string(
+                        'email_booked.html',
+                        {
+                            "sender": 'punisher1234@gmail.com',
+                            "reciever": user_profile,
+                            'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                            'token': default_token_generator.make_token(request.user)
+                        }
+                    )
 
-                email.send()
+                    to_email = request.user.email
+                    email = EmailMessage(
+                        email_subject, message,
+                        to=[to_email]
+                    )
 
-                return Response({
-                    "status": "success",
-                    "message": "You booked a slot wait for admin confirmation"
-                })
+                    email.send()
+
+                    return Response({
+                        "status": "success",
+                        "message": "You booked a slot wait for admin confirmation"
+                    })
+                else:
+                    return Response({
+                        "status": "success",
+                        "message": "slot has been in queue"
+                    })
             else:
                 return Response({
                     "status": "success",
-                    "message": "slot has been in queue"
+                    "message": "No data"
                 })
-            
         except Exception as e:
             return Response({
                 "status": "fail",

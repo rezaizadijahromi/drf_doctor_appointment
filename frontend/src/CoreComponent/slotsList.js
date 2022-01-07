@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect, useCallback } from "react";
 // import { makeStyles } from "@material-ui/core/styles";
-import { makeStyles } from "@mui/styles";
 import { apiConfig } from "../config";
 import { useParams } from "react-router";
 import SlotListComponent from "./slotListComponent";
@@ -75,6 +74,7 @@ const SlotList = ({ match }) => {
           setError(true);
         }
         console.log(data.data);
+        console.log(error);
       } else {
         const data = await axios.get(
           `${apiConfig.baseUrl}/booking/room/${id}/`,
@@ -91,10 +91,11 @@ const SlotList = ({ match }) => {
         } else {
           setError(true);
         }
+        console.log(error);
         console.log(data.data);
       }
     }
-  }, [date, id, loaded, todayDate]);
+  }, [date, id, loaded, todayDate, error]);
 
   // `${newTime.getFullYear()}-${
   //   newTime.getMonth() + 1
@@ -104,6 +105,32 @@ const SlotList = ({ match }) => {
     setDate(
       `${newVal.getFullYear()}-${newVal.getMonth() + 1}-${newVal.getDate()}`,
     );
+  };
+
+  const handleSlot = async (value) => {
+    const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+    if (userLocal) {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userLocal.data.access}`,
+        },
+      };
+      console.log(value);
+      setDate(todayDate);
+
+      if (!loaded) {
+        console.log(date);
+
+        const data = await axios.post(
+          `${apiConfig.baseUrl}/booking/room/${id}/book/`,
+          { date: date, slot_id: value },
+          config,
+        );
+
+        console.log(data);
+      }
+    }
   };
 
   useEffect(() => {
@@ -121,6 +148,7 @@ const SlotList = ({ match }) => {
         date={date}
         handelDate={handelDate}
         slotListData={slotListData}
+        handleSlot={handleSlot}
       />
     </>
   );
