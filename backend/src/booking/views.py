@@ -146,9 +146,15 @@ class RoomDetail(views.APIView):
     def get(self, request, roomId):
         try:
             now = datetime.datetime.now().date()
-            data = request.data
+            data = request.data.get("date")
+
+
+
+            print(data)
+            print(data)
+            print(data)
             try:
-                date = data["date"]
+                date = data
             except:
                 date = now
             room = Room.objects.get(id__exact=roomId)
@@ -165,8 +171,6 @@ class RoomDetail(views.APIView):
 
             room_serializer = RoomSerializer(room).data
         
-            print(room.doctor.get_profile_pic())
-
             if len(serializer_data) > 0:
                 return Response({
                     "status": "success",
@@ -194,15 +198,65 @@ class RoomDetail(views.APIView):
             })
 
     def post(self, request, roomId):
+        try:
+            now = datetime.datetime.now().date()
+            data = request.data.get("date")
+
+            print(data)
+            try:
+                date = data
+            except:
+                date = now
+            room = Room.objects.get(id__exact=roomId)
+
+            times = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date
+            ).order_by(
+                'start_timing', '-admin_did_accept',
+                '-is_pending'
+            ).exclude(admin_did_accept=True, is_pending=True)
+
+            serializer_data = RoomDetailBookSerializer(times, many=True).data 
+
+            room_serializer = RoomSerializer(room).data
+        
+            if len(serializer_data) > 0:
+                return Response({
+                    "status": "success",
+                    "data": serializer_data,
+                    "date": date,
+                    "doctor_information": room_serializer,
+                    "skills": room.doctor.get_skills(),
+                    "intrests": room.doctor.get_intrests(),
+                    "doctor_pic": room.doctor.get_profile_pic()
+                })  
+            else:
+                return Response({
+                    "status": "success",
+                    "data": [],
+                    "date": date,
+                    "doctor_information": room_serializer,
+                    "skills": room.doctor.get_skills(),
+                    "intrests": room.doctor.get_intrests(),
+                    "doctor_pic": room.doctor.get_profile_pic()
+                })
+        except Exception as e:
+            return Response({
+            "status": "failed",
+            'message': e
+            })
+
+class BookAppointment(views.APIView):
+    def post(self, request, roomId):
         user_profile = UserProfile.objects.get(
             user=request.user
         )
         try:
             data  = request.data
 
-            slot_id = data["slot_id"]
             date = data["date"]
-
+            slot_id = data["slot_id"]
             room = Room.objects.get(
                 id__exact=roomId
             )
