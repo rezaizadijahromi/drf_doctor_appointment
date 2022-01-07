@@ -34,8 +34,10 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 5,
   },
   submit: {
-    margin: "auto",
+    left: "35%",
+    marginLeft: 30,
     marginBottom: theme.spacing(2),
+    width: 200,
   },
 
   link: {
@@ -113,6 +115,7 @@ const SlotListComponent = ({
   date,
   handelDate,
   slotListData,
+  handleSlot,
 }) => {
   const classes = useStyles();
 
@@ -120,70 +123,72 @@ const SlotListComponent = ({
     <>
       <div className={classes.rightBox}>
         <Box className={classes.outerbox1}>
-          <Paper className={classes.paper1} elevation={1}>
+          <Paper className={classes.paper1} elevation={3}>
             <Box m={3}>
               <Grid item xs={12}>
-                <div className={classes.card}>
-                  <div className={classes.imgContainer}>
-                    <CardMedia
-                      className={classes.ImageDoc}
-                      component="img"
-                      src={doctorImage}></CardMedia>
+                <Grid container justifyContent="center" spacing={2}>
+                  <div className={classes.card}>
+                    <div className={classes.imgContainer}>
+                      <CardMedia
+                        className={classes.ImageDoc}
+                        component="img"
+                        src={doctorImage}></CardMedia>
+                    </div>
+
+                    <div className={classes.rightContentContainer}>
+                      <Typography className={classes.textField} gutterBottom>
+                        Room Name:{docInfo.room_name}
+                      </Typography>
+                      <Typography className={classes.textField}>
+                        Doctor Name: {docInfo.doctor_name}
+                      </Typography>
+                      <Typography className={classes.textField}>
+                        Vote Ratio: {docInfo.get_vote_ratio}/5
+                      </Typography>
+
+                      {docInfo.description ? (
+                        <Typography className={classes.textField}>
+                          {" "}
+                          {docInfo.description}{" "}
+                        </Typography>
+                      ) : (
+                        ""
+                      )}
+
+                      {skills.length > 0 ? (
+                        <Typography className={classes.textField}>
+                          {skills.map((skill, index) => {
+                            return (
+                              <Typography
+                                className={classes.textFieldInline}
+                                key={index}>
+                                {skill}
+                              </Typography>
+                            );
+                          })}{" "}
+                        </Typography>
+                      ) : (
+                        ""
+                      )}
+
+                      {intrests.length > 0 ? (
+                        <Typography className={classes.textField}>
+                          {intrests.map((intrest, index) => {
+                            return (
+                              <Typography
+                                className={classes.textFieldInline}
+                                key={index}>
+                                {intrest}
+                              </Typography>
+                            );
+                          })}{" "}
+                        </Typography>
+                      ) : (
+                        ""
+                      )}
+                    </div>
                   </div>
-
-                  <div className={classes.rightContentContainer}>
-                    <Typography className={classes.textField} gutterBottom>
-                      Room Name:{docInfo.room_name}
-                    </Typography>
-                    <Typography className={classes.textField}>
-                      Doctor Name: {docInfo.doctor_name}
-                    </Typography>
-                    <Typography className={classes.textField}>
-                      Vote Ratio: {docInfo.get_vote_ratio}/5
-                    </Typography>
-
-                    {docInfo.description ? (
-                      <Typography className={classes.textField}>
-                        {" "}
-                        {docInfo.description}{" "}
-                      </Typography>
-                    ) : (
-                      ""
-                    )}
-
-                    {skills.length > 0 ? (
-                      <Typography className={classes.textField}>
-                        {skills.map((skill, index) => {
-                          return (
-                            <Typography
-                              className={classes.textFieldInline}
-                              key={index}>
-                              {skill}
-                            </Typography>
-                          );
-                        })}{" "}
-                      </Typography>
-                    ) : (
-                      ""
-                    )}
-
-                    {intrests.length > 0 ? (
-                      <Typography className={classes.textField}>
-                        {intrests.map((intrest, index) => {
-                          return (
-                            <Typography
-                              className={classes.textFieldInline}
-                              key={index}>
-                              {intrest}
-                            </Typography>
-                          );
-                        })}{" "}
-                      </Typography>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                </div>
+                </Grid>
               </Grid>
 
               <div className={classes.DateContainer}>
@@ -199,6 +204,13 @@ const SlotListComponent = ({
                 </Grid>
               </div>
             </Box>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={slotListData}
+              className={classes.submit}>
+              get
+            </Button>
           </Paper>
         </Box>
 
@@ -213,7 +225,9 @@ const SlotListComponent = ({
                         <ButtonGroup
                           variant="contained"
                           aria-label="outlined primary button group">
-                          <Button>
+                          <Button
+                            onClick={() => handleSlot(slots.id)}
+                            onSubmit={handleSlot}>
                             {slots.start_timing} - {slots.end_timing}
                           </Button>
                         </ButtonGroup>
@@ -238,14 +252,6 @@ const SlotListComponent = ({
           </Box>
         )}
       </div>
-
-      <Button
-        color="primary"
-        variant="contained"
-        onClick={slotListData}
-        className={classes.submit}>
-        get
-      </Button>
     </>
   );
 };
