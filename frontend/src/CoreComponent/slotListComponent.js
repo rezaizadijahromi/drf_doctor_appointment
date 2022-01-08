@@ -48,18 +48,19 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     margin: theme.spacing(2),
-    width: theme.spacing(75),
+    width: theme.spacing(50),
     height: theme.spacing(55),
   },
   paper1: {
     margin: theme.spacing(2),
-    width: theme.spacing(85),
+    width: theme.spacing(115),
     height: theme.spacing(55),
   },
   outerbox: {
     height: "100%",
     display: "inline-block",
     flexDirection: "column",
+    // marginLeft: 250,
     // alignItems: "flex-end",
     // justifyContent: "flex-end",
   },
@@ -73,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
 
   rightBox: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)",
   },
   card: {
     display: "grid",
@@ -92,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
   rightContentContainer: {
     height: "100%",
     width: "100%",
-    gridColumn: 2,
+    gridColumn: 3,
     marginLeft: 10,
     paddingLeft: theme.spacing(2),
     border: "1px solid #000",
@@ -103,6 +104,26 @@ const useStyles = makeStyles((theme) => ({
   },
   DateContainer: {
     marginTop: 50,
+  },
+  buttons: {
+    width: 165,
+    height: 45,
+  },
+  buttonGroup: {
+    overflowY: "scroll",
+    height: 430,
+  },
+  "@global": {
+    "*::-webkit-scrollbar": {
+      width: "0.4em",
+    },
+    "*::-webkit-scrollbar-track": {
+      "-webkit-box-shadow": "inset 0 0 6px rgba(0,0,0,0.00)",
+    },
+    "*::-webkit-scrollbar-thumb": {
+      backgroundColor: "rgba(0,0,0,.1)",
+      outline: "1px solid slategrey",
+    },
   },
 }));
 
@@ -219,17 +240,29 @@ const SlotListComponent = ({
             <Paper className={classes.paper} elevation={3}>
               <Box m={3}>
                 <Grid item xs={12}>
-                  <Grid container justifyContent="center" spacing={2}>
+                  <Grid
+                    container
+                    justifyContent="center"
+                    spacing={2}
+                    className={classes.buttonGroup}>
                     {value.map((slots, index) => (
                       <Grid key={index} item>
                         <ButtonGroup
                           variant="contained"
                           aria-label="outlined primary button group">
-                          <Button
-                            onClick={() => handleSlot(slots.id)}
-                            onSubmit={handleSlot}>
-                            {slots.start_timing} - {slots.end_timing}
-                          </Button>
+                          {slots.is_pending === false &&
+                          slots.admin_did_accept === false ? (
+                            <Button
+                              className={classes.buttons}
+                              onClick={() => handleSlot(slots.id)}
+                              onSubmit={handleSlot}>
+                              {slots.start_timing} - {slots.end_timing}
+                            </Button>
+                          ) : (
+                            <Button className={classes.buttons}>
+                              not availabel
+                            </Button>
+                          )}
                         </ButtonGroup>
                       </Grid>
                     ))}
