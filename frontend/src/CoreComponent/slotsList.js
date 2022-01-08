@@ -25,6 +25,8 @@ const SlotList = ({ match }) => {
       start_timing: "",
       end_timing: "",
       patient: "",
+      is_pending: false,
+      admin_did_accept: false,
     },
   ]);
 

@@ -148,11 +148,6 @@ class RoomDetail(views.APIView):
             now = datetime.datetime.now().date()
             data = request.data.get("date")
 
-
-
-            print(data)
-            print(data)
-            print(data)
             try:
                 date = data
             except:
@@ -165,7 +160,7 @@ class RoomDetail(views.APIView):
             ).order_by(
                 'start_timing', '-admin_did_accept',
                 '-is_pending'
-            ).exclude(admin_did_accept=True, is_pending=True)
+            )
 
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
 
