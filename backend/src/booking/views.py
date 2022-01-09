@@ -162,6 +162,27 @@ class RoomDetail(views.APIView):
                 '-is_pending'
             )
 
+            pending_slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                is_pending=True,
+                admin_did_accept=False
+            ).count()
+
+            free_slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                is_pending=False,
+                admin_did_accept=False
+            ).count()
+
+            accept_slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                is_pending=True,
+                admin_did_accept=True
+            ).count()
+
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
 
             room_serializer = RoomSerializer(room).data
@@ -174,7 +195,10 @@ class RoomDetail(views.APIView):
                     "doctor_information": room_serializer,
                     "skills": room.doctor.get_skills(),
                     "intrests": room.doctor.get_intrests(),
-                    "doctor_pic": room.doctor.get_profile_pic()
+                    "doctor_pic": room.doctor.get_profile_pic(),
+                    "free_slots": free_slots,
+                    "pending_slots": pending_slots,
+                    "accept_slots": accept_slots
                 })  
             else:
                 return Response({
@@ -184,7 +208,10 @@ class RoomDetail(views.APIView):
                     "doctor_information": room_serializer,
                     "skills": room.doctor.get_skills(),
                     "intrests": room.doctor.get_intrests(),
-                    "doctor_pic": room.doctor.get_profile_pic()
+                    "doctor_pic": room.doctor.get_profile_pic(),
+                    "free_slots": free_slots,
+                    "pending_slots": pending_slots,
+                    "accept_slots": accept_slots
                 })
         except Exception as e:
             return Response({
@@ -197,7 +224,6 @@ class RoomDetail(views.APIView):
             now = datetime.datetime.now().date()
             data = request.data.get("date")
 
-            print(data)
             try:
                 date = data
             except:
@@ -215,6 +241,29 @@ class RoomDetail(views.APIView):
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
 
             room_serializer = RoomSerializer(room).data
+
+
+            pending_slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                is_pending=True,
+                admin_did_accept=False
+            ).count()
+
+            free_slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                is_pending=False,
+                admin_did_accept=False
+            ).count()
+
+            accept_slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                is_pending=True,
+                admin_did_accept=True
+            ).count()
+
         
             if len(serializer_data) > 0:
                 return Response({
@@ -224,8 +273,11 @@ class RoomDetail(views.APIView):
                     "doctor_information": room_serializer,
                     "skills": room.doctor.get_skills(),
                     "intrests": room.doctor.get_intrests(),
-                    "doctor_pic": room.doctor.get_profile_pic()
-                })  
+                    "doctor_pic": room.doctor.get_profile_pic(),
+                    "free_slots": free_slots,
+                    "pending_slots": pending_slots,
+                    "accept_slots": accept_slots
+                })   
             else:
                 return Response({
                     "status": "success",
@@ -234,7 +286,10 @@ class RoomDetail(views.APIView):
                     "doctor_information": room_serializer,
                     "skills": room.doctor.get_skills(),
                     "intrests": room.doctor.get_intrests(),
-                    "doctor_pic": room.doctor.get_profile_pic()
+                    "doctor_pic": room.doctor.get_profile_pic(),
+                    "free_slots": free_slots,
+                    "pending_slots": pending_slots,
+                    "accept_slots": accept_slots
                 })
         except Exception as e:
             return Response({
