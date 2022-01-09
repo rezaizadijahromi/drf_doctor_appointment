@@ -35,7 +35,14 @@ const SlotList = ({ match }) => {
     doctor_name: "",
     description: "",
     get_vote_ratio: 0,
+    free_slots: 0,
+    accept_slots: 0,
+    pending_slots: 0,
   });
+
+  const [freeSlots, setFreeSlots] = useState(0);
+  const [pendingSlots, setPendingSlots] = useState(0);
+  const [bookedSlots, setBookedSlots] = useState(0);
 
   const [doctorImage, setDoctorImage] = useState("");
   const [skills, setSkills] = useState([]);
@@ -72,6 +79,9 @@ const SlotList = ({ match }) => {
           setSkills(data.data.skills);
           setIntrests(data.data.intrests);
           setDoctorImage(data.data.doctor_pic);
+          setFreeSlots(data.data.free_slots);
+          setPendingSlots(data.data.pending_slots);
+          setBookedSlots(data.data.accept_slots);
         } else {
           setError(true);
         }
@@ -151,6 +161,9 @@ const SlotList = ({ match }) => {
         handelDate={handelDate}
         slotListData={slotListData}
         handleSlot={handleSlot}
+        freeSlots={freeSlots}
+        pendingSlots={pendingSlots}
+        bookedSlots={bookedSlots}
       />
     </>
   );

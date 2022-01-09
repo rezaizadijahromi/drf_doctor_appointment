@@ -7,6 +7,8 @@ import {
   TextField,
   Typography,
   CardMedia,
+  Card,
+  CardContent,
 } from "@mui/material";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
@@ -78,8 +80,8 @@ const useStyles = makeStyles((theme) => ({
   },
   card: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, 1fr)",
-    maxWidth: 600,
+    gridTemplateColumns: "repeat(3, 1fr)",
+    // maxWidth: 600,
     margin: "auto",
     textAlign: "center",
     marginTop: theme.spacing(2),
@@ -90,13 +92,13 @@ const useStyles = makeStyles((theme) => ({
     gridColumn: 1,
     marginTop: 5,
   },
-  rightContentContainer: {
+  centerContentContainer: {
     height: "100%",
     width: "100%",
-    gridColumn: 3,
+    gridColumn: 2,
     marginLeft: 10,
     paddingLeft: theme.spacing(2),
-    border: "1px solid #000",
+    // border: "1px solid #000",
   },
   imgContainer: {
     height: 170,
@@ -137,6 +139,9 @@ const SlotListComponent = ({
   handelDate,
   slotListData,
   handleSlot,
+  freeSlots,
+  pendingSlots,
+  bookedSlots,
 }) => {
   const classes = useStyles();
 
@@ -156,7 +161,7 @@ const SlotListComponent = ({
                         src={doctorImage}></CardMedia>
                     </div>
 
-                    <div className={classes.rightContentContainer}>
+                    <div className={classes.centerContentContainer}>
                       <Typography className={classes.textField} gutterBottom>
                         Room Name:{docInfo.room_name}
                       </Typography>
@@ -207,6 +212,20 @@ const SlotListComponent = ({
                       ) : (
                         ""
                       )}
+                    </div>
+
+                    <div className={classes.rightContentContainer}>
+                      <Grid>
+                        <Typography>
+                          Free slots: {freeSlots > 0 ? freeSlots : 0}
+                        </Typography>
+                        <Typography>
+                          Booked slots: {bookedSlots > 0 ? bookedSlots : 0}
+                        </Typography>
+                        <Typography>
+                          Pending slots: {pendingSlots > 0 ? pendingSlots : 0}
+                        </Typography>
+                      </Grid>
                     </div>
                   </div>
                 </Grid>
