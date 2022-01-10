@@ -139,6 +139,7 @@ const SlotListComponent = ({
   handelDate,
   slotListData,
   handleSlot,
+  handleDeleteSlot,
   freeSlots,
   pendingSlots,
   bookedSlots,
@@ -278,7 +279,10 @@ const SlotListComponent = ({
                               {slots.start_timing} - {slots.end_timing}
                             </Button>
                           ) : (
-                            <Button className={classes.buttons}>
+                            <Button
+                              className={classes.buttons}
+                              onClick={() => handleDeleteSlot(slots.id)}
+                              onSubmit={handleDeleteSlot}>
                               not availabel
                             </Button>
                           )}
