@@ -319,14 +319,11 @@ class BookAppointment(views.APIView):
             )
 
             if len(slot):
-
                 if not slot[0].is_pending:
-
                     slot.update(
                         patient=request.user.userprofile,
                         is_pending=True
                     )
-                    
                     email_subject = "Metting has been booked"
                     message = render_to_string(
                         'email_booked.html',
@@ -366,14 +363,12 @@ class BookAppointment(views.APIView):
                 'message': e
             })
 
-    def delete(request, roomId):
-        user_profile = request.user.userprofile
-
+    def delete(self, request, roomId):
+        user_profile = request.user
         try:
-            data  = request.data
-
-            slot_id = data["slot_id"]
-            date = data["date"]
+            
+            slot_id = request.data["slot_id"]
+            date = request.data["date"]
 
             room = Room.objects.get(
                 id__exact=roomId
@@ -385,35 +380,38 @@ class BookAppointment(views.APIView):
                 id=slot_id
             )
 
-            slot.update(
-                patient=None,
-                is_pending=False
-            )
+            if slot[0].patient == request.user.userprofile:
+                slot.update(
+                    patient=None,
+                    is_pending=False
+                )
 
-              
-            email_subject = "Metting has been cancelled"
-            message = render_to_string(
-                'email_cancell.html',
-                {
-                    "sender": 'punisher1234@gmail.com',
-                    "reciever": user_profile,
-                    'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
-                    'token': default_token_generator.make_token(request.user)
-                }
-            )
+                email_subject = "Metting has been cancelled"
+                message = render_to_string(
+                    'email_cancell.html',
+                    {
+                        "sender": 'punisher1234@gmail.com',
+                        "reciever": user_profile,
+                        'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                        'token': default_token_generator.make_token(request.user)
+                    }
+                )
+                to_email = request.user.email
+                email = EmailMessage(
+                    email_subject, message,
+                    to=[to_email]
+                )
+                # email.send()
 
-            to_email = request.user.email
-            email = EmailMessage(
-                email_subject, message,
-                to=[to_email]
-            )
-
-            email.send()
-
-            return Response({
-                "status": "success",
-                "message": "meeting has been cancelled"
-            })
+                return Response({
+                    "status": "success",
+                    "message": "meeting has been cancelled"
+                })
+            else:
+                return Response({
+                    "status": "fail",
+                    "message": "sorry you can't cancell this appointment"
+                })
 
         except Exception as e:
             return Response({

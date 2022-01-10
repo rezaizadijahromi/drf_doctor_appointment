@@ -103,15 +103,9 @@ const SlotList = ({ match }) => {
         } else {
           setError(true);
         }
-        console.log(error);
-        console.log(data.data);
       }
     }
   }, [date, id, loaded, todayDate, error]);
-
-  // `${newTime.getFullYear()}-${
-  //   newTime.getMonth() + 1
-  // }-${newTime.getDate()}`
 
   const handelDate = (newVal) => {
     setDate(
@@ -128,8 +122,6 @@ const SlotList = ({ match }) => {
           Authorization: `Bearer ${userLocal.data.access}`,
         },
       };
-      console.log(value);
-      setDate(todayDate);
 
       if (!loaded) {
         console.log(date);
@@ -140,8 +132,30 @@ const SlotList = ({ match }) => {
           config,
         );
 
+        // update the date for today
+        // setDate(todayDate);
         console.log(data);
       }
+    }
+  };
+
+  const handleDeleteSlot = async (value) => {
+    const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+    if (userLocal) {
+      const data = await axios.delete(
+        `${apiConfig.baseUrl}/booking/room/${id}/book/`,
+        {
+          headers: {
+            Authorization: `Bearer ${userLocal.data.access}`,
+          },
+          data: {
+            slot_id: value,
+            date: date,
+          },
+        },
+      );
+      console.log(data);
     }
   };
 
@@ -161,6 +175,7 @@ const SlotList = ({ match }) => {
         handelDate={handelDate}
         slotListData={slotListData}
         handleSlot={handleSlot}
+        handleDeleteSlot={handleDeleteSlot}
         freeSlots={freeSlots}
         pendingSlots={pendingSlots}
         bookedSlots={bookedSlots}
