@@ -374,20 +374,11 @@ class BookAppointment(views.APIView):
                 id__exact=roomId
             )
 
-            print("here1")
-            print("here1")
             slot = Booking.objects.filter(
                 room=room,
                 booking_date__exact=date,
                 id=slot_id
             )
-            
-
-            print("here1")
-            print("here1")
-            print("here1")
-            print("here1")
-            print(slot[0].patient)
 
             if slot[0].patient == request.user.userprofile:
                 slot.update(

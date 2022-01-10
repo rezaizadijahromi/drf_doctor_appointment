@@ -143,12 +143,6 @@ const SlotList = ({ match }) => {
     const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
     if (userLocal) {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userLocal.data.access}`,
-        },
-      };
-
       const data = await axios.delete(
         `${apiConfig.baseUrl}/booking/room/${id}/book/`,
         {
@@ -161,9 +155,6 @@ const SlotList = ({ match }) => {
           },
         },
       );
-
-      // config,
-      // { date: date, slot_id: value },
       console.log(data);
     }
   };
