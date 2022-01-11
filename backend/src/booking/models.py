@@ -51,5 +51,14 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+    def patient_name(self):
+        try:
+            patient = self.patient.username
+        except:
+            patient = None
+        return patient
+
+
     def __str__(self):
         return f"From: {self.start_timing} - To:{self.end_timing}"
