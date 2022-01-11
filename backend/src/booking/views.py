@@ -184,8 +184,10 @@ class RoomDetail(views.APIView):
             ).count()
 
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
+            print(serializer_data)
 
             room_serializer = RoomSerializer(room).data
+
         
             if len(serializer_data) > 0:
                 return Response({
@@ -236,12 +238,11 @@ class RoomDetail(views.APIView):
             ).order_by(
                 'start_timing', '-admin_did_accept',
                 '-is_pending'
-            ).exclude(admin_did_accept=True, is_pending=True)
+            )
 
             serializer_data = RoomDetailBookSerializer(times, many=True).data 
 
             room_serializer = RoomSerializer(room).data
-
 
             pending_slots = Booking.objects.filter(
                 room=room,
@@ -312,50 +313,61 @@ class BookAppointment(views.APIView):
                 id__exact=roomId
             )
 
-            slot = Booking.objects.filter(
+            patient_exist = Booking.objects.filter(
                 room=room,
                 booking_date__exact=date,
-                id=slot_id
+                patient=user_profile
             )
+            if len(patient_exist) == 0:
+                slot = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date,
+                    id=slot_id
+                )
 
-            if len(slot):
-                if not slot[0].is_pending:
-                    slot.update(
-                        patient=request.user.userprofile,
-                        is_pending=True
-                    )
-                    email_subject = "Metting has been booked"
-                    message = render_to_string(
-                        'email_booked.html',
-                        {
-                            "sender": 'punisher1234@gmail.com',
-                            "reciever": user_profile,
-                            'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
-                            'token': default_token_generator.make_token(request.user)
-                        }
-                    )
+                if len(slot):
+                    if not slot[0].is_pending:
+                        slot.update(
+                            patient=request.user.userprofile,
+                            is_pending=True
+                        )
+                        email_subject = "Metting has been booked"
+                        message = render_to_string(
+                            'email_booked.html',
+                            {
+                                "sender": 'punisher1234@gmail.com',
+                                "reciever": user_profile,
+                                'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                                'token': default_token_generator.make_token(request.user)
+                            }
+                        )
 
-                    to_email = request.user.email
-                    email = EmailMessage(
-                        email_subject, message,
-                        to=[to_email]
-                    )
+                        to_email = request.user.email
+                        email = EmailMessage(
+                            email_subject, message,
+                            to=[to_email]
+                        )
 
-                    email.send()
+                        email.send()
 
-                    return Response({
-                        "status": "success",
-                        "message": "You booked a slot wait for admin confirmation"
-                    })
+                        return Response({
+                            "status": "success",
+                            "message": "You booked a slot wait for admin confirmation"
+                        })
+                    else:
+                        return Response({
+                            "status": "success",
+                            "message": "slot has been in queue"
+                        })
                 else:
                     return Response({
                         "status": "success",
-                        "message": "slot has been in queue"
+                        "message": "No data"
                     })
             else:
                 return Response({
-                    "status": "success",
-                    "message": "No data"
+                    "status":"error",
+                    "message": "You can't book two slot in same day cancell other slot or try on another date"
                 })
         except Exception as e:
             return Response({

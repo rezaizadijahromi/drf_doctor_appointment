@@ -24,6 +24,7 @@ class RoomDetailBookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = (
-            "id", "booking_date", "start_timing",
-            "end_timing", "patient", "is_pending", "admin_did_accept",
+            "id", "booking_date", "start_timing","end_timing",
+            "patient", "is_pending", "admin_did_accept",
+            "patient_name",
         )
