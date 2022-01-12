@@ -72,8 +72,8 @@ const SignIn = () => {
       setValues({ ...values, error: response.error });
     } else {
       setValues({ ...values, error: "" });
-      // navigate("/profile");
-      // window.location.reload();
+      navigate("/");
+      window.location.reload();
     }
   };
 

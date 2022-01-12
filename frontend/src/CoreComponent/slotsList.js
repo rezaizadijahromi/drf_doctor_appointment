@@ -49,6 +49,7 @@ const SlotList = ({ match }) => {
   const [intrests, setIntrests] = useState([]);
   const [loaded, setLoaded] = useState(true);
   const [error, setError] = useState(false);
+  const [message, setMessage] = useState("");
 
   let { id } = useParams();
 
@@ -65,8 +66,6 @@ const SlotList = ({ match }) => {
       setDate(todayDate);
 
       if (!loaded) {
-        console.log(date);
-
         const data = await axios.post(
           `${apiConfig.baseUrl}/booking/room/${id}/`,
           { date: date },
@@ -82,7 +81,9 @@ const SlotList = ({ match }) => {
           setFreeSlots(data.data.free_slots);
           setPendingSlots(data.data.pending_slots);
           setBookedSlots(data.data.accept_slots);
-        } else {
+          setMessage(data.data.message);
+        } else if (data.data.status === "fail") {
+          setMessage(data.data.message);
           setError(true);
         }
         console.log(data.data);
@@ -100,7 +101,9 @@ const SlotList = ({ match }) => {
           setIntrests(data.data.intrests);
           setDoctorImage(data.data.doctor_pic);
           setLoaded(false);
-        } else {
+          setMessage(data.data.message);
+        } else if (data.data.status === "fail") {
+          setMessage(data.data.message);
           setError(true);
         }
       }
@@ -122,20 +125,16 @@ const SlotList = ({ match }) => {
           Authorization: `Bearer ${userLocal.data.access}`,
         },
       };
+      const data = await axios.post(
+        `${apiConfig.baseUrl}/booking/room/${id}/book/`,
+        { date: date, slot_id: value },
+        config,
+      );
+      setMessage(data.data.message);
+      console.log("book a slot", data.data);
 
-      if (!loaded) {
-        console.log(date);
-
-        const data = await axios.post(
-          `${apiConfig.baseUrl}/booking/room/${id}/book/`,
-          { date: date, slot_id: value },
-          config,
-        );
-
-        // update the date for today
-        // setDate(todayDate);
-        console.log(data);
-      }
+      // update the date for today
+      // setDate(todayDate);
     }
   };
 
@@ -155,7 +154,8 @@ const SlotList = ({ match }) => {
           },
         },
       );
-      console.log(data);
+      console.log("delete", data.data);
+      setMessage(data.data.message);
     }
   };
 
@@ -179,6 +179,7 @@ const SlotList = ({ match }) => {
         freeSlots={freeSlots}
         pendingSlots={pendingSlots}
         bookedSlots={bookedSlots}
+        message={message}
       />
     </>
   );

@@ -15,6 +15,7 @@ import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 
 import { makeStyles } from "@mui/styles";
+import Message from "../Component/Message";
 
 const useStyles = makeStyles((theme) => ({
   textField: {
@@ -143,11 +144,13 @@ const SlotListComponent = ({
   freeSlots,
   pendingSlots,
   bookedSlots,
+  message,
 }) => {
   const classes = useStyles();
 
   return (
     <>
+      {message && <Message variant="error">{message}</Message>}
       <div className={classes.rightBox}>
         <Box className={classes.outerbox1}>
           <Paper className={classes.paper1} elevation={3}>
