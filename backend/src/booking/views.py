@@ -431,6 +431,36 @@ class BookAppointment(views.APIView):
                 'message': e
             })
 
+class ClosestSlotView(views.APIView):
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, roomId):
+        now = datetime.datetime.now().date()
+
+        try:
+            room = Room.objects.get(
+                id__exact=roomId
+            )
+
+            slots = Booking.objects.filter(
+                room=room,
+                is_pending=False,
+                admin_did_accept=False,
+                booking_date__gte=now
+            )
+
+            serializer_data = BookingSerializer(slots, many=True)
+            slot = serializer_data.data[0]
+
+            return Response({
+                "status": "success",
+                "data": slot,
+            })
+        except Exception as e:
+            return Response({
+                "error": e
+            })
+
 class AdminView(views.APIView):
     permission_classes = [IsAdminUser]
 
