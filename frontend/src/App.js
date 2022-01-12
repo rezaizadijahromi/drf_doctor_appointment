@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import SignIn from "./AuthComponents/SignIn";
-import theme from "./theme";
 import SignUp from "./AuthComponents/SignUp";
 import Home from "./CoreComponent/home";
 import SlotList from "./CoreComponent/slotsList";

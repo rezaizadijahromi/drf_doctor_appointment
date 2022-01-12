@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { makeStyles } from "@mui/styles";
+import Loader from "../Component/Loader";
+import Message from "../Component/Message";
 
 import {
   Card,
@@ -56,10 +58,6 @@ const SignUp = () => {
     error: "",
   });
 
-  //   const handleChange = (name, event) => {
-  //     setValues({ ...values, [name]: event.target.value });
-  //   };
-
   const clickSubmit = async () => {
     const user = {
       username: values.username,
@@ -67,7 +65,6 @@ const SignUp = () => {
       password: values.password,
       error: values.error,
     };
-    console.log("here 1");
 
     const response = await axios.post(
       `${apiConfig.baseUrl}/users/register/`,
@@ -75,7 +72,6 @@ const SignUp = () => {
     );
 
     localStorage.setItem("userInfo", JSON.stringify(response));
-
     if (response.error) {
       setValues({ ...values, error: response.error });
     } else {
@@ -97,7 +93,7 @@ const SignUp = () => {
     });
   };
 
-  const handlePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePassword = (e) => {
     setValues({
       ...values,
       password: e.target.value,
