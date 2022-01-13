@@ -145,13 +145,7 @@ class RoomDetail(views.APIView):
 
     def get(self, request, roomId):
         try:
-            now = datetime.datetime.now().date()
-            data = request.data.get("date")
-
-            try:
-                date = data
-            except:
-                date = now
+            date = datetime.datetime.now().date()
             room = Room.objects.get(id__exact=roomId)
 
             times = Booking.objects.filter(

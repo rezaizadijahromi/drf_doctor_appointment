@@ -5,6 +5,10 @@ import { apiConfig } from "../config";
 import { useParams } from "react-router";
 import SlotListComponent from "./slotListComponent";
 
+function sleep(time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 const SlotList = ({ match }) => {
   let newTime = new Date();
 
@@ -17,7 +21,7 @@ const SlotList = ({ match }) => {
   // 2022-1-6T12:57:32
   // '2014-08-18T21:11:54'
 
-  const [date, setDate] = useState(new Date(`${todayDate}`));
+  const [date, setDate] = useState(todayDate);
   const [value, setValue] = useState([
     {
       id: "",
@@ -47,9 +51,12 @@ const SlotList = ({ match }) => {
   const [doctorImage, setDoctorImage] = useState("");
   const [skills, setSkills] = useState([]);
   const [intrests, setIntrests] = useState([]);
-  const [loaded, setLoaded] = useState(true);
   const [error, setError] = useState(false);
   const [message, setMessage] = useState("");
+  const [loadSlotList, setLoadSlotList] = useState(false);
+  const [loadDeleteSlot, setLoadDeleteSlot] = useState(false);
+  const [loadBookSlot, setLoadBookSlot] = useState(false);
+  const [getPost, setGetPost] = useState(false);
 
   let { id } = useParams();
 
@@ -65,56 +72,64 @@ const SlotList = ({ match }) => {
 
       setDate(todayDate);
 
-      if (!loaded) {
-        const data = await axios.post(
+      if (getPost) {
+        const response = await axios.post(
           `${apiConfig.baseUrl}/booking/room/${id}/`,
           { date: date },
           config,
         );
-        if (data.data.status === "success") {
-          setValue(data.data.data);
-          setDate(data.data.date);
-          setDocInfo(data.data.doctor_information);
-          setSkills(data.data.skills);
-          setIntrests(data.data.intrests);
-          setDoctorImage(data.data.doctor_pic);
-          setFreeSlots(data.data.free_slots);
-          setPendingSlots(data.data.pending_slots);
-          setBookedSlots(data.data.accept_slots);
-          setMessage(data.data.message);
-        } else if (data.data.status === "fail") {
-          setMessage(data.data.message);
+
+        console.log(response.data);
+
+        if (response.data.status === "success") {
+          setValue(response.data.data);
+          setDate(response.data.date);
+          setDocInfo(response.data.doctor_information);
+          setSkills(response.data.skills);
+          setIntrests(response.data.intrests);
+          setDoctorImage(response.data.doctor_pic);
+          setFreeSlots(response.data.free_slots);
+          setPendingSlots(response.data.pending_slots);
+          setBookedSlots(response.data.accept_slots);
+          setMessage(response.data.message);
+        } else if (response.data.status === "fail") {
+          setMessage(response.data.message);
           setError(true);
         }
-        console.log(data.data);
+        console.log(response.data);
         console.log(error);
       } else {
-        const data = await axios.get(
+        const response = await axios.get(
           `${apiConfig.baseUrl}/booking/room/${id}/`,
           config,
         );
-        if (data.data.status === "success") {
-          setValue(data.data.data);
-          setDate(data.data.date);
-          setDocInfo(data.data.doctor_information);
-          setSkills(data.data.skills);
-          setIntrests(data.data.intrests);
-          setDoctorImage(data.data.doctor_pic);
-          setLoaded(false);
-          setMessage(data.data.message);
-        } else if (data.data.status === "fail") {
-          setMessage(data.data.message);
-          setError(true);
+        setLoadSlotList(true);
+
+        await sleep(1000);
+
+        if (response) {
+          if (response.data.status === "success") {
+            setValue(response.data.data);
+            setDate(response.data.date);
+            setDocInfo(response.data.doctor_information);
+            setSkills(response.data.skills);
+            setIntrests(response.data.intrests);
+            setDoctorImage(response.data.doctor_pic);
+            setFreeSlots(response.data.free_slots);
+            setPendingSlots(response.data.pending_slots);
+            setBookedSlots(response.data.accept_slots);
+            setGetPost(true);
+            setLoadSlotList(false);
+            setMessage(response.data.message);
+          } else if (response.data.status === "fail") {
+            setMessage(response.data.message);
+            setError(true);
+            setLoadSlotList(false);
+          }
         }
       }
     }
-  }, [date, id, loaded, todayDate, error]);
-
-  const handelDate = (newVal) => {
-    setDate(
-      `${newVal.getFullYear()}-${newVal.getMonth() + 1}-${newVal.getDate()}`,
-    );
-  };
+  }, [date, id, todayDate, error, getPost]);
 
   const handleSlot = async (value) => {
     const userLocal = JSON.parse(localStorage.getItem("userInfo"));
@@ -125,13 +140,18 @@ const SlotList = ({ match }) => {
           Authorization: `Bearer ${userLocal.data.access}`,
         },
       };
-      const data = await axios.post(
+      const response = await axios.post(
         `${apiConfig.baseUrl}/booking/room/${id}/book/`,
         { date: date, slot_id: value },
         config,
       );
-      setMessage(data.data.message);
-      console.log("book a slot", data.data);
+      setLoadBookSlot(true);
+      if (response) {
+        setMessage(response.data.message);
+        console.log("book a slot", response.data);
+      } else {
+        setLoadBookSlot(true);
+      }
 
       // update the date for today
       // setDate(todayDate);
@@ -142,7 +162,7 @@ const SlotList = ({ match }) => {
     const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
     if (userLocal) {
-      const data = await axios.delete(
+      const response = await axios.delete(
         `${apiConfig.baseUrl}/booking/room/${id}/book/`,
         {
           headers: {
@@ -154,14 +174,26 @@ const SlotList = ({ match }) => {
           },
         },
       );
-      console.log("delete", data.data);
-      setMessage(data.data.message);
+      // dont need
+      setLoadDeleteSlot(true);
+      if (response) {
+        console.log("delete", response.data);
+        setMessage(response.data.message);
+      } else {
+        setLoadDeleteSlot(true);
+      }
     }
   };
 
   useEffect(() => {
     slotListData();
   }, []);
+
+  const handelDate = (newVal) => {
+    setDate(
+      `${newVal.getFullYear()}-${newVal.getMonth() + 1}-${newVal.getDate()}`,
+    );
+  };
 
   return (
     <>
@@ -180,6 +212,9 @@ const SlotList = ({ match }) => {
         pendingSlots={pendingSlots}
         bookedSlots={bookedSlots}
         message={message}
+        loadList={loadSlotList}
+        loadDelte={loadDeleteSlot}
+        loadBook={loadBookSlot}
       />
     </>
   );
