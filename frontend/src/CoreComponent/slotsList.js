@@ -29,10 +29,13 @@ const SlotList = ({ match }) => {
       start_timing: "",
       end_timing: "",
       patient: "",
+      patient_name: "",
       is_pending: false,
       admin_did_accept: false,
     },
   ]);
+
+  const [currentUser, setCurrentUser] = useState("");
 
   const [docInfo, setDocInfo] = useState({
     room_name: "",
@@ -62,6 +65,8 @@ const SlotList = ({ match }) => {
   const slotListData = useCallback(async () => {
     const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
+    setCurrentUser(userLocal.data.profile.name);
+
     if (userLocal) {
       const config = {
         headers: {
@@ -77,8 +82,6 @@ const SlotList = ({ match }) => {
           { date: date },
           config,
         );
-
-        console.log(response.data);
 
         if (response.data.status === "success") {
           setValue(response.data.data);
@@ -97,15 +100,13 @@ const SlotList = ({ match }) => {
           setMessageVarient("error");
           setError(true);
         }
-        console.log(response.data);
-        console.log(error);
       } else {
         const response = await axios.get(
           `${apiConfig.baseUrl}/booking/room/${id}/`,
           config,
         );
-        setLoadSlotList(true);
 
+        setLoadSlotList(true);
         await sleep(1000);
 
         if (response) {
@@ -132,7 +133,7 @@ const SlotList = ({ match }) => {
         }
       }
     }
-  }, [date, id, todayDate, error, getPost]);
+  }, [date, id, todayDate, getPost]);
 
   const handleSlot = async (value) => {
     const userLocal = JSON.parse(localStorage.getItem("userInfo"));
@@ -193,7 +194,6 @@ const SlotList = ({ match }) => {
       await sleep(500);
 
       if (response) {
-        console.log("delete", response.data);
         slotListData();
         await sleep(500);
         setLoadSlotList(false);
@@ -235,6 +235,7 @@ const SlotList = ({ match }) => {
         message={message}
         loadList={loadSlotList}
         messageVarient={messageVarient}
+        currentUser={currentUser}
       />
     </>
   );

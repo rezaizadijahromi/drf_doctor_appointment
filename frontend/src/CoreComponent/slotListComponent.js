@@ -52,7 +52,7 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     margin: theme.spacing(2),
-    width: theme.spacing(50),
+    width: theme.spacing(52),
     height: theme.spacing(55),
   },
   paper1: {
@@ -137,6 +137,7 @@ const SlotListComponent = ({
   skills,
   intrests,
   value,
+  currentUser,
   date,
   handelDate,
   slotListData,
@@ -288,11 +289,19 @@ const SlotListComponent = ({
                                 {slots.start_timing} - {slots.end_timing}
                               </Button>
                             ) : (
+                              // {slots.patient_name == currentUser ? classes.buttons : classes.buttons}
                               <Button
+                                color={
+                                  slots.patient_name === currentUser
+                                    ? "warning"
+                                    : "inherit"
+                                }
                                 className={classes.buttons}
                                 onClick={() => handleDeleteSlot(slots.id)}
                                 onSubmit={handleDeleteSlot}>
-                                not availabel
+                                {slots.patient_name === currentUser
+                                  ? "Your appointment"
+                                  : "not availabel"}
                               </Button>
                             )}
                           </ButtonGroup>
