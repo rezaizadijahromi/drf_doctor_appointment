@@ -53,9 +53,8 @@ const SlotList = ({ match }) => {
   const [intrests, setIntrests] = useState([]);
   const [error, setError] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageVarient, setMessageVarient] = useState("info");
   const [loadSlotList, setLoadSlotList] = useState(false);
-  const [loadDeleteSlot, setLoadDeleteSlot] = useState(false);
-  const [loadBookSlot, setLoadBookSlot] = useState(false);
   const [getPost, setGetPost] = useState(false);
 
   let { id } = useParams();
@@ -92,8 +91,10 @@ const SlotList = ({ match }) => {
           setPendingSlots(response.data.pending_slots);
           setBookedSlots(response.data.accept_slots);
           setMessage(response.data.message);
+          setMessageVarient("success");
         } else if (response.data.status === "fail") {
           setMessage(response.data.message);
+          setMessageVarient("error");
           setError(true);
         }
         console.log(response.data);
@@ -121,8 +122,10 @@ const SlotList = ({ match }) => {
             setGetPost(true);
             setLoadSlotList(false);
             setMessage(response.data.message);
+            setMessageVarient("success");
           } else if (response.data.status === "fail") {
             setMessage(response.data.message);
+            setMessageVarient("error");
             setError(true);
             setLoadSlotList(false);
           }
@@ -145,12 +148,23 @@ const SlotList = ({ match }) => {
         { date: date, slot_id: value },
         config,
       );
-      setLoadBookSlot(true);
-      if (response) {
+
+      setLoadSlotList(true);
+      if (response.data.status === "success") {
+        slotListData();
+        await sleep(500);
+        setLoadSlotList(false);
         setMessage(response.data.message);
-        console.log("book a slot", response.data);
+        setMessageVarient("success");
+      } else if (response.data.status === "error") {
+        slotListData();
+        await sleep(500);
+        setLoadSlotList(false);
+        setMessage(response.data.message);
+        setMessageVarient("error");
       } else {
-        setLoadBookSlot(true);
+        setLoadSlotList(true);
+        setMessageVarient("error");
       }
 
       // update the date for today
@@ -174,13 +188,20 @@ const SlotList = ({ match }) => {
           },
         },
       );
-      // dont need
-      setLoadDeleteSlot(true);
+
+      setLoadSlotList(true);
+      await sleep(500);
+
       if (response) {
         console.log("delete", response.data);
+        slotListData();
+        await sleep(500);
+        setLoadSlotList(false);
         setMessage(response.data.message);
+        setMessageVarient("info");
       } else {
-        setLoadDeleteSlot(true);
+        setLoadSlotList(true);
+        setMessageVarient("error");
       }
     }
   };
@@ -213,8 +234,7 @@ const SlotList = ({ match }) => {
         bookedSlots={bookedSlots}
         message={message}
         loadList={loadSlotList}
-        loadDelte={loadDeleteSlot}
-        loadBook={loadBookSlot}
+        messageVarient={messageVarient}
       />
     </>
   );

@@ -146,14 +146,13 @@ const SlotListComponent = ({
   pendingSlots,
   bookedSlots,
   message,
+  messageVarient,
   loadList,
-  loadDelte,
-  loadBook,
 }) => {
   const classes = useStyles();
   return (
     <>
-      {message && <Message variant="error">{message}</Message>}
+      {message && <Message variant={messageVarient}>{message}</Message>}
 
       {loadList ? (
         <Loader />
@@ -174,7 +173,7 @@ const SlotListComponent = ({
 
                       <div className={classes.centerContentContainer}>
                         <Typography className={classes.textField} gutterBottom>
-                          Room Name:{docInfo.room_name}
+                          Room Name: {docInfo.room_name}
                         </Typography>
                         <Typography className={classes.textField}>
                           Doctor Name: {docInfo.doctor_name}
