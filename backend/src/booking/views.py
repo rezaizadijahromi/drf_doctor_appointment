@@ -200,6 +200,7 @@ class RoomDetail(views.APIView):
                 return Response({
                     "status": "success",
                     "data": [],
+                    "message": "There is no appointment for today",
                     "date": date,
                     "doctor_information": room_serializer,
                     "skills": room.doctor.get_skills(),
@@ -211,7 +212,7 @@ class RoomDetail(views.APIView):
                 })
         except Exception as e:
             return Response({
-                "status": "failed",
+                "status": "error",
                 'message': e
             })
 
@@ -224,7 +225,8 @@ class RoomDetail(views.APIView):
                 date = data
             except:
                 date = now
-            
+            date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+
             if now <= date:
                 room = Room.objects.get(id__exact=roomId)
 
@@ -279,6 +281,7 @@ class RoomDetail(views.APIView):
                     return Response({
                         "status": "success",
                         "data": [],
+                        "message": "There is no appointment for today",
                         "date": date,
                         "doctor_information": room_serializer,
                         "skills": room.doctor.get_skills(),
@@ -295,7 +298,7 @@ class RoomDetail(views.APIView):
                 })
         except Exception as e:
             return Response({
-            "status": "failed",
+            "status": "error",
             'message': e
             })
 
