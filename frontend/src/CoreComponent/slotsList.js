@@ -82,20 +82,34 @@ const SlotList = ({ match }) => {
           { date: date },
           config,
         );
-
+        console.log(response.data);
         if (response.data.status === "success") {
-          setValue(response.data.data);
-          setDate(response.data.date);
-          setDocInfo(response.data.doctor_information);
-          setSkills(response.data.skills);
-          setIntrests(response.data.intrests);
-          setDoctorImage(response.data.doctor_pic);
-          setFreeSlots(response.data.free_slots);
-          setPendingSlots(response.data.pending_slots);
-          setBookedSlots(response.data.accept_slots);
-          setMessage(response.data.message);
-          setMessageVarient("success");
-        } else if (response.data.status === "fail") {
+          if (response.data.data.length > 0) {
+            setValue(response.data.data);
+            setDate(response.data.date);
+            setDocInfo(response.data.doctor_information);
+            setSkills(response.data.skills);
+            setIntrests(response.data.intrests);
+            setDoctorImage(response.data.doctor_pic);
+            setFreeSlots(response.data.free_slots);
+            setPendingSlots(response.data.pending_slots);
+            setBookedSlots(response.data.accept_slots);
+            setMessage(response.data.message);
+            setMessageVarient("success");
+          } else {
+            setValue(response.data.data);
+            setDate(response.data.date);
+            setDocInfo(response.data.doctor_information);
+            setSkills(response.data.skills);
+            setIntrests(response.data.intrests);
+            setDoctorImage(response.data.doctor_pic);
+            setFreeSlots(response.data.free_slots);
+            setPendingSlots(response.data.pending_slots);
+            setBookedSlots(response.data.accept_slots);
+            setMessage(response.data.message);
+            setMessageVarient("info");
+          }
+        } else if (response.data.status === "error") {
           setMessage(response.data.message);
           setMessageVarient("error");
           setError(true);
@@ -111,20 +125,36 @@ const SlotList = ({ match }) => {
 
         if (response) {
           if (response.data.status === "success") {
-            setValue(response.data.data);
-            setDate(response.data.date);
-            setDocInfo(response.data.doctor_information);
-            setSkills(response.data.skills);
-            setIntrests(response.data.intrests);
-            setDoctorImage(response.data.doctor_pic);
-            setFreeSlots(response.data.free_slots);
-            setPendingSlots(response.data.pending_slots);
-            setBookedSlots(response.data.accept_slots);
-            setGetPost(true);
-            setLoadSlotList(false);
-            setMessage(response.data.message);
-            setMessageVarient("success");
-          } else if (response.data.status === "fail") {
+            if (response.data.data.length > 0) {
+              setValue(response.data.data);
+              setDate(response.data.date);
+              setDocInfo(response.data.doctor_information);
+              setSkills(response.data.skills);
+              setIntrests(response.data.intrests);
+              setDoctorImage(response.data.doctor_pic);
+              setFreeSlots(response.data.free_slots);
+              setPendingSlots(response.data.pending_slots);
+              setBookedSlots(response.data.accept_slots);
+              setGetPost(true);
+              setLoadSlotList(false);
+              setMessage(response.data.message);
+              setMessageVarient("success");
+            } else {
+              setValue(response.data.data);
+              setDate(response.data.date);
+              setDocInfo(response.data.doctor_information);
+              setSkills(response.data.skills);
+              setIntrests(response.data.intrests);
+              setDoctorImage(response.data.doctor_pic);
+              setFreeSlots(response.data.free_slots);
+              setPendingSlots(response.data.pending_slots);
+              setBookedSlots(response.data.accept_slots);
+              setGetPost(true);
+              setLoadSlotList(false);
+              setMessage(response.data.message);
+              setMessageVarient("info");
+            }
+          } else if (response.data.status === "error") {
             setMessage(response.data.message);
             setMessageVarient("error");
             setError(true);
