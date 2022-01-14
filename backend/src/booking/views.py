@@ -224,67 +224,74 @@ class RoomDetail(views.APIView):
                 date = data
             except:
                 date = now
-            room = Room.objects.get(id__exact=roomId)
+            
+            if now <= date:
+                room = Room.objects.get(id__exact=roomId)
 
-            times = Booking.objects.filter(
-                room=room,
-                booking_date__exact=date
-            ).order_by(
-                'start_timing', '-admin_did_accept',
-                '-is_pending'
-            )
+                times = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date
+                ).order_by(
+                    'start_timing', '-admin_did_accept',
+                    '-is_pending'
+                )
 
-            serializer_data = RoomDetailBookSerializer(times, many=True).data 
+                serializer_data = RoomDetailBookSerializer(times, many=True).data 
 
-            room_serializer = RoomSerializer(room).data
+                room_serializer = RoomSerializer(room).data
 
-            pending_slots = Booking.objects.filter(
-                room=room,
-                booking_date__exact=date,
-                is_pending=True,
-                admin_did_accept=False
-            ).count()
+                pending_slots = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date,
+                    is_pending=True,
+                    admin_did_accept=False
+                ).count()
 
-            free_slots = Booking.objects.filter(
-                room=room,
-                booking_date__exact=date,
-                is_pending=False,
-                admin_did_accept=False
-            ).count()
+                free_slots = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date,
+                    is_pending=False,
+                    admin_did_accept=False
+                ).count()
 
-            accept_slots = Booking.objects.filter(
-                room=room,
-                booking_date__exact=date,
-                is_pending=True,
-                admin_did_accept=True
-            ).count()
+                accept_slots = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date,
+                    is_pending=True,
+                    admin_did_accept=True
+                ).count()
 
-        
-            if len(serializer_data) > 0:
-                return Response({
-                    "status": "success",
-                    "data": serializer_data,
-                    "date": date,
-                    "doctor_information": room_serializer,
-                    "skills": room.doctor.get_skills(),
-                    "intrests": room.doctor.get_intrests(),
-                    "doctor_pic": room.doctor.get_profile_pic(),
-                    "free_slots": free_slots,
-                    "pending_slots": pending_slots,
-                    "accept_slots": accept_slots
-                })   
+            
+                if len(serializer_data) > 0:
+                    return Response({
+                        "status": "success",
+                        "data": serializer_data,
+                        "date": date,
+                        "doctor_information": room_serializer,
+                        "skills": room.doctor.get_skills(),
+                        "intrests": room.doctor.get_intrests(),
+                        "doctor_pic": room.doctor.get_profile_pic(),
+                        "free_slots": free_slots,
+                        "pending_slots": pending_slots,
+                        "accept_slots": accept_slots
+                    })   
+                else:
+                    return Response({
+                        "status": "success",
+                        "data": [],
+                        "date": date,
+                        "doctor_information": room_serializer,
+                        "skills": room.doctor.get_skills(),
+                        "intrests": room.doctor.get_intrests(),
+                        "doctor_pic": room.doctor.get_profile_pic(),
+                        "free_slots": free_slots,
+                        "pending_slots": pending_slots,
+                        "accept_slots": accept_slots
+                })
             else:
                 return Response({
-                    "status": "success",
-                    "data": [],
-                    "date": date,
-                    "doctor_information": room_serializer,
-                    "skills": room.doctor.get_skills(),
-                    "intrests": room.doctor.get_intrests(),
-                    "doctor_pic": room.doctor.get_profile_pic(),
-                    "free_slots": free_slots,
-                    "pending_slots": pending_slots,
-                    "accept_slots": accept_slots
+                    "status": "error",
+                    "message": "Sorry you can't see previous time slots"
                 })
         except Exception as e:
             return Response({
