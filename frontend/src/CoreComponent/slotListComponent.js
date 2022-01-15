@@ -7,8 +7,6 @@ import {
   TextField,
   Typography,
   CardMedia,
-  Card,
-  CardContent,
 } from "@mui/material";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";

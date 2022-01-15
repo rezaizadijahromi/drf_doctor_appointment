@@ -24,7 +24,9 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 ## django restframework
 from rest_framework import permissions, serializers, views, status
 from rest_framework.views import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FileUploadParser
 
@@ -113,6 +115,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def users(request):
     query = request.query_params.get('q') or ''
     users = User.objects.filter(
@@ -124,13 +127,6 @@ def users(request):
     result_page = paginator.paginate_queryset(users,request)
     serializer = UserSerializer(result_page, many=True)
     return paginator.get_paginated_response(serializer.data)
-
-
-class Profile(views.APIView):
-    permission_classes  = [permissions.IsAuthenticated]
-    def get(self, request):
-        serializer = UserSerializer(request.user, many=False)
-        return Response(serializer.data)
 
 class UserProfileUpdateViewV2(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -163,6 +159,10 @@ class UserProfileUpdateViewV2(views.APIView):
 class UserPofileView(views.APIView):
     permission_classes  = [permissions.IsAuthenticated]
 
+    def get(self, request):
+        serializer = UserSerializer(request.user, many=False)
+        return Response(serializer.data)
+
     def patch(self, request):
         new_email = request.data.get('email')
         email_valid_check_result = email_validator(new_email)
@@ -180,9 +180,6 @@ class UserPofileView(views.APIView):
             "updated_email": new_email,
             "user": serializer.data
         }, status=status.HTTP_200_OK)
-
-class UserProfileDelete(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request):
         request.user.delete()
