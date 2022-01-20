@@ -62,7 +62,6 @@ class RoomView(views.APIView):
 
 class RoomDetailTime(views.APIView):
     def post(self, request):
-        print("test")
         try:
             res, date = [], request.data["date"]
             roomID = request.data["id"]
