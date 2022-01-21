@@ -14,7 +14,7 @@ from django.core.checks.messages import Error
 from django.db.models import Avg, Count, Max, Min, Sum
 from rest_framework import generics, serializers, status, permissions, views
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from users.models import UserProfile
@@ -25,6 +25,8 @@ from .models import Booking, Room
 from .serializer import BookingSerializer, RoomSerializer, RoomDetailBookSerializer
 
 class RoomView(views.APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         rooms = Room.objects.all()
         serializer = RoomSerializer(rooms, many=True)
@@ -50,13 +52,13 @@ class RoomView(views.APIView):
                 }, status=status.HTTP_200_OK)
             else:
                 return Response({
-                    'status': 'failed',
+                    'status': 'error',
                     'message': "None value for room_name is not acceptable",
                 })
 
         except Exception as e:
             return Response({
-                'status' : 'failed',
+                'status' : 'error',
                 'message': e
             })
 
@@ -397,10 +399,18 @@ class BookAppointment(views.APIView):
             )
 
             if slot[0].patient == request.user.userprofile:
-                slot.update(
-                    patient=None,
-                    is_pending=False
-                )
+
+                if slot[0].admin_did_accept == True:
+                    slot.update(
+                        patient=None,
+                        is_pending=False,
+                        admin_did_accept=False
+                    )
+                else:
+                    slot.update(
+                        patient=None,
+                        is_pending=False,
+                    )
 
                 email_subject = "Metting has been cancelled"
                 message = render_to_string(
@@ -417,7 +427,7 @@ class BookAppointment(views.APIView):
                     email_subject, message,
                     to=[to_email]
                 )
-                # email.send()
+                email.send()
 
                 return Response({
                     "status": "success",
@@ -425,13 +435,13 @@ class BookAppointment(views.APIView):
                 })
             else:
                 return Response({
-                    "status": "fail",
+                    "status": "error",
                     "message": "sorry you can't cancell this appointment"
                 })
 
         except Exception as e:
             return Response({
-                "status": "fail",
+                "status": "error",
                 'message': e
             })
 
