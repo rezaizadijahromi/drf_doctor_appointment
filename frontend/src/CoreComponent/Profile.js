@@ -1,13 +1,12 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { makeStyles } from "@mui/styles";
-import { Link } from "react-router-dom";
 import { apiConfig } from "../config";
-import { Form, Button, Row, Col, Container } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
 import "./profile.css";
+import { CardMedia } from "@mui/material";
 
 {
 	/* {message && <Message variant="danger">{message}</Message>}
@@ -35,14 +34,33 @@ const Profile = () => {
 				config
 			);
 
+			console.log(response.data);
+
 			if (response.data) {
 				setUsername(response.data.username);
 				setEmail(response.data.email);
-				setImage(response.data.profile_pic);
+				setImage(response.data.profile.profile_pic);
 				// Todo Need to add notification
 			} else {
 				// pop up error messages
 			}
+		}
+	};
+
+	const uploadFileHandler = async (e) => {
+		const file = e.target.files[0];
+		const formData = new FormData();
+		formData.append("image", file);
+		try {
+			const config = {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			};
+			const { data } = await axios.post("/api/upload", formData, config);
+			setImage(data);
+		} catch (error) {
+			console.error(error);
 		}
 	};
 
@@ -53,30 +71,41 @@ const Profile = () => {
 	return (
 		<>
 			<div class="userInformation">
-				<div class="top-text">مشخصات شما:</div>
+				<div class="top-text">User Information:</div>
 
 				<div class="half-div">
 					<div class="information">
-						<div class="info">نام و نام خانوادگی :</div>
-						<div>
-							<input type="text" class="intext" />
-						</div>
-						<div class="info">پست الکترونیک:</div>
-						<div>
-							<input type="email" class="intext" />
-						</div>
-						<div class="info">شماره موبایل:</div>
-						<div>
-							<input type="text" class="intext" />
-						</div>
-						<div class="info">کلمه عبور:</div>
-						<div>
-							<input type="password" class="intext" />
-						</div>
-						<div class="info">تکرار کلمه عبور:</div>
-						<div>
-							<input type="password" class="intext" />
-						</div>
+						<div class="info">Username</div>
+						<Form.Control
+							className="intext"
+							type="text"
+							value={username}
+							onChange={(e) => setUsername(e.target.value)}
+						></Form.Control>
+
+						<div class="info">Email</div>
+						<Form.Control
+							type="email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+						></Form.Control>
+
+						<div class="info">Password</div>
+						<Form.Control
+							className="intext"
+							type="text"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+						></Form.Control>
+
+						<div class="info">Confirm your password</div>
+						<Form.Control
+							className="intext"
+							type="text"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+						></Form.Control>
+
 						<div>
 							<button
 								class="
@@ -87,14 +116,21 @@ const Profile = () => {
                     "
 								type="submit"
 							>
-								ثبت اطلاعات
+								Update
 							</button>
 						</div>
 					</div>
 
 					<div class="forimg">
-						<img src="../img/useraccount/avatar2.png" />
-
+						<CardMedia component="img" src={image}></CardMedia>
+						{/*             
+						<Form.File
+							id="image-file"
+							label="Choose File"
+							custom
+							onChange={uploadFileHandler}
+						></Form.File> */}
+						{/* {uploading && <Loader />} */}
 						<button
 							class="
                      button-avatar
@@ -105,34 +141,8 @@ const Profile = () => {
                     "
 							type="submit"
 						>
-							تغییر اواتار
+							Change the profile picture
 						</button>
-					</div>
-				</div>
-			</div>
-			<div id="orders" class="userInformation">
-				<div class="toptext">سفر‌های شما</div>
-				<div class="half-div">
-					<div class="orderinfo">
-						در این قسمت سفر‌های ثبت شده را مشاهده می‌کنید.
-					</div>
-
-					<div class="forcard">
-						<div class="card">
-							<img src="../img/useraccount/hotel4.jpg" />
-							<hr />
-							<section>
-								<h2>نام هتل</h2>
-							</section>
-
-							<section>
-								<span>قیمت اتاق به ازای هر شب </span>
-							</section>
-
-							<section>
-								<a href="#">مشاهده هتل</a>
-							</section>
-						</div>
 					</div>
 				</div>
 			</div>

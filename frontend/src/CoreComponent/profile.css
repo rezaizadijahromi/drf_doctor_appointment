@@ -14,7 +14,6 @@ body {
     font-family: IRANSans;
     color: #333;
     line-height: 1.6;
-    direction: rtl;
     background-size: 100%;
     background: var(--background-color);
     /* background-image: url(../img/contact-about/background2.jpg); */
@@ -32,8 +31,10 @@ body {
 .userInformation{
     border: 1px solid black;
     border-radius: 20px;
-    margin: 0 5%;
+    margin: 5% 5%;
     padding: 20px;
+    direction: rtl;
+
 }
 
 .top-text {
@@ -105,7 +106,7 @@ body {
     font-family: IRANSans;
     font-weight: bold;
     font-size: 16px;
-    text-align: right;
+    text-align: center;
 }
 
 .intext {
