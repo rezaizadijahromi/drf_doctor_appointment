@@ -1,3 +1,9 @@
 {
-    "editor.wordWrap": "on"
+    "editor.wordWrap": "on",
+    "reactSnippets.settings.prettierEnabled": true,
+    "prettier.eslintIntegration": true,
+    "prettier.useTabs": true,
+    "prettier.vueIndentScriptAndStyle": true,
+    "prettier.withNodeModules": true,
+    "editor.formatOnSave": true,
 }
