@@ -1,4 +1,4 @@
-## Python modules
+# Python modules
 import datetime
 from functools import partialmethod
 import uuid
@@ -7,21 +7,21 @@ import os.path
 from django.core.checks import messages
 from django.http import response
 
-## email validator packege
+# email validator packege
 from email_validator import validate_email, EmailNotValidError
 from django.contrib.auth.tokens import default_token_generator
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMessage
-## django imports
+# django imports
 from django.shortcuts import render
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from django.db.models import Q , Count
+from django.db.models import Q, Count
 from django.core.files.storage import default_storage
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-## django restframework
+# django restframework
 from rest_framework import permissions, serializers, views, status
 from rest_framework.views import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -30,11 +30,11 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FileUploadParser
 
-## drf jwt
+# drf jwt
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-## app imports
+# app imports
 from .models import SkillTag, TopicTag, UserProfile
 from .serializers import (UserProfileSerializer, UserSerializer,
                           UserSerializerWithToken, CurrentUserSerializer)
@@ -48,6 +48,7 @@ def email_validator(email):
     except EmailNotValidError as e:
         return str(e)
 
+
 class RegisterView(views.APIView):
     permissuib_classes = [permissions.AllowAny]
     authentication_classes = []
@@ -59,7 +60,7 @@ class RegisterView(views.APIView):
         email_valid_check_result = email_validator(email)
         messages = {'errors': []}
 
-        ## validate fields and then save to db
+        # validate fields and then save to db
         if username == "None":
             messages['errors'].append("username can't be empty")
         if email == "None":
@@ -69,11 +70,13 @@ class RegisterView(views.APIView):
         if password == "None":
             messages['errors'].append("password can't be empty")
         if User.objects.filter(email=email).exists():
-            messages['errors'].append("account already exists with this email id")
+            messages['errors'].append(
+                "account already exists with this email id")
         if User.objects.filter(username__iexact=username).exists():
-            messages['errors'].append(("Acount already exists with this username"))
+            messages['errors'].append(
+                ("Acount already exists with this username"))
         if len(messages['errors']) > 0:
-            return Response({"detail":messages['errors']},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": messages['errors']}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             user = User.objects.create(
@@ -83,12 +86,13 @@ class RegisterView(views.APIView):
             )
             serializer = UserSerializerWithToken(user, many=False)
         except Exception as e:
-            return Response({'detail':f'{e}'},status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(serializer.data)
 
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -110,6 +114,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return data
 
+
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
@@ -119,14 +124,15 @@ class MyTokenObtainPairView(TokenObtainPairView):
 def users(request):
     query = request.query_params.get('q') or ''
     users = User.objects.filter(
-        Q(userprofile__name__icontains=query) | 
+        Q(userprofile__name__icontains=query) |
         Q(userprofile__username__icontains=query)
     )
     paginator = PageNumberPagination()
     paginator.page_size = 10
-    result_page = paginator.paginate_queryset(users,request)
+    result_page = paginator.paginate_queryset(users, request)
     serializer = UserSerializer(result_page, many=True)
     return paginator.get_paginated_response(serializer.data)
+
 
 class UserProfileUpdateViewV2(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -150,14 +156,15 @@ class UserProfileUpdateViewV2(views.APIView):
                 profile.save()
 
             return Response({
-                'success':True, 
+                'success': True,
                 'message': 'successfully updated your profile',
                 'user': UserSerializer(user).data,
                 'updated_email': new_email
             }, status=status.HTTP_200_OK)
 
+
 class UserPofileView(views.APIView):
-    permission_classes  = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         serializer = UserSerializer(request.user, many=False)
@@ -188,6 +195,7 @@ class UserPofileView(views.APIView):
             'success': True,
             'message': 'account deleted successfully'
         }, status=status.HTTP_200_OK)
+
 
 class SendActivationEmail(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -220,6 +228,7 @@ class SendActivationEmail(views.APIView):
                 'message': f'{e}'
             }, status=status.HTTP_403_FORBIDDEN)
 
+
 class Activate(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -240,9 +249,10 @@ class Activate(views.APIView):
             })
         else:
             return Response({
-                'success':False,
+                'success': False,
                 'message': 'something went wrong, please try againg'
             }, status=status.HTTP_406_NOT_ACCEPTABLE)
+
 
 class PasswordChangeView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -268,19 +278,19 @@ class PasswordChangeView(views.APIView):
                 })
         elif new_password == user.password:
             return Response({
-                    'success': False,
-                    'message': "new password is same as old password try again"
+                'success': False,
+                'message': "new password is same as old password try again"
             })
         elif new_password is None:
             return Response({
-                    'success': False,
-                    'message': "new password field required"
-                })
+                'success': False,
+                'message': "new password field required"
+            })
         elif new_password_confirm is None:
             return Response({
-                    'success': False,
-                    'message': "new password confirm field required"
-                })
+                'success': False,
+                'message': "new password confirm field required"
+            })
 
 
 class ProfilePictureUpdateView(views.APIView):
@@ -297,13 +307,15 @@ class ProfilePictureUpdateView(views.APIView):
 
         if filename:
             request.user.userprofile.save()
-            serializer = UserProfileSerializer(request.user.userprofile, many=False)
+            serializer = UserProfileSerializer(
+                request.user.userprofile, many=False)
 
         return Response({
             "success": True,
             "message": "Profile picture has been successfully updated",
             "data": serializer.data
         }, status=status.HTTP_200_OK)
+
 
 class ProfilePictureDeleteView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -316,10 +328,10 @@ class ProfilePictureDeleteView(views.APIView):
             'success': True,
             'message': 'Profile picture deleted'
         })
-    
+
 
 class UpdateSkillsView(views.APIView):
-    permission_classes  = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request):
         user_profile = request.user.userprofile
@@ -332,8 +344,9 @@ class UpdateSkillsView(views.APIView):
 
         return Response(serializer.data)
 
+
 class UpdateInterestsView(views.APIView):
-    permission_classes  = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def patch(self, request):
         user_profile = request.user.userprofile
