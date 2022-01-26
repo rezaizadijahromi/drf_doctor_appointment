@@ -13,7 +13,7 @@ app_name = "users"
 urlpatterns = [
     # Admin
     path('', views.users, name='users'),
-    path('delete/', views.AdminActions.as_view(), name='delete_users'),
+    path('delete/<str:user_id>/', views.AdminActions.as_view(), name='delete_users'),
 
     # Profile
     path('profile/', views.UserPofileView.as_view(), name='profile'),
