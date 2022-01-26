@@ -359,3 +359,32 @@ class UpdateInterestsView(views.APIView):
         serializer = UserProfileSerializer(user_profile, many=False)
 
         return Response(serializer.data)
+
+
+class AdminActions(views.APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def delete(self, request):
+        user_profile = request.user.id
+        user_id = request.data.get("user_id")
+
+        if user_id != user_profile:
+            user = User.objects.get(id=user_id)
+            if user:
+
+                user.delete()
+
+                return Response({
+                    "status": "success",
+                    "message": "the user deleted successfully"
+                })
+            else:
+                return Response({
+                    "status": "Error",
+                    "message": "User not found"
+                })
+        else:
+            return Response({
+                "status": "Error",
+                "message": "You can't delete your profile"
+            })
