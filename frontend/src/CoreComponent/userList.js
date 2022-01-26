@@ -119,7 +119,7 @@ const UserList = () => {
 								</TableCell>
 								<TableCell className={classes.rowColor} align="center">
 									<Button
-										color="warning"
+										color="error"
 										variant="contained"
 										onClick={deleteHandler(user.id)}
 									>
