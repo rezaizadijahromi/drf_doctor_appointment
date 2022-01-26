@@ -126,7 +126,7 @@ def users(request):
     users = User.objects.filter(
         Q(userprofile__name__icontains=query) |
         Q(userprofile__username__icontains=query)
-    )
+    ).order_by("id")
     paginator = PageNumberPagination()
     paginator.page_size = 10
     result_page = paginator.paginate_queryset(users, request)

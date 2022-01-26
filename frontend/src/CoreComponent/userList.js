@@ -24,7 +24,7 @@ const UserList = () => {
 					id: "1",
 				},
 				email: "email@gmail.com",
-				isAdmin: false,
+				is_superuser: false,
 			},
 		},
 	]);
@@ -65,9 +65,9 @@ const UserList = () => {
 		userList();
 	}, []);
 
-	users.map((user) => {
-		console.log(user.email);
-	});
+	// users.map((user) => {
+	// 	console.log(user.is_superuser);
+	// });
 
 	const deleteHandler = (id) => {
 		if (window.confirm("Are you sure?")) {
@@ -80,11 +80,11 @@ const UserList = () => {
 				<Table sx={{ minWidth: 650 }} aria-label="simple table">
 					<TableHead>
 						<TableRow>
-							<TableCell>Dessert (100g serving)</TableCell>
-							<TableCell align="right">Calories</TableCell>
-							<TableCell align="right">Fat&nbsp;(g)</TableCell>
-							<TableCell align="right">Carbs&nbsp;(g)</TableCell>
-							<TableCell align="right">Protein&nbsp;(g)</TableCell>
+							<TableCell>ID</TableCell>
+							<TableCell align="right">EMAIL</TableCell>
+							<TableCell align="right">USERNAME</TableCell>
+							<TableCell align="right">ISADMIN</TableCell>
+							<TableCell align="right">DELETE</TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
@@ -94,12 +94,16 @@ const UserList = () => {
 								sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
 							>
 								<TableCell component="th" scope="row">
-									{user.username}
+									{user.id}
 								</TableCell>
+								<TableCell align="right">{user.email}</TableCell>
 								<TableCell align="right">{user.username}</TableCell>
-								<TableCell align="right">{user.username}</TableCell>
-								<TableCell align="right">{user.username}</TableCell>
-								<TableCell align="right">{user.username}</TableCell>
+								<TableCell align="right">
+									{user.is_superuser ? "True" : "False"}
+								</TableCell>
+								<TableCell align="right">
+									{user.is_superuser ? "True" : "False"}
+								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>

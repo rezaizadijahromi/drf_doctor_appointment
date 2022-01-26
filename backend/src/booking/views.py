@@ -9,7 +9,6 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.core.mail import EmailMessage
 
 
-
 from django.core.checks.messages import Error
 from django.db.models import Avg, Count, Max, Min, Sum
 from rest_framework import generics, serializers, status, permissions, views
@@ -23,6 +22,7 @@ from .slot_generator import slot_generator
 
 from .models import Booking, Room
 from .serializer import BookingSerializer, RoomSerializer, RoomDetailBookSerializer
+
 
 class RoomView(views.APIView):
     permission_classes = [AllowAny]
@@ -40,9 +40,9 @@ class RoomView(views.APIView):
 
             if room_name is not None:
                 room = Room.objects.create(
-                    room_name=room_name, 
+                    room_name=room_name,
                     description=description,
-                )       
+                )
                 room.save()
                 serializer = RoomSerializer(room, many=False)
                 return Response({
@@ -58,9 +58,10 @@ class RoomView(views.APIView):
 
         except Exception as e:
             return Response({
-                'status' : 'error',
+                'status': 'error',
                 'message': e
             })
+
 
 class RoomDetailTime(views.APIView):
     def post(self, request):
@@ -71,26 +72,27 @@ class RoomDetailTime(views.APIView):
             for item in Booking.objects.filter(
                     booking_date__exact=date,
                     room__exact=roomID
-                 ).order_by(
-                        'start_timing',
-                        '-admin_did_accept',
-                        '-is_pending')\
-                            .distinct(
-                            'start_timing'):
+                ).order_by(
+                'start_timing',
+                '-admin_did_accept',
+                '-is_pending')\
+                .distinct(
+                    'start_timing'):
 
                 x = {"start_timing": item.start_timing,
                      "end_timing": item.end_timing,
                      "admin_did_accept": item.admin_did_accept,
                      "is_pending": item.is_pending,
-                    "availabel" : False
+                     "availabel": False
                      }
                 res.append(x)
             # Create and append empty slots
             check = list()
             for i in res:
-                check.append((i["start_timing"],i["end_timing"]))
+                check.append((i["start_timing"], i["end_timing"]))
 
-            todayDate, todayTime = str(datetime.date.today()), datetime.datetime.today().time()
+            todayDate, todayTime = str(
+                datetime.date.today()), datetime.datetime.today().time()
 
             buffer = datetime.timedelta(minutes=10)
             start = datetime.datetime(2000, 1, 1, 8, 0, 0)
@@ -105,18 +107,18 @@ class RoomDetailTime(views.APIView):
 
                     if start.time().hour == 8:
                         y = {"start_timing": start.time(),
-                            "end_timing": (start+delta).time(),
-                            "admin_did_accept": False,
-                            "is_pending": False,
-                            "availabel": True
-                            }
+                             "end_timing": (start+delta).time(),
+                             "admin_did_accept": False,
+                             "is_pending": False,
+                             "availabel": True
+                             }
                     else:
-                        y = {"start_timing": (start + buffer ).time(),
-                            "end_timing": (start+delta).time(),
-                            "admin_did_accept": False,
-                            "is_pending": False,
-                            "availabel": True
-                            }
+                        y = {"start_timing": (start + buffer).time(),
+                             "end_timing": (start+delta).time(),
+                             "admin_did_accept": False,
+                             "is_pending": False,
+                             "availabel": True
+                             }
 
                     for time in check:
                         if time[1].hour == y["start_timing"].hour and time[1].minute > y["start_timing"].minute:
@@ -124,15 +126,14 @@ class RoomDetailTime(views.APIView):
                         elif time[1].hour == y["end_timing"].hour and time[1].minute == y["end_timing"].minute:
                             y["start_timing"]
                             # y["availabel"] = False
-                            y["end_timing"] = time[0] 
-                        if time[0].hour == y["start_timing"].hour :
+                            y["end_timing"] = time[0]
+                        if time[0].hour == y["start_timing"].hour:
                             y["availabel"] = False
 
                     if y["availabel"] == True:
                         res.append(y)
                 start += delta
 
-                
             return Response(sorted(res, key=lambda i: i['start_timing']))
 
         except Exception as IndexError:
@@ -140,6 +141,7 @@ class RoomDetailTime(views.APIView):
 
         except Exception as e:
             return Response({"message": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class RoomDetail(views.APIView):
 
@@ -179,12 +181,11 @@ class RoomDetail(views.APIView):
                 admin_did_accept=True
             ).count()
 
-            serializer_data = RoomDetailBookSerializer(times, many=True).data 
+            serializer_data = RoomDetailBookSerializer(times, many=True).data
             print(serializer_data)
 
             room_serializer = RoomSerializer(room).data
 
-        
             if len(serializer_data) > 0:
                 return Response({
                     "status": "success",
@@ -197,7 +198,7 @@ class RoomDetail(views.APIView):
                     "free_slots": free_slots,
                     "pending_slots": pending_slots,
                     "accept_slots": accept_slots
-                })  
+                })
             else:
                 return Response({
                     "status": "success",
@@ -240,7 +241,8 @@ class RoomDetail(views.APIView):
                     '-is_pending'
                 )
 
-                serializer_data = RoomDetailBookSerializer(times, many=True).data 
+                serializer_data = RoomDetailBookSerializer(
+                    times, many=True).data
 
                 room_serializer = RoomSerializer(room).data
 
@@ -265,7 +267,6 @@ class RoomDetail(views.APIView):
                     admin_did_accept=True
                 ).count()
 
-            
                 if len(serializer_data) > 0:
                     return Response({
                         "status": "success",
@@ -278,7 +279,7 @@ class RoomDetail(views.APIView):
                         "free_slots": free_slots,
                         "pending_slots": pending_slots,
                         "accept_slots": accept_slots
-                    })   
+                    })
                 else:
                     return Response({
                         "status": "success",
@@ -292,7 +293,7 @@ class RoomDetail(views.APIView):
                         "free_slots": free_slots,
                         "pending_slots": pending_slots,
                         "accept_slots": accept_slots
-                })
+                    })
             else:
                 return Response({
                     "status": "error",
@@ -300,9 +301,10 @@ class RoomDetail(views.APIView):
                 })
         except Exception as e:
             return Response({
-            "status": "error",
-            'message': e
+                "status": "error",
+                'message': e
             })
+
 
 class BookAppointment(views.APIView):
     def post(self, request, roomId):
@@ -310,7 +312,7 @@ class BookAppointment(views.APIView):
             user=request.user
         )
         try:
-            data  = request.data
+            data = request.data
 
             date = data["date"]
             slot_id = data["slot_id"]
@@ -372,7 +374,7 @@ class BookAppointment(views.APIView):
                     })
             else:
                 return Response({
-                    "status":"error",
+                    "status": "error",
                     "message": "You can't book two slot in same day cancell other slot or try on another date"
                 })
         except Exception as e:
@@ -384,7 +386,7 @@ class BookAppointment(views.APIView):
     def delete(self, request, roomId):
         user_profile = request.user
         try:
-            
+
             slot_id = request.data["slot_id"]
             date = request.data["date"]
 
@@ -445,6 +447,7 @@ class BookAppointment(views.APIView):
                 'message': e
             })
 
+
 class ClosestSlotView(views.APIView):
     permission_classes = [IsAdminUser]
 
@@ -475,12 +478,13 @@ class ClosestSlotView(views.APIView):
                 "error": e
             })
 
+
 class AdminView(views.APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
         try:
-            data  = request.data
+            data = request.data
 
             date = data["date"]
             roomId = data["roomId"]
@@ -488,7 +492,6 @@ class AdminView(views.APIView):
             room = Room.objects.get(
                 id__exact=roomId
             )
-
 
             slots = Booking.objects.filter(
                 room=room,
@@ -499,7 +502,7 @@ class AdminView(views.APIView):
             slot_serializers = RoomDetailBookSerializer(slots, many=True).data
 
             return Response({
-                "status":"success",
+                "status": "success",
                 "data": slot_serializers
             })
 
@@ -516,7 +519,7 @@ class AdminView(views.APIView):
         ]
 
         try:
-            data  = request.data
+            data = request.data
 
             date = data["date"]
             roomId = data["roomId"]
@@ -539,19 +542,17 @@ class AdminView(views.APIView):
                 id=slot_id
             )
 
-
             if action in actions_list:
 
                 if action == "DELETE":
                     if slots[0].admin_did_accept:
-                    
+
                         slots.update(
                             patient=None,
                             is_pending=False,
                             admin_did_accept=False
                         )
 
-                                    
                         email_subject = "Your request has been rejected"
                         message = render_to_string(
                             'email_cancell.html',
@@ -573,12 +574,12 @@ class AdminView(views.APIView):
                         email.send()
 
                         return Response({
-                            "status":"success",
+                            "status": "success",
                             "message": "request has been rejected"
                         }, status=status.HTTP_200_OK)
                     else:
                         return Response({
-                            "status":"success",
+                            "status": "success",
                             "message": "request not been assign"
                         }, status=status.HTTP_200_OK)
 
@@ -590,7 +591,6 @@ class AdminView(views.APIView):
                             admin_feedback=feed_back
                         )
 
-                                                  
                         email_subject = "Your request for meeting has been accepted"
                         message = render_to_string(
                             'email_cancell.html',
@@ -611,7 +611,7 @@ class AdminView(views.APIView):
                         email.send()
 
                         return Response({
-                            "status":"success",
+                            "status": "success",
                             "message": "request has been accepted"
                         }, status=status.HTTP_200_OK)
                     else:
@@ -620,7 +620,7 @@ class AdminView(views.APIView):
                             "message": "already accepted"
                         })
             else:
-              raise TypeError("action type not finde")  
+                raise TypeError("action type not finde")
 
         except Exception as e:
             return Response({
@@ -634,7 +634,7 @@ class AdminView(views.APIView):
             data = request.data
             minute, startH, endH = data['minute'], data["startH"], data["endH"]
 
-            #time_slots --> [((start, min, s), (end, min, s))]
+            # time_slots --> [((start, min, s), (end, min, s))]
 
             time_slots = slot_generator(minute, startH, endH)
             date = data["date"]
@@ -642,7 +642,7 @@ class AdminView(views.APIView):
             room = data["roomId"]
 
             roomId = Room.objects.get(id__exact=room)
-            
+
             for slot in time_slots[0:length]:
                 b = Booking.objects.create(
                     room=roomId,
@@ -654,25 +654,24 @@ class AdminView(views.APIView):
                 )
 
                 res.append({
-                    "start":b.start_timing,
+                    "start": b.start_timing,
                     "end": b.end_timing,
                     "is_pending": False,
                     "admin_did_accept": b.admin_did_accept
                 })
 
-            
             return Response({
-                "success":True,
-                "message":"Slots has been created",
+                "success": True,
+                "message": "Slots has been created",
                 "data": {
                     "room-id": room,
-                    "rooms":[i for i in res]
+                    "rooms": [i for i in res]
                 }
             })
-            
+
         except Exception as e:
             return Response({
-                'success':False,
+                'success': False,
                 'message': e
             })
 
@@ -698,11 +697,11 @@ class UserPastBookingsView(views.APIView):
         return Response(sorted(res, key=lambda i: i['start_timing']))
 
 
-
 class AllBookingView(views.APIView):
     def get(self, request):
         bookings = Booking.objects.all()
         return Response(bookings)
+
 
 class AdminAddRoom(views.APIView):
     permission_classes = [IsAdminUser]
@@ -730,7 +729,7 @@ class AdminAddRoom(views.APIView):
                 serializer_data = RoomSerializer(room).data
 
                 return Response({
-                    'status':'success',
+                    'status': 'success',
                     'data': serializer_data
                 })
             else:
@@ -738,10 +737,10 @@ class AdminAddRoom(views.APIView):
                     "status": 'failed',
                     "message": 'doctor not fund'
                 })
-            
+
         except Exception as e:
             return Response({
-                'status':'failed',
+                'status': 'failed',
                 'message': e
             })
 
@@ -752,7 +751,7 @@ class AdminAddRoom(views.APIView):
 
 #     # time_slots = slot_generator()
 
-    
+
 #     def post(self, request):
 #         try:
 #             res, data = [], request.data
@@ -771,12 +770,12 @@ class AdminAddRoom(views.APIView):
 #                     start_timing=start,
 #                     end_timing=end
 #                   ).exclude(admin_did_accept=False, is_pending=False).count() >= 1:
-                
+
 #                 return Response({
 #                     "success": False,
 #                     "message":"You have already booked this timing. You cannot book 2 slots at the same time"
 #                     }, status.HTTP_409_CONFLICT)
-            
+
 #             for item in Booking.objects.filter(
 #                     booking_date__exact=date,
 #                     room__exact=roomId
@@ -801,14 +800,14 @@ class AdminAddRoom(views.APIView):
 #                         purpose_of_booking=purpose,
 #                         is_pending=True
 #                     )
-                        
+
 #                     return Response(
 #                         {
 #                             "success":True,
 #                             "message":"Booking has been added to the existing queue"}
 #                         ,status=status.HTTP_202_ACCEPTED)
 #             else:
-#                 # no clashes executed if for loop doesnt break show this response 
+#                 # no clashes executed if for loop doesnt break show this response
 #                 return Response(
 #                     {
 #                         "success":False,
