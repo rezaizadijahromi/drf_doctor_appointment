@@ -11,9 +11,21 @@ import Paper from "@mui/material/Paper";
 
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
-import "./profile.css";
+import { Button } from "@mui/material";
+
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+	table: {
+		marginTop: 50,
+	},
+	rowColor: { color: "#d3d3d3", backgroundColor: "#d3d3d3" },
+	rowColor2: { color: "#a9a9a9", backgroundColor: "#a9a9a9" },
+}));
 
 const UserList = () => {
+	const classes = useStyles();
+
 	let [users, setUsers] = useState([
 		{
 			results: {
@@ -24,22 +36,11 @@ const UserList = () => {
 					id: "1",
 				},
 				email: "email@gmail.com",
-				isAdmin: false,
+				is_superuser: false,
 			},
 		},
 	]);
-	// var users = [
-	// 	{
-	// 		results: {
-	// 			profile: {
-	// 				username: "",
-	// 				id: "",
-	// 			},
-	// 			email: "",
-	// 			isAdmin: false,
-	// 		},
-	// 	},
-	// ];
+
 	const userList = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
@@ -54,9 +55,6 @@ const UserList = () => {
 
 			if (response.data) {
 				setUsers(response.data.results);
-				// for (let index = 0; index < response.data.results.length; index++) {
-				// 	// console.log(response.data.results[index]);
-				// }
 			}
 		}
 	};
@@ -65,41 +63,69 @@ const UserList = () => {
 		userList();
 	}, []);
 
-	users.map((user) => {
-		console.log(user.email);
-	});
+	// users.map((user) => {
+	// 	console.log(user.is_superuser);
+	// });
 
 	const deleteHandler = (id) => {
-		if (window.confirm("Are you sure?")) {
-		}
+		// if (window.confirm("Are you sure?")) {
+		// }
 	};
 
 	return (
 		<>
-			<TableContainer component={Paper}>
-				<Table sx={{ minWidth: 650 }} aria-label="simple table">
+			<TableContainer component={Paper} className={classes.table}>
+				<Table sx={{ minWidth: 650, height: "100%" }} aria-label="simple table">
 					<TableHead>
 						<TableRow>
-							<TableCell>Dessert (100g serving)</TableCell>
-							<TableCell align="right">Calories</TableCell>
-							<TableCell align="right">Fat&nbsp;(g)</TableCell>
-							<TableCell align="right">Carbs&nbsp;(g)</TableCell>
-							<TableCell align="right">Protein&nbsp;(g)</TableCell>
+							<TableCell className={classes.rowColor}>ID</TableCell>
+							<TableCell className={classes.rowColor2} align="center">
+								EMAIL
+							</TableCell>
+							<TableCell className={classes.rowColor} align="center">
+								USERNAME
+							</TableCell>
+							<TableCell className={classes.rowColor2} align="center">
+								ISADMIN
+							</TableCell>
+							<TableCell
+								className={classes.rowColor}
+								align="center"
+							></TableCell>
 						</TableRow>
 					</TableHead>
 					<TableBody>
 						{users.map((user) => (
 							<TableRow
+								className={classes.rowColor2}
 								key={user.id}
 								sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
 							>
-								<TableCell component="th" scope="row">
+								<TableCell
+									className={classes.rowColor}
+									component="th"
+									scope="row"
+								>
+									{user.id}
+								</TableCell>
+								<TableCell className={classes.rowColor2} align="center">
+									{user.email}
+								</TableCell>
+								<TableCell className={classes.rowColor} align="center">
 									{user.username}
 								</TableCell>
-								<TableCell align="right">{user.username}</TableCell>
-								<TableCell align="right">{user.username}</TableCell>
-								<TableCell align="right">{user.username}</TableCell>
-								<TableCell align="right">{user.username}</TableCell>
+								<TableCell className={classes.rowColor2} align="center">
+									{user.is_superuser ? "True" : "False"}
+								</TableCell>
+								<TableCell className={classes.rowColor} align="center">
+									<Button
+										color="error"
+										variant="contained"
+										onClick={deleteHandler(user.id)}
+									>
+										DELETE
+									</Button>
+								</TableCell>
 							</TableRow>
 						))}
 					</TableBody>
