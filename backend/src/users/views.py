@@ -364,9 +364,11 @@ class UpdateInterestsView(views.APIView):
 class AdminActions(views.APIView):
     permission_classes = [permissions.IsAdminUser]
 
-    def delete(self, request):
+    def delete(self, request, user_id):
         user_profile = request.user.id
-        user_id = request.data.get("user_id")
+
+        print(user_id)
+        print(user_profile)
 
         if user_id != user_profile:
             user = User.objects.get(id=user_id)

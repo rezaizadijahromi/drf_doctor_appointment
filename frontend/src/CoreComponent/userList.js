@@ -67,9 +67,26 @@ const UserList = () => {
 	// 	console.log(user.is_superuser);
 	// });
 
-	const deleteHandler = (id) => {
-		// if (window.confirm("Are you sure?")) {
-		// }
+	const deleteHandler = async (id) => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+		console.log(userLocal);
+
+		if (userLocal) {
+			const config = {
+				headers: {
+					Authorization: `Bearer ${userLocal.data.access}`,
+				},
+			};
+
+			if (window.confirm("Are you sure?")) {
+				const response = await axios.delete(
+					`${apiConfig.baseUrl}/users/delete/${id}/`,
+					config
+				);
+
+				console.log(response);
+			}
+		}
 	};
 
 	return (
@@ -121,7 +138,7 @@ const UserList = () => {
 									<Button
 										color="error"
 										variant="contained"
-										onClick={deleteHandler(user.id)}
+										onClick={() => deleteHandler(user.id)}
 									>
 										DELETE
 									</Button>
