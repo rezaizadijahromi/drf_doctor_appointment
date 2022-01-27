@@ -9,7 +9,10 @@ import Message from "../Component/Message";
 import Loader from "../Component/Loader";
 import "./profile.css";
 import { CardMedia } from "@mui/material";
-import { textAlign } from "@mui/system";
+
+function sleep(time) {
+	return new Promise((resolve) => setTimeout(resolve, time));
+}
 
 const useStyles = makeStyles((theme) => ({
 	submit: {
@@ -40,6 +43,10 @@ const Profile = () => {
 	const [password, setPassword] = useState("********");
 	const [image, setImage] = useState("");
 
+	const [message, setMessage] = useState("");
+	const [messageVarient, setMessageVarient] = useState("info");
+	const [load, setLoad] = useState(false);
+
 	const profileData = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
@@ -56,13 +63,17 @@ const Profile = () => {
 			);
 
 			console.log(response.data);
-
+			setLoad(true);
+			await sleep(500);
 			if (response.data) {
+				setLoad(false);
 				setUsername(response.data.username);
 				setEmail(response.data.email);
 				setImage(response.data.profile.profile_pic);
 				// Todo Need to add notification
 			} else {
+				setMessage(response.data.message);
+				setMessageVarient("error");
 				// pop up error messages
 			}
 		}
@@ -84,10 +95,19 @@ const Profile = () => {
 				config
 			);
 
-			if (response.data.success) {
-				console.log(response.data);
+			setLoad(true);
+			await sleep(500);
+
+			if (response.data.status === "success") {
+				await sleep(500);
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("success");
 				setEmail(response.data.updated_email);
 			} else {
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("error");
 				console.log(response.data.message);
 			}
 		}
@@ -113,8 +133,17 @@ const Profile = () => {
 				config
 			);
 
-			// setImage(response.data);
-			console.log(response.data);
+			if (response.data) {
+				setImage(response.data.profile_pic);
+				profileData();
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("success");
+			} else {
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("error");
+			}
 		} catch (error) {
 			console.log(error);
 		}
@@ -126,82 +155,88 @@ const Profile = () => {
 
 	return (
 		<>
-			<div className="userInformation">
-				<div className="top-text">User Information:</div>
+			{message && <Message variant={messageVarient}>{message}</Message>}
 
-				<div className="half-div">
-					<div className="information">
-						<div className="info">Username</div>
-						<Form.Control
-							className="intext"
-							type="text"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-						></Form.Control>
+			{load ? (
+				<Loader />
+			) : (
+				<div className="userInformation">
+					<div className="top-text">User Information:</div>
 
-						<div className="info">Email</div>
-						<Form.Control
-							type="email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-						></Form.Control>
+					<div className="half-div">
+						<div className="information">
+							<div className="info">Username</div>
+							<Form.Control
+								className="intext"
+								type="text"
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+							></Form.Control>
 
-						<div className="info">Password</div>
-						<Form.Control
-							className="intext"
-							type="text"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-						></Form.Control>
+							<div className="info">Email</div>
+							<Form.Control
+								type="email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+							></Form.Control>
 
-						<div className="info">Confirm your password</div>
-						<Form.Control
-							className="intext"
-							type="text"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-						></Form.Control>
+							<div className="info">Password</div>
+							<Form.Control
+								className="intext"
+								type="text"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+							></Form.Control>
 
-						<div className={classes.alignment}>
-							<Button
-								color="primary"
-								variant="contained"
-								onClick={changeEmail}
-								className={classes.updateButton}
-							>
-								Update
-							</Button>
+							<div className="info">Confirm your password</div>
+							<Form.Control
+								className="intext"
+								type="text"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+							></Form.Control>
+
+							<div className={classes.alignment}>
+								<Button
+									color="primary"
+									variant="contained"
+									onClick={changeEmail}
+									className={classes.updateButton}
+								>
+									Update
+								</Button>
+							</div>
+						</div>
+
+						<div className="forimg">
+							<CardMedia component="img" src={image}></CardMedia>
+
+							<label htmlFor="contained-button-file">
+								<Button
+									style={{
+										marginTop: 10,
+										right: "10%",
+										width: 200,
+									}}
+									component="span"
+									variant="contained"
+									onChange={profilePicChange}
+								>
+									<Input
+										accept="image/*"
+										id="contained-button-file"
+										multiple
+										type="file"
+										hidden
+										style={{ display: "none" }}
+									/>
+									upload
+								</Button>
+							</label>
 						</div>
 					</div>
-
-					<div className="forimg">
-						<CardMedia component="img" src={image}></CardMedia>
-
-						<label htmlFor="contained-button-file">
-							<Button
-								style={{
-									marginTop: 10,
-									right: "10%",
-									width: 200,
-								}}
-								component="span"
-								variant="contained"
-								onChange={profilePicChange}
-							>
-								<Input
-									accept="image/*"
-									id="contained-button-file"
-									multiple
-									type="file"
-									hidden
-									style={{ display: "none" }}
-								/>
-								upload
-							</Button>
-						</label>
-					</div>
 				</div>
-			</div>
+			)}
 		</>
 	);
 };
