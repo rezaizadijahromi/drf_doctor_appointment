@@ -15,6 +15,10 @@ import { Button } from "@mui/material";
 
 import { makeStyles } from "@mui/styles";
 
+function sleep(time) {
+	return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 const useStyles = makeStyles((theme) => ({
 	table: {
 		marginTop: 50,
@@ -25,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
 
 const UserList = () => {
 	const classes = useStyles();
+	const [message, setMessage] = useState("");
+	const [messageVarient, setMessageVarient] = useState("info");
+	const [load, setLoad] = useState(false);
 
 	let [users, setUsers] = useState([
 		{
@@ -53,8 +60,15 @@ const UserList = () => {
 
 			const response = await axios.get(`${apiConfig.baseUrl}/users/`, config);
 
+			setLoad(true);
+			await sleep(500);
+
 			if (response.data) {
 				setUsers(response.data.results);
+				setLoad(false);
+			} else {
+				setMessage(response.data.message);
+				setMessageVarient("error");
 			}
 		}
 	};
@@ -83,71 +97,87 @@ const UserList = () => {
 					`${apiConfig.baseUrl}/users/delete/${id}/`,
 					config
 				);
-
-				console.log(response);
+				if (response.data.status === "success") {
+					setMessage(response.data.message);
+					setMessageVarient("info");
+					userList();
+				} else {
+					setMessage(response.data.message);
+					setMessageVarient("error");
+					setLoad(false);
+				}
 			}
 		}
 	};
 
 	return (
 		<>
-			<TableContainer component={Paper} className={classes.table}>
-				<Table sx={{ minWidth: 650, height: "100%" }} aria-label="simple table">
-					<TableHead>
-						<TableRow>
-							<TableCell className={classes.rowColor}>ID</TableCell>
-							<TableCell className={classes.rowColor2} align="center">
-								EMAIL
-							</TableCell>
-							<TableCell className={classes.rowColor} align="center">
-								USERNAME
-							</TableCell>
-							<TableCell className={classes.rowColor2} align="center">
-								ISADMIN
-							</TableCell>
-							<TableCell
-								className={classes.rowColor}
-								align="center"
-							></TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{users.map((user) => (
-							<TableRow
-								className={classes.rowColor2}
-								key={user.id}
-								sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-							>
+			{message && <Message variant={messageVarient}>{message}</Message>}
+
+			{load ? (
+				<Loader />
+			) : (
+				<TableContainer component={Paper} className={classes.table}>
+					<Table
+						sx={{ minWidth: 650, height: "100%" }}
+						aria-label="simple table"
+					>
+						<TableHead>
+							<TableRow>
+								<TableCell className={classes.rowColor}>ID</TableCell>
+								<TableCell className={classes.rowColor2} align="center">
+									EMAIL
+								</TableCell>
+								<TableCell className={classes.rowColor} align="center">
+									USERNAME
+								</TableCell>
+								<TableCell className={classes.rowColor2} align="center">
+									ISADMIN
+								</TableCell>
 								<TableCell
 									className={classes.rowColor}
-									component="th"
-									scope="row"
-								>
-									{user.id}
-								</TableCell>
-								<TableCell className={classes.rowColor2} align="center">
-									{user.email}
-								</TableCell>
-								<TableCell className={classes.rowColor} align="center">
-									{user.username}
-								</TableCell>
-								<TableCell className={classes.rowColor2} align="center">
-									{user.is_superuser ? "True" : "False"}
-								</TableCell>
-								<TableCell className={classes.rowColor} align="center">
-									<Button
-										color="error"
-										variant="contained"
-										onClick={() => deleteHandler(user.id)}
-									>
-										DELETE
-									</Button>
-								</TableCell>
+									align="center"
+								></TableCell>
 							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</TableContainer>
+						</TableHead>
+						<TableBody>
+							{users.map((user) => (
+								<TableRow
+									className={classes.rowColor2}
+									key={user.id}
+									sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+								>
+									<TableCell
+										className={classes.rowColor}
+										component="th"
+										scope="row"
+									>
+										{user.id}
+									</TableCell>
+									<TableCell className={classes.rowColor2} align="center">
+										{user.email}
+									</TableCell>
+									<TableCell className={classes.rowColor} align="center">
+										{user.username}
+									</TableCell>
+									<TableCell className={classes.rowColor2} align="center">
+										{user.is_superuser ? "True" : "False"}
+									</TableCell>
+									<TableCell className={classes.rowColor} align="center">
+										<Button
+											color="error"
+											variant="contained"
+											onClick={() => deleteHandler(user.id)}
+										>
+											DELETE
+										</Button>
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				</TableContainer>
+			)}
 		</>
 	);
 };
