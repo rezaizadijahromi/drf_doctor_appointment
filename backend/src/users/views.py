@@ -131,7 +131,13 @@ def users(request):
     paginator.page_size = 10
     result_page = paginator.paginate_queryset(users, request)
     serializer = UserSerializer(result_page, many=True)
-    return paginator.get_paginated_response(serializer.data)
+    try:
+        return paginator.get_paginated_response(serializer.data)
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": e
+        })
 
 
 class UserProfileUpdateViewV2(views.APIView):
@@ -174,84 +180,34 @@ class UserPofileView(views.APIView):
         new_email = request.data.get('email')
         email_valid_check_result = email_validator(new_email)
 
-        if new_email is not None and email_valid_check_result:
-            request.user.email = new_email
-            request.user.email_verified = False
+        try:
 
-            request.user.save()
-            serializer = UserSerializer(request.user, many=False)
+            if new_email is not None and email_valid_check_result:
+                request.user.email = new_email
+                request.user.email_verified = False
 
-        return Response({
-            "success": True,
-            "message": "successfully updated your profile",
-            "updated_email": new_email,
-            "user": serializer.data
-        }, status=status.HTTP_200_OK)
+                request.user.save()
+                serializer = UserSerializer(request.user, many=False)
+
+            return Response({
+                "status": "success",
+                "message": "successfully updated your profile",
+                "updated_email": new_email,
+                "user": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": e
+            })
 
     def delete(self, request):
         request.user.delete()
 
         return Response({
-            'success': True,
+            "status": "success",
             'message': 'account deleted successfully'
         }, status=status.HTTP_200_OK)
-
-
-class SendActivationEmail(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request):
-        user_profile = UserProfile.objects.get(user=request.user)
-
-        try:
-            email_subject = 'Verify your account'
-            message = render_to_string('verify-email.html', {
-                'user': user_profile,
-                'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
-                'token': default_token_generator.make_token(request.user)
-            })
-
-            to_email = request.user.email
-            email = EmailMessage(
-                email_subject, message, to=[to_email]
-            )
-
-            email.send()
-            return Response({
-                'success': 'True',
-                'message': 'Email send successfully'
-            }, status=status.HTTP_200_OK)
-
-        except Exception as e:
-            return Response({
-                'success': False,
-                'message': f'{e}'
-            }, status=status.HTTP_403_FORBIDDEN)
-
-
-class Activate(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get(self, request, uidb64, token):
-        try:
-            uid = urlsafe_base64_decode(uidb64).decode()
-            user = User._default_manager.get(pk=uid)
-
-        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
-        if user is not None and default_token_generator.check_token(user, token):
-            user_profile = UserProfile.objects.get(user=user)
-            user_profile.email_verified = True
-            user_profile.save()
-            return Response({
-                'successfull': True,
-                'message': 'email verified'
-            })
-        else:
-            return Response({
-                'success': False,
-                'message': 'something went wrong, please try againg'
-            }, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 class PasswordChangeView(views.APIView):
@@ -305,29 +261,42 @@ class ProfilePictureUpdateView(views.APIView):
         filename = default_storage.save(profile_pic.name, profile_pic)
         setattr(request.user.userprofile, "profile_pic", filename)
 
-        if filename:
-            request.user.userprofile.save()
-            serializer = UserProfileSerializer(
-                request.user.userprofile, many=False)
+        try:
+            if filename:
+                request.user.userprofile.save()
+                serializer = UserProfileSerializer(
+                    request.user.userprofile, many=False)
 
-        return Response({
-            "success": True,
-            "message": "Profile picture has been successfully updated",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
+            return Response({
+                "success": True,
+                "message": "Profile picture has been successfully updated",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": e
+            })
 
 
 class ProfilePictureDeleteView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request):
-        user = request.user.userprofile
-        user.profile_pic.url = 'default.png'
 
-        return Response({
-            'success': True,
-            'message': 'Profile picture deleted'
-        })
+        try:
+            user = request.user.userprofile
+            user.profile_pic.url = 'default.png'
+
+            return Response({
+                'success': True,
+                'message': 'Profile picture deleted'
+            })
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": e
+            })
 
 
 class UpdateSkillsView(views.APIView):
@@ -390,3 +359,60 @@ class AdminActions(views.APIView):
                 "status": "Error",
                 "message": "You can't delete your profile"
             })
+
+
+class SendActivationEmail(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user_profile = UserProfile.objects.get(user=request.user)
+
+        try:
+            email_subject = 'Verify your account'
+            message = render_to_string('verify-email.html', {
+                'user': user_profile,
+                'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                'token': default_token_generator.make_token(request.user)
+            })
+
+            to_email = request.user.email
+            email = EmailMessage(
+                email_subject, message, to=[to_email]
+            )
+
+            email.send()
+            return Response({
+                'success': 'True',
+                'message': 'Email send successfully'
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': f'{e}'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+
+class Activate(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User._default_manager.get(pk=uid)
+
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None and default_token_generator.check_token(user, token):
+            user_profile = UserProfile.objects.get(user=user)
+            user_profile.email_verified = True
+            user_profile.save()
+            return Response({
+                'successfull': True,
+                'message': 'email verified'
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'something went wrong, please try againg'
+            }, status=status.HTTP_406_NOT_ACCEPTABLE)
