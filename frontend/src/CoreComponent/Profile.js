@@ -9,6 +9,7 @@ import Message from "../Component/Message";
 import Loader from "../Component/Loader";
 import "./profile.css";
 import { CardMedia } from "@mui/material";
+import { height, style } from "@mui/system";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -32,6 +33,11 @@ const useStyles = makeStyles((theme) => ({
 	},
 	alignment: {
 		textAlign: "center",
+	},
+	imagContainer: {
+		height: 300,
+		width: 350,
+		border: "1px solid #808080",
 	},
 }));
 
@@ -209,13 +215,17 @@ const Profile = () => {
 						</div>
 
 						<div className="forimg">
-							<CardMedia component="img" src={image}></CardMedia>
+							<CardMedia
+								style={{ objectFit: "contain", height: 350, width: 350 }}
+								component="img"
+								src={image}
+							></CardMedia>
 
 							<label htmlFor="contained-button-file">
 								<Button
 									style={{
 										marginTop: 10,
-										right: "10%",
+										right: "20%",
 										width: 200,
 									}}
 									component="span"
