@@ -131,12 +131,12 @@ def users(request):
     paginator.page_size = 10
     result_page = paginator.paginate_queryset(users, request)
     serializer = UserSerializer(result_page, many=True)
-    if serializer.is_valid():
+    try:
         return paginator.get_paginated_response(serializer.data)
-    else:
+    except Exception as e:
         return Response({
             "status": "error",
-            "message": "An error accured"
+            "message": e
         })
 
 
