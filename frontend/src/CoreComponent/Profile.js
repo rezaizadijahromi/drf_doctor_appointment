@@ -155,6 +155,32 @@ const Profile = () => {
 		}
 	};
 
+	const deleteProfilePicture = async () => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+		const config = {
+			headers: {
+				Authorization: `Bearer ${userLocal.data.access}`,
+			},
+		};
+
+		const response = await axios.delete(
+			`${apiConfig.baseUrl}/users/profile_update/photo/`,
+			config
+		);
+
+		console.log(response.data);
+
+		if (response.data) {
+			profileData();
+			setMessage(response.data.message);
+			setMessageVarient("info");
+		} else {
+			setMessage(response.data.message);
+			setMessageVarient("error");
+		}
+	};
+
 	useEffect(() => {
 		profileData();
 	}, []);
@@ -243,6 +269,20 @@ const Profile = () => {
 									upload
 								</Button>
 							</label>
+
+							<Button
+								style={{
+									marginTop: 10,
+									right: "20%",
+									width: 200,
+								}}
+								color="warning"
+								component="span"
+								variant="contained"
+								onClick={deleteProfilePicture}
+							>
+								Delete
+							</Button>
 						</div>
 					</div>
 				</div>
