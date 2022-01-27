@@ -9,6 +9,7 @@ import Message from "../Component/Message";
 import Loader from "../Component/Loader";
 import "./profile.css";
 import { CardMedia } from "@mui/material";
+import { height, style } from "@mui/system";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -32,6 +33,11 @@ const useStyles = makeStyles((theme) => ({
 	},
 	alignment: {
 		textAlign: "center",
+	},
+	imagContainer: {
+		height: 300,
+		width: 350,
+		border: "1px solid #808080",
 	},
 }));
 
@@ -149,6 +155,32 @@ const Profile = () => {
 		}
 	};
 
+	const deleteProfilePicture = async () => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+		const config = {
+			headers: {
+				Authorization: `Bearer ${userLocal.data.access}`,
+			},
+		};
+
+		const response = await axios.delete(
+			`${apiConfig.baseUrl}/users/profile_update/photo/`,
+			config
+		);
+
+		console.log(response.data);
+
+		if (response.data) {
+			profileData();
+			setMessage(response.data.message);
+			setMessageVarient("info");
+		} else {
+			setMessage(response.data.message);
+			setMessageVarient("error");
+		}
+	};
+
 	useEffect(() => {
 		profileData();
 	}, []);
@@ -209,13 +241,17 @@ const Profile = () => {
 						</div>
 
 						<div className="forimg">
-							<CardMedia component="img" src={image}></CardMedia>
+							<CardMedia
+								style={{ objectFit: "contain", height: 350, width: 350 }}
+								component="img"
+								src={image}
+							></CardMedia>
 
 							<label htmlFor="contained-button-file">
 								<Button
 									style={{
 										marginTop: 10,
-										right: "10%",
+										right: "20%",
 										width: 200,
 									}}
 									component="span"
@@ -233,6 +269,20 @@ const Profile = () => {
 									upload
 								</Button>
 							</label>
+
+							<Button
+								style={{
+									marginTop: 10,
+									right: "20%",
+									width: 200,
+								}}
+								color="warning"
+								component="span"
+								variant="contained"
+								onClick={deleteProfilePicture}
+							>
+								Delete
+							</Button>
 						</div>
 					</div>
 				</div>

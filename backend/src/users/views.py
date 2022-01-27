@@ -268,7 +268,7 @@ class ProfilePictureUpdateView(views.APIView):
                     request.user.userprofile, many=False)
 
             return Response({
-                "success": True,
+                "status": "success",
                 "message": "Profile picture has been successfully updated",
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
@@ -278,18 +278,13 @@ class ProfilePictureUpdateView(views.APIView):
                 "message": e
             })
 
-
-class ProfilePictureDeleteView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
     def delete(self, request):
-
         try:
             user = request.user.userprofile
-            user.profile_pic.url = 'default.png'
-
+            user.profile_pic = 'default.jpg'
+            user.save()
             return Response({
-                'success': True,
+                'status': "success",
                 'message': 'Profile picture deleted'
             })
         except Exception as e:
