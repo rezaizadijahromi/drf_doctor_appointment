@@ -226,27 +226,27 @@ class PasswordChangeView(views.APIView):
                 user.set_password(new_password)
                 user.save()
                 return Response({
-                    "success": True,
+                    "status": "success",
                     'message': "Password changed successfully"
                 }, status=status.HTTP_200_OK)
             else:
                 return Response({
-                    'success': False,
+                    "status": "success",
                     'message': "password doesn't match"
                 })
         elif new_password == user.password:
             return Response({
-                'success': False,
+                "status": "error",
                 'message': "new password is same as old password try again"
             })
         elif new_password is None:
             return Response({
-                'success': False,
+                "status": "error",
                 'message': "new password field required"
             })
         elif new_password_confirm is None:
             return Response({
-                'success': False,
+                "status": "error",
                 'message': "new password confirm field required"
             })
 
