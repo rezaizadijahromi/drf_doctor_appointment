@@ -47,6 +47,7 @@ const Profile = () => {
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("********");
+	const [confirmPassword, setConfirmPassword] = useState("********");
 	const [image, setImage] = useState("");
 
 	const [message, setMessage] = useState("");
@@ -110,6 +111,39 @@ const Profile = () => {
 				setMessage(response.data.message);
 				setMessageVarient("success");
 				setEmail(response.data.updated_email);
+			} else {
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("error");
+				console.log(response.data.message);
+			}
+		}
+	};
+
+	const changePassword = async () => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+		if (userLocal) {
+			const config = {
+				headers: {
+					Authorization: `Bearer ${userLocal.data.access}`,
+				},
+			};
+
+			const response = await axios.post(
+				`${apiConfig.baseUrl}/users/profile/`,
+				{ new_password: password, new_password_confirm: confirmPassword },
+				config
+			);
+
+			setLoad(true);
+			await sleep(500);
+
+			if (response.data.status === "success") {
+				await sleep(500);
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("success");
 			} else {
 				setLoad(false);
 				setMessage(response.data.message);

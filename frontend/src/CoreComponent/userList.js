@@ -14,6 +14,7 @@ import Loader from "../Component/Loader";
 import { Button } from "@mui/material";
 
 import { makeStyles } from "@mui/styles";
+import { useNavigate } from "react-router-dom";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -29,6 +30,8 @@ const useStyles = makeStyles((theme) => ({
 
 const UserList = () => {
 	const classes = useStyles();
+	let navigate = useNavigate();
+
 	const [message, setMessage] = useState("");
 	const [messageVarient, setMessageVarient] = useState("info");
 	const [load, setLoad] = useState(false);
@@ -51,7 +54,7 @@ const UserList = () => {
 	const userList = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
-		if (userLocal) {
+		if (userLocal && (userLocal.data.is_superuser || userLocal.data.is_staff)) {
 			const config = {
 				headers: {
 					Authorization: `Bearer ${userLocal.data.access}`,
@@ -70,6 +73,8 @@ const UserList = () => {
 				setMessage(response.data.message);
 				setMessageVarient("error");
 			}
+		} else {
+			navigate("/");
 		}
 	};
 
