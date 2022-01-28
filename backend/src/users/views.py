@@ -39,6 +39,8 @@ from .models import SkillTag, TopicTag, UserProfile
 from .serializers import (UserProfileSerializer, UserSerializer,
                           UserSerializerWithToken, CurrentUserSerializer)
 
+from .permissions import IsOwnerOrAdminOrReadOnly
+
 
 def email_validator(email):
     try:
@@ -170,7 +172,7 @@ class UserProfileUpdateViewV2(views.APIView):
 
 
 class UserPofileView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwnerOrAdminOrReadOnly, ]
 
     def get(self, request):
         serializer = UserSerializer(request.user, many=False)
@@ -211,7 +213,7 @@ class UserPofileView(views.APIView):
 
 
 class PasswordChangeView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwnerOrAdminOrReadOnly, ]
 
     def post(self, request):
         user = request.user
@@ -250,7 +252,7 @@ class PasswordChangeView(views.APIView):
 
 
 class ProfilePictureUpdateView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwnerOrAdminOrReadOnly, ]
     parser_classe = (FileUploadParser,)
 
     def patch(self, request):
@@ -295,7 +297,7 @@ class ProfilePictureUpdateView(views.APIView):
 
 
 class UpdateSkillsView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwnerOrAdminOrReadOnly, ]
 
     def patch(self, request):
         user_profile = request.user.userprofile
@@ -310,7 +312,7 @@ class UpdateSkillsView(views.APIView):
 
 
 class UpdateInterestsView(views.APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwnerOrAdminOrReadOnly, ]
 
     def patch(self, request):
         user_profile = request.user.userprofile
@@ -330,9 +332,6 @@ class AdminActions(views.APIView):
 
     def delete(self, request, user_id):
         user_profile = request.user.id
-
-        print(user_id)
-        print(user_profile)
 
         if user_id != user_profile:
             user = User.objects.get(id=user_id)
