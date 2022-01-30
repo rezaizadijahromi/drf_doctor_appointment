@@ -97,7 +97,6 @@ function Navbar() {
 		userData();
 	}, []);
 
-	console.log(user);
 	return (
 		<React.Fragment>
 			<CssBaseline />

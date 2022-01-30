@@ -8,6 +8,7 @@ import Navbar from "./StyleComponent/Navbar";
 import Profile from "./CoreComponent/Profile";
 import UserList from "./CoreComponent/userList";
 import { unstable_createMuiStrictModeTheme } from "@mui/material";
+import AdminProfile from "./CoreComponent/AdminProfile";
 
 function App() {
 	const theme = unstable_createMuiStrictModeTheme();
@@ -22,6 +23,7 @@ function App() {
 						<Route path="/signin" element={<SignIn />}></Route>
 						<Route path="/signup" element={<SignUp />}></Route>
 						<Route path="/profile" element={<Profile />}></Route>
+						<Route path="/adminProfile" element={<AdminProfile />}></Route>
 						<Route path="/userList" element={<UserList />}></Route>
 					</Routes>
 				</Router>
