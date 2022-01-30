@@ -47,10 +47,19 @@ const useStyles = makeStyles((theme) => ({
 		padding: theme.spacing(1, 1.5),
 		textDecoration: "None",
 	},
+	addButton: {
+		marginTop: 10,
+		right: "15%",
+		marginBottom: theme.spacing(2),
+		width: 200,
+	},
 }));
 
 const AdminProfile = () => {
 	const classes = useStyles();
+	const [message, setMessage] = useState("");
+	const [messageVarient, setMessageVarient] = useState("");
+	const [load, setLoad] = useState(false);
 	const [room, setRoom] = useState([
 		{
 			id: "",
@@ -69,7 +78,14 @@ const AdminProfile = () => {
 		image: "",
 	});
 
+	const [roomName, setRoomName] = useState("");
+	const [doctorName, setDoctorName] = useState("");
+	const [voteRatio, setVoteRatio] = useState(0);
+	const [description, setDescription] = useState("");
+	const [image, setImage] = useState("");
+
 	const roomList = async () => {
+		console.log("Room List");
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 		if (userLocal) {
 			const config = {
@@ -82,10 +98,85 @@ const AdminProfile = () => {
 				`${apiConfig.baseUrl}/booking/room/`,
 				config
 			);
+
+			console.log(response.data);
+
 			setRoom(response.data);
 		}
 	};
 
+	const addRoom = async () => {
+		console.log("Add room");
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+		if (userLocal) {
+			const config = {
+				headers: {
+					Authorization: `Bearer ${userLocal.data.access}`,
+				},
+			};
+
+			const payload = {
+				room_name: roomName,
+				description: description,
+			};
+
+			const response = await axios.post(
+				`${apiConfig.baseUrl}/booking/room/`,
+				payload,
+				config
+			);
+
+			setLoad(true);
+			await sleep(500);
+			if (response.status === "success") {
+				// roomList();
+				setMessage(response.data.message);
+				setMessageVarient("success");
+				setLoad(false);
+			} else {
+				setMessage(response.data.message);
+				setMessageVarient("success");
+				setLoad(false);
+			}
+		}
+	};
+
+	const profilePicChange = async (e) => {
+		console.log("Profile picture");
+
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+		const file = e.target.files[0];
+		const formData = new FormData();
+		formData.append("profile_pic", file);
+		try {
+			const config = {
+				headers: {
+					Authorization: `Bearer ${userLocal.data.access}`,
+					"Content-Type": "multipart/form-data",
+				},
+			};
+
+			const response = await axios.patch(
+				`${apiConfig.baseUrl}/users/profile_update/photo/`,
+				formData,
+				config
+			);
+
+			if (response.data) {
+				setImage(response.data.profile_pic);
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("success");
+			} else {
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("error");
+			}
+		} catch (error) {
+			console.log(error);
+		}
+	};
 	const handelData = (value) => {
 		console.log(value);
 		setSlot(value);
@@ -103,52 +194,81 @@ const AdminProfile = () => {
 				<div class="top-txt">Add New Item</div>
 				<div class="half-div">
 					<div class="add-product">
-						<div class="info">Room Id:</div>
-						<div>
-							<input type="text" class="in-text" />
-						</div>
 						<div class="info">Room Name:</div>
 						<div>
-							<input type="text" class="in-text" />
+							<input
+								type="text"
+								class="in-text"
+								onChange={(e) => setRoomName(e.target.value)}
+							/>
 						</div>
 						<div class="info">Doctor Name:</div>
 						<div>
-							<input type="text" class="in-text" />
+							<input
+								type="text"
+								class="in-text"
+								onChange={(e) => setDoctorName(e.target.value)}
+							/>
 						</div>
 						<div class="info">Number of rooms:</div>
 						<div>
-							<input type="number" class="in-text" />
+							<input
+								type="number"
+								class="in-text"
+								onChange={(e) => setVoteRatio(e.target.value)}
+							/>
 						</div>
-						<div class="info">Hotel image:</div>
-						<div>
-							<input type="file" class="in-text" />
-						</div>
-					</div>
-					<div class="review-txt">
-						<div class="info">naq va tozihat:</div>
+						<div class="info">Description:</div>
 						<div>
 							<textarea
 								class="multi"
 								rows="10"
 								cols="60"
 								name="description"
+								onChange={(e) => setDescription(e.target.value)}
 							></textarea>
 						</div>
 					</div>
+					<div className="forimg">
+						<CardMedia
+							style={{ objectFit: "contain", height: 350, width: 350 }}
+							component="img"
+							src={image}
+						></CardMedia>
+
+						<label htmlFor="contained-button-file">
+							<Button
+								style={{
+									marginTop: 10,
+									right: "20%",
+									width: 200,
+								}}
+								component="span"
+								variant="contained"
+								onChange={() => profilePicChange}
+							>
+								<Input
+									accept="image/*"
+									id="contained-button-file"
+									multiple
+									type="file"
+									hidden
+									style={{ display: "none" }}
+								/>
+								upload
+							</Button>
+						</label>
+					</div>
 				</div>
 				<div>
-					<button
-						class="
-                     button
-                      button btn-submit
-                      btn btn-lg 
-                      fw-bold
-                      text-uppercase
-                    "
-						type="submit"
+					<Button
+						color="primary"
+						variant="contained"
+						onSubmit={() => addRoom}
+						className={classes.addButton}
 					>
 						Add
-					</button>
+					</Button>
 				</div>
 			</div>
 			<div class="on-store">
