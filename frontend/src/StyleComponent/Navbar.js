@@ -88,6 +88,11 @@ function Navbar() {
 		setUser(userLocal.data);
 	};
 
+	const handleLogout = async () => {
+		localStorage.removeItem("userInfo");
+		document.location.href = "/signin";
+	};
+
 	useEffect(() => {
 		userData();
 	}, []);
@@ -184,6 +189,7 @@ function Navbar() {
 													className={classes.link}
 													component={NavLink}
 													to="/create"
+													onClick={handleLogout}
 												>
 													Logout
 												</Link>
@@ -211,7 +217,7 @@ function Navbar() {
 													href="#"
 													className={classes.link}
 													component={NavLink}
-													to="/profile"
+													to="/userList"
 												>
 													User List
 												</Link>
@@ -241,38 +247,27 @@ function Navbar() {
 									)}
 								</Menu>
 							</Box>
-
-							{/* <Button
-								href="#"
-								color="primary"
-								variant="outlined"
-								className={classes.link}
-								component={NavLink}
-								to="/login"
-							>
-								Logout
-							</Button> */}
 						</>
 					) : (
 						<>
-							<nav>
-								<Link
-									color="textPrimary"
-									href="#"
-									className={classes.link}
-									component={NavLink}
-									to="/create"
-								>
-									Register
-								</Link>
-							</nav>
 							<Button
 								href="#"
 								color="primary"
 								variant="outlined"
 								className={classes.link}
 								component={NavLink}
-								to="/login"
+								to="/signup"
+								style={{ marginRight: 10 }}
+							>
+								Register
+							</Button>
+							<Button
+								href="#"
+								color="primary"
+								variant="outlined"
+								className={classes.link}
+								component={NavLink}
+								to="/signin"
 							>
 								Login
 							</Button>
