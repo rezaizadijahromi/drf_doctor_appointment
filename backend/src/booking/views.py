@@ -36,26 +36,31 @@ class RoomView(views.APIView):
 
     def post(self, request):
         permission_classes = [IsAdminUser, ]
+
+        print("here here")
         try:
+            print(request.data)
             data = request.data
             room_name = data["room_name"]
             description = data["description"]
             doctor_name = data["doctor_name"]
+            room_pic = data["image"]
+            print(request.FILES["image"])
+
             doctor = UserProfile.objects.get(
                 username=doctor_name
             )
-            try:
-                room_pic = request.FILES["room_pic"]
-            except:
-                room_pic = ""
 
             if room_name is not None:
+                print("we are in here0")
                 room = Room.objects.create(
                     room_name=room_name,
                     doctor=doctor,
                     description=description,
                     image=room_pic
                 )
+
+                print("we are in here1")
                 room.save()
                 serializer = RoomSerializer(room, many=False)
                 return Response({

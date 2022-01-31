@@ -13,6 +13,7 @@ import { height, style } from "@mui/system";
 
 import "./adminProfile.css";
 import { NavLink } from "react-router-dom";
+import avatar from "./static/avatar.png";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -82,7 +83,7 @@ const AdminProfile = () => {
 	const [doctorName, setDoctorName] = useState("");
 	const [voteRatio, setVoteRatio] = useState(0);
 	const [description, setDescription] = useState("");
-	const [image, setImage] = useState("");
+	let [image, setImage] = useState(avatar);
 
 	const roomList = async () => {
 		console.log("Room List");
@@ -99,14 +100,15 @@ const AdminProfile = () => {
 				config
 			);
 
-			console.log(response.data);
+			setLoad(true);
+			await sleep(500);
 
 			setRoom(response.data);
+			setLoad(false);
 		}
 	};
 
-	const addRoom = async () => {
-		console.log("Add room");
+	const addRoom = async (e) => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 		if (userLocal) {
 			const config = {
@@ -115,67 +117,38 @@ const AdminProfile = () => {
 				},
 			};
 
-			const payload = {
-				room_name: roomName,
-				description: description,
-			};
+			e.preventDefault();
+			let formData = new FormData();
+			formData.append("room_name", roomName);
+			formData.append("doctor_name", doctorName);
+			formData.append("description", description);
+			formData.append("image", image);
 
 			const response = await axios.post(
 				`${apiConfig.baseUrl}/booking/room/`,
-				payload,
+				formData,
 				config
 			);
 
 			setLoad(true);
-			await sleep(500);
+			await sleep(1000);
+
 			if (response.status === "success") {
-				// roomList();
+				roomList();
 				setMessage(response.data.message);
 				setMessageVarient("success");
 				setLoad(false);
 			} else {
 				setMessage(response.data.message);
-				setMessageVarient("success");
+				setMessageVarient("error");
 				setLoad(false);
 			}
 		}
 	};
 
-	const profilePicChange = async (e) => {
-		console.log("Profile picture");
-
-		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
-
-		const file = e.target.files[0];
-		const formData = new FormData();
-		formData.append("profile_pic", file);
-		try {
-			const config = {
-				headers: {
-					Authorization: `Bearer ${userLocal.data.access}`,
-					"Content-Type": "multipart/form-data",
-				},
-			};
-
-			const response = await axios.patch(
-				`${apiConfig.baseUrl}/users/profile_update/photo/`,
-				formData,
-				config
-			);
-
-			if (response.data) {
-				setImage(response.data.profile_pic);
-				setLoad(false);
-				setMessage(response.data.message);
-				setMessageVarient("success");
-			} else {
-				setLoad(false);
-				setMessage(response.data.message);
-				setMessageVarient("error");
-			}
-		} catch (error) {
-			console.log(error);
-		}
+	const profilePicChange = (e) => {
+		e.preventDefault();
+		setImage(e.target.files[0]);
 	};
 	const handelData = (value) => {
 		console.log(value);
@@ -188,123 +161,137 @@ const AdminProfile = () => {
 
 	return (
 		<>
-			{" "}
-			<div class="top-title">Admin Page RIJ</div>
-			<div class="new-product">
-				<div class="top-txt">Add New Item</div>
-				<div class="half-div">
-					<div class="add-product">
-						<div class="info">Room Name:</div>
-						<div>
-							<input
-								type="text"
-								class="in-text"
-								onChange={(e) => setRoomName(e.target.value)}
-							/>
-						</div>
-						<div class="info">Doctor Name:</div>
-						<div>
-							<input
-								type="text"
-								class="in-text"
-								onChange={(e) => setDoctorName(e.target.value)}
-							/>
-						</div>
-						<div class="info">Number of rooms:</div>
-						<div>
-							<input
-								type="number"
-								class="in-text"
-								onChange={(e) => setVoteRatio(e.target.value)}
-							/>
-						</div>
-						<div class="info">Description:</div>
-						<div>
-							<textarea
-								class="multi"
-								rows="10"
-								cols="60"
-								name="description"
-								onChange={(e) => setDescription(e.target.value)}
-							></textarea>
-						</div>
-					</div>
-					<div className="forimg">
-						<CardMedia
-							style={{ objectFit: "contain", height: 350, width: 350 }}
-							component="img"
-							src={image}
-						></CardMedia>
+			{message && <Message variant={messageVarient}>{message}</Message>}
 
-						<label htmlFor="contained-button-file">
-							<Button
-								style={{
-									marginTop: 10,
-									right: "20%",
-									width: 200,
-								}}
-								component="span"
-								variant="contained"
-								onChange={() => profilePicChange}
-							>
-								<Input
-									accept="image/*"
-									id="contained-button-file"
-									multiple
-									type="file"
-									hidden
-									style={{ display: "none" }}
-								/>
-								upload
-							</Button>
-						</label>
-					</div>
-				</div>
+			{load ? (
+				<Loader />
+			) : (
 				<div>
-					<Button
-						color="primary"
-						variant="contained"
-						onSubmit={() => addRoom}
-						className={classes.addButton}
-					>
-						Add
-					</Button>
-				</div>
-			</div>
-			<div class="on-store">
-				<div class="top-txt">Rooms</div>
-				{room.map((r, index) => (
-					<div class="card" onClick={() => handelData(r)}>
-						<img src={r.image} alt="doctor" />
-						<hr />
-						<section>
-							<h2>Room Code: {r.id.substring(1, 10)}</h2>
-						</section>
+					<div class="top-title">Admin Page RIJ</div>
+					<div class="new-product">
+						<div class="top-txt">Add New Item</div>
+						<div class="half-div">
+							<div class="add-product">
+								<div class="info">Room Name:</div>
+								<div>
+									<input
+										type="text"
+										class="in-text"
+										onChange={(e) => setRoomName(e.target.value)}
+									/>
+								</div>
+								<div class="info">Doctor Name:</div>
+								<div>
+									<input
+										type="text"
+										class="in-text"
+										onChange={(e) => setDoctorName(e.target.value)}
+									/>
+								</div>
+								<div class="info">Vote ratio:</div>
+								<div>
+									<input
+										type="number"
+										class="in-text"
+										onChange={(e) => setVoteRatio(e.target.value)}
+									/>
+								</div>
+								<div class="info">Description:</div>
+								<div>
+									<textarea
+										class="multi"
+										rows="10"
+										cols="60"
+										name="description"
+										onChange={(e) => setDescription(e.target.value)}
+									></textarea>
+								</div>
+							</div>
+							<div className="forimg">
+								{image !== "null" ? (
+									<CardMedia
+										component="img"
+										src={image}
+										style={{ objectFit: "contain", height: 350, width: 350 }}
+									></CardMedia>
+								) : (
+									<CardMedia
+										component="img"
+										style={{ objectFit: "contain", height: 350, width: 350 }}
+										src="/static/default.png"
+									></CardMedia>
+								)}
 
-						<section>
-							<span>Room Name: {r.room_name}</span>
-						</section>
-
-						<section>
-							<span>Doctor Name: {r.doctor_name}</span>
-						</section>
-
-						<section>
-							<nav>
-								<Link
-									color="textPrimary"
-									href="#"
-									className={classes.link}
-									component={NavLink}
-									to={`room/${r.id}/`}
-								>
-									Go To Room
-								</Link>
-							</nav>
-						</section>
+								<label htmlFor="contained-button-file">
+									<Button
+										style={{
+											marginTop: 10,
+											right: "20%",
+											width: 200,
+										}}
+										component="span"
+										variant="contained"
+										onChange={profilePicChange}
+									>
+										<Input
+											accept="image/*"
+											id="contained-button-file"
+											multiple
+											type="file"
+											hidden
+											style={{ display: "none" }}
+											onChange={profilePicChange}
+										/>
+										upload
+									</Button>
+								</label>
+							</div>
+						</div>
+						<Button
+							color="primary"
+							variant="contained"
+							onClick={addRoom}
+							className={classes.addButton}
+						>
+							Add
+						</Button>
 					</div>
-				))}
-			</div>
+					<div class="on-store">
+						<div class="top-txt">Rooms</div>
+						{room.map((r, index) => (
+							<div class="card" onClick={() => handelData(r)}>
+								<img src={r.image} alt="doctor" />
+								<hr />
+								<section>
+									<h2>Room Code: {r.id.substring(1, 10)}</h2>
+								</section>
+
+								<section>
+									<span>Room Name: {r.room_name}</span>
+								</section>
+
+								<section>
+									<span>Doctor Name: {r.doctor_name}</span>
+								</section>
+
+								<section>
+									<nav>
+										<Link
+											color="textPrimary"
+											href="#"
+											className={classes.link}
+											component={NavLink}
+											to={`room/${r.id}/`}
+										>
+											Go To Room
+										</Link>
+									</nav>
+								</section>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 		</>
 	);
 };
