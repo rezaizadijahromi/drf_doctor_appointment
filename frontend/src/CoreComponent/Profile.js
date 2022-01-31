@@ -309,6 +309,8 @@ const Profile = () => {
 									marginTop: 10,
 									right: "20%",
 									width: 200,
+									display: "block",
+									textAlign: "center",
 								}}
 								color="warning"
 								component="span"

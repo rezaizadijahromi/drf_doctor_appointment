@@ -1,4 +1,6 @@
 import datetime
+import random
+import os
 import uuid
 from django.contrib.auth.tokens import default_token_generator
 
@@ -25,24 +27,40 @@ from .serializer import BookingSerializer, RoomSerializer, RoomDetailBookSeriali
 
 
 class RoomView(views.APIView):
-    permission_classes = [AllowAny]
 
     def get(self, request):
+        permission_classes = [AllowAny]
         rooms = Room.objects.all()
         serializer = RoomSerializer(rooms, many=True)
         return Response(serializer.data)
 
     def post(self, request):
+        permission_classes = [IsAdminUser, ]
+
+        print("here here")
         try:
+            print(request.data)
             data = request.data
             room_name = data["room_name"]
             description = data["description"]
+            doctor_name = data["doctor_name"]
+            room_pic = data["image"]
+            print(request.FILES["image"])
+
+            doctor = UserProfile.objects.get(
+                username=doctor_name
+            )
 
             if room_name is not None:
+                print("we are in here0")
                 room = Room.objects.create(
                     room_name=room_name,
+                    doctor=doctor,
                     description=description,
+                    image=room_pic
                 )
+
+                print("we are in here1")
                 room.save()
                 serializer = RoomSerializer(room, many=False)
                 return Response({
