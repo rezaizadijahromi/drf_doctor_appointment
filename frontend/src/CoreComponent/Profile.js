@@ -159,6 +159,8 @@ const Profile = () => {
 		const file = e.target.files[0];
 		const formData = new FormData();
 		formData.append("profile_pic", file);
+
+		console.log(image);
 		try {
 			const config = {
 				headers: {
@@ -188,6 +190,8 @@ const Profile = () => {
 			console.log(error);
 		}
 	};
+
+	console.log(image);
 
 	const deleteProfilePicture = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
