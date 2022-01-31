@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { apiConfig } from "../config";
 import { Form } from "react-bootstrap";
 import { Button, Input, Link } from "@mui/material";
@@ -81,12 +81,11 @@ const AdminProfile = () => {
 
 	const [roomName, setRoomName] = useState("");
 	const [doctorName, setDoctorName] = useState("");
-	const [voteRatio, setVoteRatio] = useState(0);
 	const [description, setDescription] = useState("");
 	let [image, setImage] = useState(avatar);
+	const [result, setResult] = useState(avatar);
 
 	const roomList = async () => {
-		console.log("Room List");
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 		if (userLocal) {
 			const config = {
@@ -101,10 +100,10 @@ const AdminProfile = () => {
 			);
 
 			setLoad(true);
-			await sleep(500);
+			await sleep(1000);
 
-			setRoom(response.data);
 			setLoad(false);
+			setRoom(response.data);
 		}
 	};
 
@@ -116,7 +115,6 @@ const AdminProfile = () => {
 					Authorization: `Bearer ${userLocal.data.access}`,
 				},
 			};
-
 			e.preventDefault();
 			let formData = new FormData();
 			formData.append("room_name", roomName);
@@ -130,14 +128,12 @@ const AdminProfile = () => {
 				config
 			);
 
-			setLoad(true);
-			await sleep(1000);
-
-			if (response.status === "success") {
-				roomList();
+			if (response.data.status === "success") {
 				setMessage(response.data.message);
 				setMessageVarient("success");
-				setLoad(false);
+				roomList();
+
+				setResult(avatar);
 			} else {
 				setMessage(response.data.message);
 				setMessageVarient("error");
@@ -146,10 +142,24 @@ const AdminProfile = () => {
 		}
 	};
 
-	const profilePicChange = (e) => {
-		e.preventDefault();
-		setImage(e.target.files[0]);
-	};
+	const imageRef = useRef(null);
+	function useDisplayImage() {
+		function uploader(e) {
+			const imageFile = e.target.files[0];
+
+			const reader = new FileReader();
+			reader.addEventListener("load", (e) => {
+				setResult(e.target.result);
+			});
+
+			reader.readAsDataURL(imageFile);
+		}
+
+		return { result, uploader };
+	}
+
+	const { resulter, uploader } = useDisplayImage();
+
 	const handelData = (value) => {
 		console.log(value);
 		setSlot(value);
@@ -188,14 +198,7 @@ const AdminProfile = () => {
 										onChange={(e) => setDoctorName(e.target.value)}
 									/>
 								</div>
-								<div class="info">Vote ratio:</div>
-								<div>
-									<input
-										type="number"
-										class="in-text"
-										onChange={(e) => setVoteRatio(e.target.value)}
-									/>
-								</div>
+
 								<div class="info">Description:</div>
 								<div>
 									<textarea
@@ -211,14 +214,15 @@ const AdminProfile = () => {
 								{image !== "null" ? (
 									<CardMedia
 										component="img"
-										src={image}
+										ref={imageRef}
+										src={result}
 										style={{ objectFit: "contain", height: 350, width: 350 }}
 									></CardMedia>
 								) : (
 									<CardMedia
 										component="img"
 										style={{ objectFit: "contain", height: 350, width: 350 }}
-										src="/static/default.png"
+										src={avatar}
 									></CardMedia>
 								)}
 
@@ -231,7 +235,6 @@ const AdminProfile = () => {
 										}}
 										component="span"
 										variant="contained"
-										onChange={profilePicChange}
 									>
 										<Input
 											accept="image/*"
@@ -240,7 +243,10 @@ const AdminProfile = () => {
 											type="file"
 											hidden
 											style={{ display: "none" }}
-											onChange={profilePicChange}
+											onChange={(e) => {
+												setImage(e.target.files[0]);
+												uploader(e);
+											}}
 										/>
 										upload
 									</Button>

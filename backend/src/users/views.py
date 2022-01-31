@@ -256,6 +256,8 @@ class ProfilePictureUpdateView(views.APIView):
     parser_classe = (FileUploadParser,)
 
     def patch(self, request):
+        print(request.data)
+        print(request.FILES)
         random_number = random.Random()
         profile_pic = request.FILES["profile_pic"]
         extension = os.path.splitext(profile_pic.name)[1]
