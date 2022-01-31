@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { apiConfig } from "../config";
-import { Form } from "react-bootstrap";
 import { Button, Input, Link } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
@@ -9,7 +8,6 @@ import Message from "../Component/Message";
 import Loader from "../Component/Loader";
 import "./profile.css";
 import { CardMedia } from "@mui/material";
-import { height, style } from "@mui/system";
 
 import "./adminProfile.css";
 import { NavLink } from "react-router-dom";
