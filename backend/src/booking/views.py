@@ -493,39 +493,28 @@ class ClosestSlotView(views.APIView):
 
 
 class AdminView(views.APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser, ]
 
-    def get(self, request):
+    def get(self, request, roomId):
         try:
-            data = request.data
+            date = datetime.datetime.now().date()
+            room = Room.objects.get(id__exact=roomId)
 
-            date = data["date"]
-            roomId = data["roomId"]
-
-            room = Room.objects.get(
-                id__exact=roomId
-            )
-
-            slots = Booking.objects.filter(
-                room=room,
-                booking_date__exact=date,
-                is_pending=True
-            )
-
-            slot_serializers = RoomDetailBookSerializer(slots, many=True).data
-
+            room_serializer = RoomSerializer(room).data
             return Response({
                 "status": "success",
-                "data": slot_serializers
+                "message": "",
+                "date": date,
+                "data": room_serializer,
             })
 
         except Exception as e:
             return Response({
-                "status": "failed",
+                "status": "error",
                 'message': e
             })
 
-    def put(self, request):
+    def put(self, request, roomId):
         user_profile = request.user.userprofile
         actions_list = [
             "DELETE", "ACCEPT"
@@ -535,7 +524,6 @@ class AdminView(views.APIView):
             data = request.data
 
             date = data["date"]
-            roomId = data["roomId"]
             slot_id = data["slot_id"]
             action = data["action"]
 
@@ -641,30 +629,33 @@ class AdminView(views.APIView):
                 'message': e
             })
 
-    def post(self, request):
+    def post(self, request, roomId):
         try:
             res = []
             data = request.data
-            minute, startH, endH = data['minute'], data["startH"], data["endH"]
+
+            print(data)
+            minute, startH, endH = int(data['minute']), int(
+                data["startH"]), int(data["endH"])
 
             # time_slots --> [((start, min, s), (end, min, s))]
 
             time_slots = slot_generator(minute, startH, endH)
             date = data["date"]
-            length = data["length"]
-            room = data["roomId"]
+            count = int(data["count"])
 
-            roomId = Room.objects.get(id__exact=room)
+            room = Room.objects.get(id__exact=roomId)
 
-            for slot in time_slots[0:length]:
+            for slot in time_slots[0:count]:
                 b = Booking.objects.create(
-                    room=roomId,
+                    room=room,
                     booking_date=date,
                     start_timing=slot[0],
                     end_timing=slot[1],
                     is_pending=False,
                     admin_did_accept=False
                 )
+                print("here0")
 
                 res.append({
                     "start": b.start_timing,
@@ -672,19 +663,16 @@ class AdminView(views.APIView):
                     "is_pending": False,
                     "admin_did_accept": b.admin_did_accept
                 })
-
+            print("here1")
             return Response({
-                "success": True,
+                "status": "success",
                 "message": "Slots has been created",
-                "data": {
-                    "room-id": room,
-                    "rooms": [i for i in res]
-                }
             })
 
         except Exception as e:
+            print(e)
             return Response({
-                'success': False,
+                'status': "error",
                 'message': e
             })
 

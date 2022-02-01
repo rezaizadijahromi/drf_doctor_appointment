@@ -133,7 +133,7 @@ const Home = () => {
 												href="#"
 												className={classes.link}
 												component={NavLink}
-												to={`room/${r.id}/`}
+												to={`${r.id}/addSlot`}
 											>
 												Add Appointment
 											</Link>

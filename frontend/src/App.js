@@ -9,6 +9,7 @@ import Profile from "./CoreComponent/Profile";
 import UserList from "./CoreComponent/userList";
 import { unstable_createMuiStrictModeTheme } from "@mui/material";
 import AddRoom from "./CoreComponent/AddRoom";
+import AddSlot from "./CoreComponent/AddSlot";
 
 function App() {
 	const theme = unstable_createMuiStrictModeTheme();
@@ -25,6 +26,7 @@ function App() {
 						<Route path="/profile" element={<Profile />}></Route>
 						<Route path="/addRoom" element={<AddRoom />}></Route>
 						<Route path="/userList" element={<UserList />}></Route>
+						<Route path="/:idRoute/addSlot" element={<AddSlot />}></Route>
 					</Routes>
 				</Router>
 			</div>
