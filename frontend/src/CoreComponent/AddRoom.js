@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const AdminProfile = () => {
+const AddRoom = () => {
 	const classes = useStyles();
 	const [message, setMessage] = useState("");
 	const [messageVarient, setMessageVarient] = useState("");
@@ -101,7 +101,7 @@ const AdminProfile = () => {
 			await sleep(1000);
 
 			setLoad(false);
-			setRoom(response.data);
+			setRoom(response.data.slice(0, 4));
 		}
 	};
 
@@ -293,6 +293,17 @@ const AdminProfile = () => {
 								</section>
 							</div>
 						))}
+						<Button
+							size="small"
+							style={{
+								position: "absolute",
+								marginTop: "160px",
+								marginRight: "20px",
+							}}
+							variant="outlined"
+						>
+							More
+						</Button>
 					</div>
 				</div>
 			)}
@@ -300,4 +311,4 @@ const AdminProfile = () => {
 	);
 };
 
-export default AdminProfile;
+export default AddRoom;
