@@ -242,6 +242,28 @@ function Navbar() {
 													Create Appointment
 												</Link>
 											</MenuItem>
+
+											<MenuItem
+												style={{
+													display: "block",
+													textDecoration: "None",
+													padding: 0,
+													margin: 0,
+												}}
+												onClick={handleCloseUserMenu}
+											>
+												<Link
+													textAlign="center"
+													style={{ display: "block", textDecoration: "None" }}
+													color="textPrimary"
+													href="#"
+													className={classes.link}
+													component={NavLink}
+													to="/addRoom"
+												>
+													Create Room
+												</Link>
+											</MenuItem>
 										</>
 									)}
 								</Menu>
