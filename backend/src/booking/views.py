@@ -195,7 +195,6 @@ class RoomDetail(views.APIView):
             ).count()
 
             serializer_data = RoomDetailBookSerializer(times, many=True).data
-            print(serializer_data)
 
             room_serializer = RoomSerializer(room).data
 
@@ -634,7 +633,6 @@ class AdminView(views.APIView):
             res = []
             data = request.data
 
-            print(data)
             minute, startH, endH = int(data['minute']), int(
                 data["startH"]), int(data["endH"])
 
@@ -655,7 +653,6 @@ class AdminView(views.APIView):
                     is_pending=False,
                     admin_did_accept=False
                 )
-                print("here0")
 
                 res.append({
                     "start": b.start_timing,
@@ -663,14 +660,12 @@ class AdminView(views.APIView):
                     "is_pending": False,
                     "admin_did_accept": b.admin_did_accept
                 })
-            print("here1")
             return Response({
                 "status": "success",
                 "message": "Slots has been created",
             })
 
         except Exception as e:
-            print(e)
             return Response({
                 'status': "error",
                 'message': e

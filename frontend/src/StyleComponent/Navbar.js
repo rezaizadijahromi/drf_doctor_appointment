@@ -221,27 +221,6 @@ function Navbar() {
 													User List
 												</Link>
 											</MenuItem>
-											<MenuItem
-												style={{
-													display: "block",
-													textDecoration: "None",
-													padding: 0,
-													margin: 0,
-												}}
-												onClick={handleCloseUserMenu}
-											>
-												<Link
-													textAlign="center"
-													style={{ display: "block", textDecoration: "None" }}
-													color="textPrimary"
-													href="#"
-													className={classes.link}
-													component={NavLink}
-													to="/create"
-												>
-													Create Appointment
-												</Link>
-											</MenuItem>
 
 											<MenuItem
 												style={{
