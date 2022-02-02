@@ -21,7 +21,9 @@ urlpatterns = [
 
     ## admin ##
     path("admin/<str:roomId>/", views.AdminView.as_view(), name="admin"),
-    path("admin-room/", views.AdminAddRoom.as_view(), name="admin-room")
+    path("admin-room/", views.AdminAddRoom.as_view(), name="admin-room"),
+    path("admin/<str:roomId>/managment/",
+         views.GetAllBookedSlotView.as_view(), name="admin-managment")
 
 ]
 # path("slotview/", views.BookRoomSlotView.as_view()),
