@@ -29,7 +29,7 @@ function App() {
 						<Route path="/:idRoute/addSlot" element={<AddSlot />}></Route>
 						<Route path="/room/:id" element={<SlotList />}></Route>
 						<Route
-							path="/room/:id/managment/"
+							path="/room/:idRoute/managment/"
 							element={<SlotManagment />}
 						></Route>
 					</Routes>

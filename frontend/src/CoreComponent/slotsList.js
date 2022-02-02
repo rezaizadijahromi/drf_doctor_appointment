@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect, useCallback } from "react";
 // import { makeStyles } from "@material-ui/core/styles";
 import { apiConfig } from "../config";
-import { useNavigate, useParams, use } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import SlotListComponent from "./slotListComponent";
 
 function sleep(time) {
@@ -185,6 +185,8 @@ const SlotList = ({ match }) => {
 			);
 
 			setLoadSlotList(true);
+			await sleep(500);
+
 			if (response.data.status === "success") {
 				slotListData();
 				await sleep(500);
