@@ -74,7 +74,6 @@ const Home = () => {
 				`${apiConfig.baseUrl}/booking/room/`,
 				config
 			);
-
 			setRooms(data.data);
 		}
 	};
