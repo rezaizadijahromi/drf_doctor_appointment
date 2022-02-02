@@ -680,9 +680,9 @@ class GetAllBookedSlotView(views.APIView):
     def get(self, request, roomId):
         try:
             room = Room.objects.get(id__exact=roomId)
-            slots = Booking.objects.filter(room=room,)
+            slots = Booking.objects.filter(room=room, is_pending=True)
 
-            serializer = BookingSerializer(slots, many=True).data
+            serializer = RoomDetailBookSerializer(slots, many=True).data
             return Response({
                 "status": "success",
                 "message": "",
