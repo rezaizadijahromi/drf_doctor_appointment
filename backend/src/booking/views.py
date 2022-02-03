@@ -572,7 +572,7 @@ class AdminView(views.APIView):
                             to=[to_email]
                         )
 
-                        email.send()
+                        # email.send()
 
                         return Response({
                             "status": "success",
@@ -680,14 +680,24 @@ class GetAllBookedSlotView(views.APIView):
     def get(self, request, roomId):
         try:
             room = Room.objects.get(id__exact=roomId)
-            slots = Booking.objects.filter(room=room, is_pending=True)
+            now = datetime.datetime.now().date()
+            slots = Booking.objects.filter(room=room, booking_date=now).order_by(
+                "-is_pending", "-admin_did_accept")
 
             serializer = RoomDetailBookSerializer(slots, many=True).data
-            return Response({
-                "status": "success",
-                "message": "",
-                "data": serializer
-            })
+
+            if len(serializer) > 0:
+                return Response({
+                    "status": "success",
+                    "message": "",
+                    "data": serializer
+                })
+            else:
+                return Response({
+                    "status": "success",
+                    "message": "No data",
+                    "data": []
+                })
         except Exception as e:
             return Response({
                 "status": "error",
@@ -701,21 +711,33 @@ class GetAllBookedSlotView(views.APIView):
 
             is_pending = data["is_pending"]
             admin_did_accept = data["admin_did_accept"]
-
-            slots = Booking.objects.filter(
-                room=room,
-                is_pending=is_pending,
-                admin_did_accept=admin_did_accept
-            )
-
+            booking_date = data["booking_date"]
+            if admin_did_accept != is_pending:
+                slots = Booking.objects.filter(
+                    room=room,
+                    is_pending=is_pending,
+                    admin_did_accept=admin_did_accept,
+                    booking_date=booking_date
+                ).order_by("-is_pending", "-admin_did_accept")
+            else:
+                slots = Booking.objects.filter(
+                    room=room,
+                    booking_date=booking_date
+                ).order_by("-is_pending", "-admin_did_accept")
             serializer = BookingSerializer(slots, many=True).data
 
-            return Response({
-                "status": "success",
-                "message": "",
-                "data": serializer,
-
-            })
+            if len(serializer) > 0:
+                return Response({
+                    "status": "success",
+                    "message": "",
+                    "data": serializer
+                })
+            else:
+                return Response({
+                    "status": "error",
+                    "message": "No data",
+                    "data": []
+                })
 
         except Exception as e:
             return Response({
