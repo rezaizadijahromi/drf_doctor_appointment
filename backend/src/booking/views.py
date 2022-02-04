@@ -517,7 +517,8 @@ class AdminView(views.APIView):
     def put(self, request, roomId):
         user_profile = request.user.userprofile
         actions_list = [
-            "DELETE", "ACCEPT"
+            "DELETE", "ACCEPT",
+            "CANCELL"
         ]
 
         try:
@@ -539,14 +540,13 @@ class AdminView(views.APIView):
             slots = Booking.objects.filter(
                 room=room,
                 booking_date__exact=date,
-                is_pending=True,
                 id=slot_id
             )
 
             if action in actions_list:
 
                 if action == "DELETE":
-                    if slots[0].admin_did_accept:
+                    if slots[0].is_pending:
 
                         slots.update(
                             patient=None,
@@ -621,10 +621,55 @@ class AdminView(views.APIView):
                             "status": "success",
                             "message": "already accepted"
                         })
+                elif action == "CANCELL":
+                    print("here1")
+                    print(slots)
+                    if slots[0].admin_did_accept:
+                        print("here1")
+                        print("here1")
+                        print("here1")
+                        slots.update(
+                            admin_did_accept=False,
+                            is_pending=True,
+                            admin_feedback=feed_back
+                        )
+
+                        email_subject = "Your request for meeting has been cancell and back to pending stage"
+                        message = render_to_string(
+                            'email_cancell.html',
+                            {
+                                "sender": 'punisher1234@gmail.com',
+                                "reciever": user_profile,
+                                'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                                'token': default_token_generator.make_token(request.user),
+                                "action": "cancell"
+                            }
+                        )
+                        to_email = request.user.email
+                        email = EmailMessage(
+                            email_subject, message,
+                            to=[to_email]
+                        )
+
+                        # email.send()
+
+                        return Response({
+                            "status": "success",
+                            "message": "request has been cancelled"
+                        }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({
+                            "status": "error",
+                            "message": "already in pending stage"
+                        })
             else:
                 raise TypeError("action type not finde")
 
         except Exception as e:
+            print(e)
+            print(e)
+            print(e)
+            print(e)
             return Response({
                 "status": "failed",
                 'message': e
