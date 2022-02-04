@@ -462,11 +462,10 @@ class BookAppointment(views.APIView):
 
 
 class ClosestSlotView(views.APIView):
-    permission_classes = [IsAdminUser]
 
     def post(self, request, roomId):
         now = datetime.datetime.now().date()
-
+        data = []
         try:
             room = Room.objects.get(
                 id__exact=roomId
@@ -477,14 +476,17 @@ class ClosestSlotView(views.APIView):
                 is_pending=False,
                 admin_did_accept=False,
                 booking_date__gte=now
-            )
+            ).order_by("start_timing").first()
 
-            serializer_data = BookingSerializer(slots, many=True)
-            slot = serializer_data.data[0]
+            serializer_data = RoomDetailBookSerializer(slots, many=False)
+
+            slot = serializer_data.data
+
+            data.append(slot)
 
             return Response({
                 "status": "success",
-                "data": slot,
+                "data": data,
             })
         except Exception as e:
             return Response({
@@ -517,7 +519,8 @@ class AdminView(views.APIView):
     def put(self, request, roomId):
         user_profile = request.user.userprofile
         actions_list = [
-            "DELETE", "ACCEPT"
+            "DELETE", "ACCEPT",
+            "CANCELL"
         ]
 
         try:
@@ -539,14 +542,13 @@ class AdminView(views.APIView):
             slots = Booking.objects.filter(
                 room=room,
                 booking_date__exact=date,
-                is_pending=True,
                 id=slot_id
             )
 
             if action in actions_list:
 
                 if action == "DELETE":
-                    if slots[0].admin_did_accept:
+                    if slots[0].is_pending:
 
                         slots.update(
                             patient=None,
@@ -620,6 +622,45 @@ class AdminView(views.APIView):
                         return Response({
                             "status": "success",
                             "message": "already accepted"
+                        })
+                elif action == "CANCELL":
+                    if slots[0].admin_did_accept:
+                        print("here1")
+                        print("here1")
+                        print("here1")
+                        slots.update(
+                            admin_did_accept=False,
+                            is_pending=True,
+                            admin_feedback=feed_back
+                        )
+
+                        email_subject = "Your request for meeting has been cancell and back to pending stage"
+                        message = render_to_string(
+                            'email_cancell.html',
+                            {
+                                "sender": 'punisher1234@gmail.com',
+                                "reciever": user_profile,
+                                'uid': urlsafe_base64_encode(force_bytes(request.user.pk)),
+                                'token': default_token_generator.make_token(request.user),
+                                "action": "cancell"
+                            }
+                        )
+                        to_email = request.user.email
+                        email = EmailMessage(
+                            email_subject, message,
+                            to=[to_email]
+                        )
+
+                        # email.send()
+
+                        return Response({
+                            "status": "success",
+                            "message": "request has been cancelled"
+                        }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({
+                            "status": "error",
+                            "message": "already in pending stage"
                         })
             else:
                 raise TypeError("action type not finde")
@@ -712,6 +753,7 @@ class GetAllBookedSlotView(views.APIView):
             is_pending = data["is_pending"]
             admin_did_accept = data["admin_did_accept"]
             booking_date = data["booking_date"]
+
             if admin_did_accept != is_pending:
                 slots = Booking.objects.filter(
                     room=room,

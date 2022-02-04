@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 		marginBottom: 5,
 	},
 	submit: {
-		left: "35%",
+		left: "40%",
 		marginLeft: 30,
 		marginBottom: theme.spacing(2),
 		width: 200,
@@ -152,6 +152,7 @@ const SlotListComponent = ({
 	statusUser,
 	handelManagment,
 	idValue,
+	findNearestSlot,
 }) => {
 	const classes = useStyles();
 	return (
@@ -266,8 +267,19 @@ const SlotListComponent = ({
 								variant="contained"
 								onClick={slotListData}
 								className={classes.submit}
+								style={{ display: "block" }}
 							>
 								get
+							</Button>
+
+							<Button
+								color="primary"
+								variant="contained"
+								onClick={findNearestSlot}
+								className={classes.submit}
+								style={{ marginTop: "5px", display: "block" }}
+							>
+								nearest
 							</Button>
 						</Paper>
 					</Box>

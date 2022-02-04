@@ -96,8 +96,6 @@ const SlotManagment = ({ match }) => {
 				config
 			);
 
-			console.log(response.data);
-
 			setLoad(true);
 			await sleep(500);
 
@@ -127,8 +125,6 @@ const SlotManagment = ({ match }) => {
 				admin_did_accept: adminAccept,
 				booking_date: date,
 			};
-
-			console.log(payload);
 
 			const response = await axios.post(
 				`${apiConfig.baseUrl}/booking/admin/${idRoute}/managment/`,
@@ -202,8 +198,6 @@ const SlotManagment = ({ match }) => {
 	useEffect(() => {
 		slotsList();
 	}, []);
-
-	console.log(timeSlots.length);
 
 	return (
 		<>
@@ -391,7 +385,7 @@ const SlotManagment = ({ match }) => {
 														color="error"
 														variant="contained"
 														style={{ width: "20px" }}
-														onClick={() => handelRequest("DELETE", slot.id)}
+														onClick={() => handelRequest("CANCELL", slot.id)}
 													>
 														<CloseIcon />
 													</Button>
