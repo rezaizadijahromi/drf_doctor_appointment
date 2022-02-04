@@ -86,7 +86,6 @@ const SlotList = ({ match }) => {
 					{ date: date },
 					config
 				);
-				console.log(response.data);
 				if (response.data.status === "success") {
 					if (response.data.data.length > 0) {
 						setValue(response.data.data);
@@ -242,6 +241,30 @@ const SlotList = ({ match }) => {
 		}
 	};
 
+	const findNearestSlot = async () => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+		if (userLocal) {
+			const response = await axios.post(
+				`${apiConfig.baseUrl}/booking/room/${id}/near/`,
+				{
+					headers: {
+						Authorization: `Bearer ${userLocal.data.access}`,
+					},
+				}
+			);
+
+			if (response) {
+				setValue(response.data.data);
+				setMessage(response.data.message);
+				setMessageVarient("info");
+			} else {
+				setMessage(response.data.message);
+				setMessageVarient("error");
+			}
+		}
+	};
+
 	useEffect(() => {
 		slotListData();
 	}, []);
@@ -280,6 +303,7 @@ const SlotList = ({ match }) => {
 				currentUser={currentUser}
 				statusUser={statusUser}
 				idValue={id}
+				findNearestSlot={findNearestSlot}
 			/>
 		</>
 	);

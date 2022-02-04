@@ -462,11 +462,10 @@ class BookAppointment(views.APIView):
 
 
 class ClosestSlotView(views.APIView):
-    permission_classes = [IsAdminUser]
 
     def post(self, request, roomId):
         now = datetime.datetime.now().date()
-
+        data = []
         try:
             room = Room.objects.get(
                 id__exact=roomId
@@ -477,14 +476,17 @@ class ClosestSlotView(views.APIView):
                 is_pending=False,
                 admin_did_accept=False,
                 booking_date__gte=now
-            )
+            ).order_by("start_timing").first()
 
-            serializer_data = BookingSerializer(slots, many=True)
-            slot = serializer_data.data[0]
+            serializer_data = RoomDetailBookSerializer(slots, many=False)
+
+            slot = serializer_data.data
+
+            data.append(slot)
 
             return Response({
                 "status": "success",
-                "data": slot,
+                "data": data,
             })
         except Exception as e:
             return Response({
@@ -622,8 +624,6 @@ class AdminView(views.APIView):
                             "message": "already accepted"
                         })
                 elif action == "CANCELL":
-                    print("here1")
-                    print(slots)
                     if slots[0].admin_did_accept:
                         print("here1")
                         print("here1")
@@ -666,10 +666,6 @@ class AdminView(views.APIView):
                 raise TypeError("action type not finde")
 
         except Exception as e:
-            print(e)
-            print(e)
-            print(e)
-            print(e)
             return Response({
                 "status": "failed",
                 'message': e
@@ -757,6 +753,7 @@ class GetAllBookedSlotView(views.APIView):
             is_pending = data["is_pending"]
             admin_did_accept = data["admin_did_accept"]
             booking_date = data["booking_date"]
+
             if admin_did_accept != is_pending:
                 slots = Booking.objects.filter(
                     room=room,
