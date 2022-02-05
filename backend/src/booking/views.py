@@ -857,6 +857,75 @@ class AdminAddRoom(views.APIView):
             })
 
 
+class AdminAssignPatient(views.APIView):
+    permission_classes = [IsAdminUser, ]
+
+    def post(self, request, roomId):
+        try:
+            data = request.data
+
+            try:
+                username = data["patient"]
+                slot_id = data["slot_id"]
+                date = data["booking_date"]
+
+            except Exception as e:
+                return Response({
+                    "status": "error",
+                    "message": "values not provided"
+                })
+
+            user = UserProfile.objects.get(
+                username=username
+            )
+            room = Room.objects.get(id__exact=roomId)
+
+            patient_exist = Booking.objects.get(
+                room=room,
+                booking_date__exact=date,
+                patient=user
+            )
+            if not patient_exist:
+                slots = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date,
+                    id=slot_id
+                )
+                if slots[0].exists():
+                    try:
+                        slots.update(
+                            patient=user,
+                            is_pending=False,
+                            admin_did_accept=False
+                        )
+
+                        return Response({
+                            "status": "success",
+                            "message": f'{user} has been assign successfully'
+                        })
+                    except Exception as e:
+                        return Response({
+                            "status": "error",
+                            "message": "Couldn't assign the user to time slot"
+                        })
+                else:
+                    return Response({
+                        "status": "error",
+                        "message": "slots is taken or deleted"
+                    })
+            else:
+                return Response({
+                    "status": "error",
+                    "message": "You can't assign to more than one slot"
+                })
+
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": e
+            })
+
+
 # class BookRoomSlotView(views.APIView):
 #     startTimes = [datetime.time(8, 0), datetime.time(9, 30), datetime.time(11, 0), datetime.time(13, 0), datetime.time(14, 30), datetime.time(16, 0), datetime.time(17, 30), datetime.time(19, 0)]
 #     endTimes = [datetime.time(9, 30), datetime.time(11, 0), datetime.time(12, 30), datetime.time(14, 30), datetime.time(16, 0), datetime.time(17, 30), datetime.time(19, 0), datetime.time(20, 30)]

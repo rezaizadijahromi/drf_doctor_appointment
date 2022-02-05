@@ -29,6 +29,13 @@ import {
 	Typography,
 } from "@mui/material";
 
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import { useTheme } from "@mui/material/styles";
+
 import { makeStyles } from "@mui/styles";
 import { Box } from "@mui/system";
 
@@ -51,7 +58,41 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+	PaperProps: {
+		style: {
+			maxHeight: ITEM_HEIGHT * 3 + ITEM_PADDING_TOP,
+			width: 50,
+		},
+	},
+};
+
+const names = [
+	"Oliver Hansen",
+	"Van Henry",
+	"April Tucker",
+	"Ralph Hubbard",
+	"Omar Alexander",
+	"Carlos Abbott",
+	"Miriam Wagner",
+	"Bradley Wilkerson",
+	"Virginia Andrews",
+	"Kelly Snyder",
+];
+
+function getStyles(name, personName, theme) {
+	return {
+		fontWeight:
+			personName.indexOf(name) === -1
+				? theme.typography.fontWeightRegular
+				: theme.typography.fontWeightMedium,
+	};
+}
+
 const SlotManagment = ({ match }) => {
+	const theme = useTheme();
 	let newTime = new Date();
 
 	var todayDate = `${newTime.getFullYear()}-${
@@ -79,7 +120,45 @@ const SlotManagment = ({ match }) => {
 	const [adminAccept, setAdminAccept] = useState(false);
 	const [pending, setPending] = useState(false);
 	const [date, setDate] = useState(todayDate);
-	const [action, setAction] = useState("");
+
+	let [users, setUsers] = useState([
+		{
+			results: {
+				username: "",
+				id: "1",
+			},
+		},
+	]);
+	const [personName, setPersonName] = useState([]);
+
+	const userList = async () => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+		if (userLocal && (userLocal.data.is_superuser || userLocal.data.is_staff)) {
+			const config = {
+				headers: {
+					Authorization: `Bearer ${userLocal.data.access}`,
+				},
+			};
+
+			const response = await axios.get(`${apiConfig.baseUrl}/users/`, config);
+
+			setLoad(true);
+			await sleep(500);
+
+			if (response.data) {
+				setUsers(response.data.results);
+				setLoad(false);
+			} else {
+				setMessage(response.data.message);
+				setMessageVarient("error");
+			}
+		}
+	};
+
+	const handelNameSet = (e) => {
+		setPersonName(e.target.value);
+	};
 
 	const slotsList = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
@@ -195,8 +274,48 @@ const SlotManagment = ({ match }) => {
 		setAdminAccept(false);
 	};
 
+	const assignPatient = async (slot_id) => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+		if (userLocal) {
+			const config = {
+				headers: {
+					Authorization: `Bearer ${userLocal.data.access}`,
+				},
+			};
+
+			const payload = {
+				patient: personName,
+				slot_id: slot_id,
+				booking_date: date,
+			};
+
+			console.log(payload);
+
+			const response = await axios.post(
+				`${apiConfig.baseUrl}/booking/admin/${idRoute}/assign/`,
+				payload,
+				config
+			);
+
+			console.log("assign", response.data);
+
+			setLoad(true);
+			await sleep(500);
+
+			if (response.data.status === "success") {
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("success");
+			} else {
+				setMessage(response.data.message);
+				setMessageVarient("error");
+			}
+		}
+	};
+
 	useEffect(() => {
 		slotsList();
+		userList();
 	}, []);
 
 	return (
@@ -347,7 +466,36 @@ const SlotManagment = ({ match }) => {
 												{slot.patient ? slot.patient : "Not assign"}
 											</TableCell>
 											<TableCell className={classes.rowColor2} align="center">
-												{slot.patient_name ? slot.patient_name : "Not assign"}
+												{slot.patient_name ? (
+													slot.patient_name
+												) : (
+													<div>
+														<FormControl sx={{ m: 1, width: 300 }}>
+															<InputLabel id="demo-multiple-name-label">
+																Name
+															</InputLabel>
+															<Select
+																onChange={handelNameSet}
+																input={<OutlinedInput label="Name" />}
+																MenuProps={MenuProps}
+															>
+																{users.map((name) => (
+																	<MenuItem
+																		key={slot.id}
+																		value={name.username}
+																		style={getStyles(name, personName, theme)}
+																	>
+																		{name.username}
+																	</MenuItem>
+																))}
+															</Select>
+														</FormControl>
+
+														<Button onClick={() => assignPatient(slot.id)}>
+															h
+														</Button>
+													</div>
+												)}
 											</TableCell>
 											<TableCell className={classes.rowColor} align="center">
 												{slot.is_pending ? "True" : "False"}
