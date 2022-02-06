@@ -625,9 +625,6 @@ class AdminView(views.APIView):
                         })
                 elif action == "CANCELL":
                     if slots[0].admin_did_accept:
-                        print("here1")
-                        print("here1")
-                        print("here1")
                         slots.update(
                             admin_did_accept=False,
                             is_pending=True,
@@ -754,11 +751,17 @@ class GetAllBookedSlotView(views.APIView):
             admin_did_accept = data["admin_did_accept"]
             booking_date = data["booking_date"]
 
-            if admin_did_accept != is_pending:
+            if admin_did_accept != is_pending and admin_did_accept:
                 slots = Booking.objects.filter(
                     room=room,
                     is_pending=is_pending,
                     admin_did_accept=admin_did_accept,
+                    booking_date=booking_date
+                ).order_by("-is_pending", "-admin_did_accept")
+            elif admin_did_accept != is_pending and is_pending:
+                slots = Booking.objects.filter(
+                    room=room,
+                    is_pending=True,
                     booking_date=booking_date
                 ).order_by("-is_pending", "-admin_did_accept")
             else:
@@ -878,25 +881,28 @@ class AdminAssignPatient(views.APIView):
             user = UserProfile.objects.get(
                 username=username
             )
+
             room = Room.objects.get(id__exact=roomId)
 
-            patient_exist = Booking.objects.get(
+            patient_exist = Booking.objects.filter(
                 room=room,
-                booking_date__exact=date,
+                booking_date=date,
                 patient=user
             )
-            if not patient_exist:
+
+            if len(patient_exist) == 0:
                 slots = Booking.objects.filter(
                     room=room,
                     booking_date__exact=date,
                     id=slot_id
                 )
-                if slots[0].exists():
+
+                if slots[0]:
                     try:
                         slots.update(
                             patient=user,
                             is_pending=False,
-                            admin_did_accept=False
+                            admin_did_accept=True
                         )
 
                         return Response({
