@@ -214,12 +214,14 @@ const SlotManagment = ({ match }) => {
 			await sleep(250);
 
 			if (response.data.status === "success") {
+				slotsList();
 				setLoad(false);
 				setMessage(response.data.message);
 				setMessageVarient("success");
 				setTimeSlots(response.data.data);
 			} else {
 				setLoad(false);
+				setTimeSlots(response.data.data);
 				setMessage(response.data.message);
 				setMessageVarient("error");
 			}
@@ -289,25 +291,30 @@ const SlotManagment = ({ match }) => {
 				booking_date: date,
 			};
 
-			console.log(payload);
+			try {
+				const response = await axios.post(
+					`${apiConfig.baseUrl}/booking/admin/${idRoute}/assign/`,
+					payload,
+					config
+				);
 
-			const response = await axios.post(
-				`${apiConfig.baseUrl}/booking/admin/${idRoute}/assign/`,
-				payload,
-				config
-			);
-
-			console.log("assign", response.data);
-
-			setLoad(true);
-			await sleep(500);
-
-			if (response.data.status === "success") {
+				if (response.data.status === "success") {
+					slotsList();
+					await sleep(100);
+					setMessage(response.data.message);
+					setMessageVarient("success");
+				} else {
+					setLoad(true);
+					await sleep(500);
+					setLoad(false);
+					setMessage(response.data.message);
+					setMessageVarient("error");
+				}
+			} catch (error) {
+				setLoad(true);
+				await sleep(500);
 				setLoad(false);
-				setMessage(response.data.message);
-				setMessageVarient("success");
-			} else {
-				setMessage(response.data.message);
+				setMessage("Something went wrong");
 				setMessageVarient("error");
 			}
 		}
@@ -421,19 +428,17 @@ const SlotManagment = ({ match }) => {
 									<TableCell className={classes.rowColor2} align="center">
 										END
 									</TableCell>
+
 									<TableCell className={classes.rowColor} align="center">
-										PATIENT ID
-									</TableCell>
-									<TableCell className={classes.rowColor2} align="center">
 										PATIENT NAME
 									</TableCell>
-									<TableCell className={classes.rowColor} align="center">
+									<TableCell className={classes.rowColor2} align="center">
 										IS PENDING
 									</TableCell>
-									<TableCell className={classes.rowColor2} align="center">
+									<TableCell className={classes.rowColor} align="center">
 										ADMIN ACCEPT
 									</TableCell>
-									<TableCell className={classes.rowColor} align="center">
+									<TableCell className={classes.rowColor2} align="center">
 										ACTION
 									</TableCell>
 								</TableRow>
@@ -462,15 +467,13 @@ const SlotManagment = ({ match }) => {
 											<TableCell className={classes.rowColor2} align="center">
 												{slot.end_timing}
 											</TableCell>
+
 											<TableCell className={classes.rowColor} align="center">
-												{slot.patient ? slot.patient : "Not assign"}
-											</TableCell>
-											<TableCell className={classes.rowColor2} align="center">
 												{slot.patient_name ? (
 													slot.patient_name
 												) : (
 													<div>
-														<FormControl sx={{ m: 1, width: 300 }}>
+														<FormControl sx={{ m: 1, width: 200 }}>
 															<InputLabel id="demo-multiple-name-label">
 																Name
 															</InputLabel>
@@ -491,20 +494,31 @@ const SlotManagment = ({ match }) => {
 															</Select>
 														</FormControl>
 
-														<Button onClick={() => assignPatient(slot.id)}>
-															h
+														<Button
+															style={{
+																display: "block",
+																width: "30px",
+																marginLeft: "100px",
+																height: "10px",
+																paddingBottom: "15px",
+																paddingTop: "0px",
+																color: "darkslategray",
+															}}
+															onClick={() => assignPatient(slot.id)}
+														>
+															Assign
 														</Button>
 													</div>
 												)}
 											</TableCell>
-											<TableCell className={classes.rowColor} align="center">
+											<TableCell className={classes.rowColor2} align="center">
 												{slot.is_pending ? "True" : "False"}
 											</TableCell>
-											<TableCell className={classes.rowColor2} align="center">
+											<TableCell className={classes.rowColor} align="center">
 												{slot.admin_did_accept ? "True" : "False"}
 											</TableCell>
 											<TableCell
-												className={classes.rowColor}
+												className={classes.rowColor2}
 												style={{ width: "5%" }}
 												align="center"
 											>
