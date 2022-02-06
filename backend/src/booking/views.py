@@ -720,7 +720,7 @@ class GetAllBookedSlotView(views.APIView):
             room = Room.objects.get(id__exact=roomId)
             now = datetime.datetime.now().date()
             slots = Booking.objects.filter(room=room, booking_date=now).order_by(
-                "-is_pending", "-admin_did_accept")
+                "-is_pending", "-admin_did_accept", "start_timing")
 
             serializer = RoomDetailBookSerializer(slots, many=True).data
 
@@ -787,6 +787,48 @@ class GetAllBookedSlotView(views.APIView):
         except Exception as e:
             return Response({
                 "status": "error",
+                "message": e
+            })
+
+    def delete(self, request, roomId):
+        permission_classes = [IsAdminUser, ]
+
+        try:
+            data = request.data
+
+            room = Room.objects.get(
+                id__exact=roomId
+            )
+            try:
+                date = data["date"]
+                slot_id = data["slot_id"]
+            except Exception as e:
+                return Response({
+                    "status": "success",
+                    "message": e
+                })
+
+            slots = Booking.objects.filter(
+                room=room,
+                booking_date__exact=date,
+                id=slot_id
+            )
+
+            if slots[0]:
+                slots[0].delete()
+
+                return Response({
+                    "status": "success",
+                    "message": f"time slot with id {slot_id} deleted successfully"
+                })
+            else:
+                return Response({
+                    "status": "error",
+                    "message": "not found"
+                })
+        except Exception as e:
+            return Response({
+                "status": "success",
                 "message": e
             })
 
