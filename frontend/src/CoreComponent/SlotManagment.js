@@ -15,6 +15,7 @@ import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
@@ -320,6 +321,37 @@ const SlotManagment = ({ match }) => {
 		}
 	};
 
+	const handleDeleteSlot = async (value) => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+		if (userLocal) {
+			const response = await axios.delete(
+				`${apiConfig.baseUrl}/booking/admin/${idRoute}/managment/`,
+				{
+					headers: {
+						Authorization: `Bearer ${userLocal.data.access}`,
+					},
+					data: {
+						slot_id: value,
+						date: date,
+					},
+				}
+			);
+
+			if (response) {
+				slotsList();
+				setMessage(response.data.message);
+				setMessageVarient("success");
+			} else {
+				setLoad(true);
+				await sleep(500);
+				setLoad(false);
+				setMessage(response.data.message);
+				setMessageVarient("error");
+			}
+		}
+	};
+
 	useEffect(() => {
 		slotsList();
 		userList();
@@ -552,7 +584,14 @@ const SlotManagment = ({ match }) => {
 														<CloseIcon />
 													</Button>
 												) : (
-													"No action"
+													<Button
+														color="error"
+														variant="contained"
+														style={{ width: "20px" }}
+														onClick={() => handleDeleteSlot(slot.id)}
+													>
+														<DeleteIcon />
+													</Button>
 												)}
 											</TableCell>
 										</TableRow>
