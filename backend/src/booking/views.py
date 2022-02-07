@@ -163,12 +163,14 @@ class RoomDetail(views.APIView):
 
     def get(self, request, roomId):
         try:
+            time = datetime.datetime.today().time()
             date = datetime.datetime.now().date()
             room = Room.objects.get(id__exact=roomId)
 
             times = Booking.objects.filter(
                 room=room,
-                booking_date__exact=date
+                booking_date__exact=date,
+                start_timing__gte=time
             ).order_by(
                 'start_timing', '-admin_did_accept',
                 '-is_pending'
@@ -184,6 +186,7 @@ class RoomDetail(views.APIView):
             free_slots = Booking.objects.filter(
                 room=room,
                 booking_date__exact=date,
+                start_timing__gte=time,
                 is_pending=False,
                 admin_did_accept=False
             ).count()
