@@ -35,6 +35,9 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
+// import Box from "@mui/material/Box";
+import Checkbox from "@mui/material/Checkbox";
+
 import { useTheme } from "@mui/material/styles";
 
 import { makeStyles } from "@mui/styles";
@@ -118,6 +121,11 @@ const SlotManagment = ({ match }) => {
 		},
 	]);
 	const [personName, setPersonName] = useState([]);
+	const [checked, setChecked] = useState(false);
+
+	const handelEdit = (e) => {
+		setChecked(e.target.checked);
+	};
 
 	const userList = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
@@ -437,27 +445,39 @@ const SlotManagment = ({ match }) => {
 						>
 							<TableHead>
 								<TableRow>
-									<TableCell className={classes.rowColor}>ID</TableCell>
+									<TableCell
+										className={classes.rowColor}
+										style={{ width: "5px", padding: "0px" }}
+									>
+										<FormControlLabel
+											control={<Checkbox onChange={handelEdit} />}
+											label="Edit"
+											labelPlacement="top"
+										/>
+									</TableCell>
 									<TableCell className={classes.rowColor2} align="center">
-										Date
+										ID
 									</TableCell>
 									<TableCell className={classes.rowColor} align="center">
-										START
+										Date
 									</TableCell>
 									<TableCell className={classes.rowColor2} align="center">
+										START
+									</TableCell>
+									<TableCell className={classes.rowColor} align="center">
 										END
 									</TableCell>
 
-									<TableCell className={classes.rowColor} align="center">
+									<TableCell className={classes.rowColor2} align="center">
 										PATIENT NAME
 									</TableCell>
-									<TableCell className={classes.rowColor2} align="center">
+									<TableCell className={classes.rowColor} align="center">
 										IS PENDING
 									</TableCell>
-									<TableCell className={classes.rowColor} align="center">
+									<TableCell className={classes.rowColor2} align="center">
 										ADMIN ACCEPT
 									</TableCell>
-									<TableCell className={classes.rowColor2} align="center">
+									<TableCell className={classes.rowColor} align="center">
 										ACTION
 									</TableCell>
 								</TableRow>
@@ -474,70 +494,95 @@ const SlotManagment = ({ match }) => {
 												className={classes.rowColor}
 												component="th"
 												scope="row"
+												style={{ width: "5px", padding: "0px" }}
+											></TableCell>
+											<TableCell
+												className={classes.rowColor2}
+												component="th"
+												scope="row"
+												align="center"
 											>
 												{slot.id}
 											</TableCell>
-											<TableCell className={classes.rowColor2} align="center">
+											<TableCell className={classes.rowColor} align="center">
 												{slot.booking_date}
 											</TableCell>
-											<TableCell className={classes.rowColor} align="center">
+											<TableCell className={classes.rowColor2} align="center">
 												{slot.start_timing}
 											</TableCell>
-											<TableCell className={classes.rowColor2} align="center">
+											<TableCell className={classes.rowColor} align="center">
 												{slot.end_timing}
 											</TableCell>
 
-											<TableCell className={classes.rowColor} align="center">
-												{slot.patient_name ? (
-													slot.patient_name
-												) : (
+											<TableCell className={classes.rowColor2} align="center">
+												{checked ? (
 													<div>
-														<FormControl sx={{ m: 1, width: 200 }}>
-															<InputLabel id="demo-multiple-name-label">
-																Name
-															</InputLabel>
-															<Select
-																onChange={handelNameSet}
-																input={<OutlinedInput label="Name" />}
-																MenuProps={MenuProps}
-															>
-																{users.map((name) => (
-																	<MenuItem
-																		key={slot.id}
-																		value={name.username}
-																		style={getStyles(name, personName, theme)}
+														{slot.patient_name ? (
+															slot.patient_name
+														) : (
+															<div>
+																<FormControl
+																	sx={{
+																		m: 1,
+																		width: "150px",
+																		height: "40px",
+																		marginTop: "0px",
+																	}}
+																>
+																	<InputLabel id="demo-multiple-name-label">
+																		Name
+																	</InputLabel>
+																	<Select
+																		onChange={handelNameSet}
+																		input={<OutlinedInput label="Name" />}
+																		MenuProps={MenuProps}
 																	>
-																		{name.username}
-																	</MenuItem>
-																))}
-															</Select>
-														</FormControl>
+																		{users.map((name) => (
+																			<MenuItem
+																				key={slot.id}
+																				value={name.username}
+																				style={getStyles(
+																					name,
+																					personName,
+																					theme
+																				)}
+																			>
+																				{name.username}
+																			</MenuItem>
+																		))}
+																	</Select>
+																</FormControl>
 
-														<Button
-															style={{
-																display: "block",
-																width: "30px",
-																marginLeft: "100px",
-																height: "10px",
-																paddingBottom: "15px",
-																paddingTop: "0px",
-																color: "darkslategray",
-															}}
-															onClick={() => assignPatient(slot.id)}
-														>
-															Assign
-														</Button>
+																<Button
+																	style={{
+																		display: "block",
+																		width: "30px",
+																		marginLeft: "100px",
+																		height: "10px",
+																		paddingBottom: "5px",
+																		paddingTop: "5px",
+																		marginLeft: "60px",
+																		color: "darkslategray",
+																	}}
+																	onClick={() => assignPatient(slot.id)}
+																>
+																	Assign
+																</Button>
+															</div>
+														)}
 													</div>
+												) : (
+													"Not Assign"
 												)}
 											</TableCell>
-											<TableCell className={classes.rowColor2} align="center">
+											<TableCell className={classes.rowColor} align="center">
 												{slot.is_pending ? "True" : "False"}
 											</TableCell>
-											<TableCell className={classes.rowColor} align="center">
+											<TableCell className={classes.rowColor2} align="center">
 												{slot.admin_did_accept ? "True" : "False"}
 											</TableCell>
 											<TableCell
-												className={classes.rowColor2}
+												className={classes.rowColor}
 												style={{ width: "5%" }}
 												align="center"
 											>
