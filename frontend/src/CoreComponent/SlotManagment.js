@@ -16,6 +16,7 @@ import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+// import TimePicker from "react-time-picker";
 
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
@@ -25,6 +26,7 @@ import {
 	FormControlLabel,
 	FormGroup,
 	Grid,
+	Input,
 	Switch,
 	TextField,
 	Typography,
@@ -37,6 +39,8 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 // import Box from "@mui/material/Box";
 import Checkbox from "@mui/material/Checkbox";
+import NumberFormat from "react-number-format";
+import PropTypes from "prop-types";
 
 import { useTheme } from "@mui/material/styles";
 
@@ -122,6 +126,8 @@ const SlotManagment = ({ match }) => {
 	]);
 	const [personName, setPersonName] = useState([]);
 	const [checked, setChecked] = useState(false);
+	var today = new Date(),
+		time = today.getHours() + ":" + today.getMinutes();
 
 	const handelEdit = (e) => {
 		setChecked(e.target.checked);
@@ -347,6 +353,46 @@ const SlotManagment = ({ match }) => {
 		}
 	};
 
+	const [start, setStart] = useState();
+
+	const handelTime = (e) => {
+		console.log(e.target.value);
+		setStart(e.target.value);
+	};
+
+	const NumberFormatCustom = React.forwardRef(function NumberFormatCustom(
+		props,
+		ref
+	) {
+		const { onChange, ...other } = props;
+
+		return (
+			<NumberFormat
+				format="##:##:##"
+				placeholder="HH:MM:SS"
+				mask={["H", "H", "M", "M", "S", "S"]}
+				{...other}
+				getInputRef={ref}
+				onValueChange={(values) => {
+					onChange({
+						target: {
+							name: props.name,
+							value: values.value,
+						},
+					});
+				}}
+			/>
+		);
+	});
+
+	NumberFormatCustom.propTypes = {
+		name: PropTypes.string.isRequired,
+		onChange: PropTypes.func.isRequired,
+	};
+	const handleChange = (event) => {
+		setStart(event.target.value);
+	};
+
 	useEffect(() => {
 		slotsList();
 		userList();
@@ -508,10 +554,36 @@ const SlotManagment = ({ match }) => {
 												{slot.booking_date}
 											</TableCell>
 											<TableCell className={classes.rowColor2} align="center">
-												{slot.start_timing}
+												{checked ? (
+													<TextField
+														label="HH-MM-SS"
+														value={slot.start_timing}
+														onChange={handleChange}
+														name="numberformat"
+														InputProps={{
+															inputComponent: NumberFormatCustom,
+														}}
+														variant="standard"
+													/>
+												) : (
+													<div>{slot.start_timing}</div>
+												)}
 											</TableCell>
 											<TableCell className={classes.rowColor} align="center">
-												{slot.end_timing}
+												{checked ? (
+													<TextField
+														label="HH-MM-SS"
+														value={slot.end_timing}
+														onChange={handleChange}
+														name="numberformat"
+														InputProps={{
+															inputComponent: NumberFormatCustom,
+														}}
+														variant="standard"
+													/>
+												) : (
+													<div>{slot.end_timing}</div>
+												)}
 											</TableCell>
 
 											<TableCell className={classes.rowColor2} align="center">
@@ -557,7 +629,6 @@ const SlotManagment = ({ match }) => {
 																	style={{
 																		display: "block",
 																		width: "30px",
-																		marginLeft: "100px",
 																		height: "10px",
 																		paddingBottom: "5px",
 																		paddingTop: "5px",
