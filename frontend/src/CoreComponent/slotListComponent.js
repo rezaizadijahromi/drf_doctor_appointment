@@ -235,7 +235,7 @@ const SlotListComponent = ({
 											<div className={classes.rightContentContainer}>
 												<Grid>
 													<Typography>
-														Free slots: {freeSlots > 0 ? freeSlots : 0}
+														Availabel slots: {freeSlots > 0 ? freeSlots : 0}
 													</Typography>
 													<Typography>
 														Booked slots: {bookedSlots > 0 ? bookedSlots : 0}
