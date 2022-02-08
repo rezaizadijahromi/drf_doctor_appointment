@@ -912,12 +912,10 @@ class AdminAssignPatient(views.APIView):
     def post(self, request, roomId):
         try:
             data = request.data
-            actions = ["ASSIGN", "START", "END"]
-
             try:
                 slot_id = data["slot_id"]
                 date = data["booking_date"]
-                action = data["action"]
+                username = data["patient"]
 
             except Exception as e:
                 return Response({
@@ -926,108 +924,89 @@ class AdminAssignPatient(views.APIView):
                 })
 
             room = Room.objects.get(id__exact=roomId)
-            if action in actions:
-                try:
-                    if action == "ASSIGN":
-                        username = data["patient"]
-                        user = UserProfile.objects.get(
-                            username=username
-                        )
-                        patient_exist = Booking.objects.filter(
+            try:
+                if username is not None:
+                    user = UserProfile.objects.get(
+                        username=username
+                    )
+                    patient_exist = Booking.objects.filter(
+                        room=room,
+                        booking_date=date,
+                        patient=user
+                    )
+
+                    if len(patient_exist) == 0:
+                        slots = Booking.objects.filter(
                             room=room,
-                            booking_date=date,
-                            patient=user
+                            booking_date__exact=date,
+                            id=slot_id
                         )
 
-                        if len(patient_exist) == 0:
-                            slots = Booking.objects.filter(
-                                room=room,
-                                booking_date__exact=date,
-                                id=slot_id
-                            )
+                        if slots[0]:
+                            try:
+                                slots.update(
+                                    patient=user,
+                                    is_pending=False,
+                                    admin_did_accept=True
+                                )
 
-                            if slots[0]:
-                                try:
-                                    slots.update(
-                                        patient=user,
-                                        is_pending=False,
-                                        admin_did_accept=True
-                                    )
-
-                                    return Response({
-                                        "status": "success",
-                                        "message": f'{user} has been assign successfully'
-                                    })
-                                except Exception as e:
-                                    return Response({
-                                        "status": "error",
-                                        "message": "Couldn't assign the user to time slot"
-                                    })
-                            else:
+                                return Response({
+                                    "status": "success",
+                                    "message": f'slot updated successfully'
+                                })
+                            except Exception as e:
                                 return Response({
                                     "status": "error",
-                                    "message": "slots is taken or deleted"
+                                    "message": "Couldn't assign the user to time slot"
                                 })
                         else:
                             return Response({
                                 "status": "error",
-                                "message": "You can't assign to more than one slot"
+                                "message": "slots is taken or deleted"
                             })
-                    elif action == "START":
-                        start_timing = data["start_timing"]
-
-                        slots = Booking.objects.filter(
-                            room=room,
-                            booking_date__exact=date,
-                            id=slot_id
-                        )
-
-                        if slots[0]:
-                            try:
-                                slots.update(
-                                    start_timing=start_timing
-                                )
-                                return Response({
-                                    "status": "success",
-                                    "message": "start timing has been update successfully"
-                                })
-                            except Exception as e:
-                                return Response({
-                                    "status": "error",
-                                    "message": e
-                                })
-                    elif action == "END":
-                        end_timing = data["end_timing"]
-                        slots = Booking.objects.filter(
-                            room=room,
-                            booking_date__exact=date,
-                            id=slot_id
-                        )
-
-                        if slots[0]:
-                            try:
-                                slots.update(
-                                    end_timing=end_timing
-                                )
-                                return Response({
-                                    "status": "success",
-                                    "message": "end timing has been update successfully"
-                                })
-                            except Exception as e:
-                                return Response({
-                                    "status": "error",
-                                    "message": e
-                                })
                     else:
                         return Response({
                             "status": "error",
-                            "message": "action type doesn't exist"
+                            "message": "You can't assign to more than one slot"
                         })
-                except Exception as e:
-                    return Response({
-                        "status": "error",
-                        "message": e
-                    })
+                else:
+                    start_timing = data["start_timing"]
+                    end_timing = data["end_timing"]
+                    slots = Booking.objects.filter(
+                        room=room,
+                        booking_date__exact=date,
+                        id=slot_id
+                    )
+
+                    if slots[0]:
+                        try:
+                            slots.update(
+                                start_timing=start_timing,
+                                end_timing=end_timing,
+                                is_pending=False,
+                                admin_did_accept=False
+                            )
+
+                            return Response({
+                                "status": "success",
+                                "message": f'slot updated successfully'
+                            })
+                        except Exception as e:
+                            return Response({
+                                "status": "error",
+                                "message": "Couldn't assign the user to time slot"
+                            })
+                    else:
+                        return Response({
+                            "status": "error",
+                            "message": "slots is taken or deleted"
+                        })
+
+            except Exception as e:
+                return Response({
+                    "status": "error",
+                    "message": e
+                })
 
         except Exception as e:
             return Response({

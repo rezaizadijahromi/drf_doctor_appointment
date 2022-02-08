@@ -278,7 +278,7 @@ const SlotManagment = ({ match }) => {
 		setAdminAccept(false);
 	};
 
-	const assignPatient = async (slot_id) => {
+	const updateSlot = async (slot_id) => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 		if (userLocal) {
 			const config = {
@@ -286,19 +286,21 @@ const SlotManagment = ({ match }) => {
 					Authorization: `Bearer ${userLocal.data.access}`,
 				},
 			};
-
-			const payload = {
+			let payload = {
 				patient: personName,
 				slot_id: slot_id,
 				booking_date: date,
+				start_timing: start,
+				end_timing: end,
 			};
-
 			try {
 				const response = await axios.post(
 					`${apiConfig.baseUrl}/booking/admin/${idRoute}/assign/`,
 					payload,
 					config
 				);
+
+				console.log(response.data);
 
 				if (response.data.status === "success") {
 					slotsList();
@@ -354,6 +356,7 @@ const SlotManagment = ({ match }) => {
 	};
 
 	const [start, setStart] = useState();
+	const [end, setEnd] = useState();
 
 	const handelTime = (e) => {
 		console.log(e.target.value);
@@ -389,8 +392,12 @@ const SlotManagment = ({ match }) => {
 		name: PropTypes.string.isRequired,
 		onChange: PropTypes.func.isRequired,
 	};
-	const handleChange = (event) => {
-		setStart(event.target.value);
+	const handelChange = (e) => {
+		setStart(e.target.value);
+	};
+
+	const handleChangeEnd = (e) => {
+		setEnd(e.target.value);
 	};
 
 	useEffect(() => {
@@ -541,7 +548,23 @@ const SlotManagment = ({ match }) => {
 												component="th"
 												scope="row"
 												style={{ width: "5px", padding: "0px" }}
-											></TableCell>
+											>
+												{checked ? (
+													<Button
+														style={{
+															display: "block",
+															width: "30px",
+															height: "30px",
+															color: "darkslategray",
+														}}
+														onClick={() => updateSlot(slot.id)}
+													>
+														Update
+													</Button>
+												) : (
+													<div></div>
+												)}
+											</TableCell>
 											<TableCell
 												className={classes.rowColor2}
 												component="th"
@@ -554,27 +577,31 @@ const SlotManagment = ({ match }) => {
 												{slot.booking_date}
 											</TableCell>
 											<TableCell className={classes.rowColor2} align="center">
-												{checked ? (
+												{/* {checked ? (
 													<TextField
+														autoFocus
 														label="HH-MM-SS"
 														value={slot.start_timing}
-														onChange={handleChange}
+														onChange={handelChange}
 														name="numberformat"
 														InputProps={{
 															inputComponent: NumberFormatCustom,
 														}}
 														variant="standard"
-													/>
+													>
+														{slot.start_timing}
+													</TextField>
 												) : (
 													<div>{slot.start_timing}</div>
-												)}
+												)} */}
+												<div>{slot.start_timing}</div>
 											</TableCell>
 											<TableCell className={classes.rowColor} align="center">
-												{checked ? (
+												{/* {checked ? (
 													<TextField
 														label="HH-MM-SS"
 														value={slot.end_timing}
-														onChange={handleChange}
+														onChange={handleChangeEnd}
 														name="numberformat"
 														InputProps={{
 															inputComponent: NumberFormatCustom,
@@ -583,9 +610,9 @@ const SlotManagment = ({ match }) => {
 													/>
 												) : (
 													<div>{slot.end_timing}</div>
-												)}
+												)} */}
+												<div>{slot.end_timing}</div>
 											</TableCell>
-
 											<TableCell className={classes.rowColor2} align="center">
 												{checked ? (
 													<div>
@@ -624,26 +651,13 @@ const SlotManagment = ({ match }) => {
 																		))}
 																	</Select>
 																</FormControl>
-
-																<Button
-																	style={{
-																		display: "block",
-																		width: "30px",
-																		height: "10px",
-																		paddingBottom: "5px",
-																		paddingTop: "5px",
-																		marginLeft: "60px",
-																		color: "darkslategray",
-																	}}
-																	onClick={() => assignPatient(slot.id)}
-																>
-																	Assign
-																</Button>
 															</div>
 														)}
 													</div>
+												) : slot.patient_name ? (
+													<div>{slot.patient_name}</div>
 												) : (
-													"Not Assign"
+													<div>Not assign</div>
 												)}
 											</TableCell>
 											<TableCell className={classes.rowColor} align="center">
