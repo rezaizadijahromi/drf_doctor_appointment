@@ -247,8 +247,71 @@ class RoomDetail(views.APIView):
             except:
                 date = now
             date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+            if now < date:
+                room = Room.objects.get(id__exact=roomId)
 
-            if now <= date:
+                times = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date
+                ).order_by(
+                    'start_timing', '-admin_did_accept',
+                    '-is_pending'
+                )
+
+                serializer_data = RoomDetailBookSerializer(
+                    times, many=True).data
+
+                room_serializer = RoomSerializer(room).data
+
+                pending_slots = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date,
+                    is_pending=True,
+                    admin_did_accept=False
+                ).count()
+
+                free_slots = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date,
+                    is_pending=False,
+                    admin_did_accept=False
+                ).count()
+
+                accept_slots = Booking.objects.filter(
+                    room=room,
+                    booking_date__exact=date,
+                    is_pending=True,
+                    admin_did_accept=True
+                ).count()
+
+                if len(serializer_data) > 0:
+                    return Response({
+                        "status": "success",
+                        "data": serializer_data,
+                        "date": date,
+                        "doctor_information": room_serializer,
+                        "skills": room.doctor.get_skills(),
+                        "intrests": room.doctor.get_intrests(),
+                        "doctor_pic": room.doctor.get_profile_pic(),
+                        "free_slots": free_slots,
+                        "pending_slots": pending_slots,
+                        "accept_slots": accept_slots
+                    })
+                else:
+                    return Response({
+                        "status": "success",
+                        "data": [],
+                        "message": "There is no appointment for today",
+                        "date": date,
+                        "doctor_information": room_serializer,
+                        "skills": room.doctor.get_skills(),
+                        "intrests": room.doctor.get_intrests(),
+                        "doctor_pic": room.doctor.get_profile_pic(),
+                        "free_slots": free_slots,
+                        "pending_slots": pending_slots,
+                        "accept_slots": accept_slots
+                    })
+            elif date == now:
                 room = Room.objects.get(id__exact=roomId)
 
                 times = Booking.objects.filter(
