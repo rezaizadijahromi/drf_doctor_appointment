@@ -240,6 +240,7 @@ class RoomDetail(views.APIView):
         try:
             now = datetime.datetime.now().date()
             data = request.data.get("date")
+            time = datetime.datetime.today().time()
 
             try:
                 date = data
@@ -252,6 +253,7 @@ class RoomDetail(views.APIView):
 
                 times = Booking.objects.filter(
                     room=room,
+                    start_timing__gte=time,
                     booking_date__exact=date
                 ).order_by(
                     'start_timing', '-admin_did_accept',
@@ -273,6 +275,7 @@ class RoomDetail(views.APIView):
                 free_slots = Booking.objects.filter(
                     room=room,
                     booking_date__exact=date,
+                    start_timing__gte=time,
                     is_pending=False,
                     admin_did_accept=False
                 ).count()
@@ -469,6 +472,7 @@ class ClosestSlotView(views.APIView):
 
     def post(self, request, roomId):
         now = datetime.datetime.now().date()
+        time = datetime.datetime.today().time()
         data = []
         try:
             room = Room.objects.get(
@@ -479,6 +483,7 @@ class ClosestSlotView(views.APIView):
                 room=room,
                 is_pending=False,
                 admin_did_accept=False,
+                start_timing__gte=time,
                 booking_date__gte=now
             ).order_by("start_timing").first()
 
