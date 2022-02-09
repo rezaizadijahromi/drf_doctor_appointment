@@ -247,8 +247,7 @@ class RoomDetail(views.APIView):
             except:
                 date = now
             date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
-
-            if now <= date:
+            if now < date:
                 room = Room.objects.get(id__exact=roomId)
 
                 times = Booking.objects.filter(
