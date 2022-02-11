@@ -29,6 +29,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FileUploadParser
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # drf jwt
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -129,12 +130,29 @@ def users(request):
         Q(userprofile__name__icontains=query) |
         Q(userprofile__username__icontains=query)
     ).order_by("id")
-    paginator = PageNumberPagination()
-    paginator.page_size = 10
-    result_page = paginator.paginate_queryset(users, request)
-    serializer = UserSerializer(result_page, many=True)
+
+    page = request.query_params.get('page')
+    paginator = Paginator(users, 2)
+
     try:
-        return paginator.get_paginated_response(serializer.data)
+        users = paginator.page(page)
+    except PageNotAnInteger:
+        users = paginator.page(1)
+    except EmptyPage:
+        users = paginator.page(paginator.num_pages)
+
+    if page == None:
+        page = 1
+    page = int(page)
+    print("Page: ", page)
+    serializer = UserSerializer(users, many=True)
+
+    try:
+        return Response({
+            "status": "success",
+            "data": serializer.data,
+            "message": "Data loaded successfully"
+        })
     except Exception as e:
         return Response({
             "status": "error",
