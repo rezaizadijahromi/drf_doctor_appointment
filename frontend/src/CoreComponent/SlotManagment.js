@@ -26,7 +26,6 @@ import {
 	FormControlLabel,
 	FormGroup,
 	Grid,
-	Input,
 	Switch,
 	TextField,
 	Typography,
@@ -68,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
+
 const MenuProps = {
 	PaperProps: {
 		style: {
@@ -216,7 +216,6 @@ const SlotManagment = ({ match }) => {
 			await sleep(250);
 
 			if (response.data.status === "success") {
-				slotsList();
 				setLoad(false);
 				setMessage(response.data.message);
 				setMessageVarient("success");
