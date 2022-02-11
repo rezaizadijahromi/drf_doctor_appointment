@@ -26,7 +26,6 @@ import {
 	FormControlLabel,
 	FormGroup,
 	Grid,
-	Input,
 	Switch,
 	TextField,
 	Typography,
@@ -216,7 +215,6 @@ const SlotManagment = ({ match }) => {
 			await sleep(250);
 
 			if (response.data.status === "success") {
-				slotsList();
 				setLoad(false);
 				setMessage(response.data.message);
 				setMessageVarient("success");
