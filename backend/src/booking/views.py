@@ -19,13 +19,13 @@ from rest_framework import generics, serializers, status, permissions, views
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
-
+from rest_framework.decorators import api_view, permission_classes
 from users.models import UserProfile
 
 from .slot_generator import slot_generator
 
 from .models import Booking, Room
-from .serializer import BookingSerializer, RoomSerializer, RoomDetailBookSerializer
+from .serializer import BookingSerializer, RoomPatientSerializer, RoomSerializer, RoomDetailBookSerializer
 
 
 class RoomView(views.APIView):
@@ -386,6 +386,57 @@ class RoomDetail(views.APIView):
             return Response({
                 "status": "error",
                 'message': e
+            })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, ])
+def get_patient_info(request, roomId):
+    user_profile = UserProfile.objects.get(
+        user=request.user
+    )
+    room = Room.objects.get(
+        id__exact=roomId
+    )
+    data = request.data
+    try:
+        date = data["date"]
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": "failed to provide data"
+        })
+
+    patient_exist = Booking.objects.filter(
+        room=room,
+        booking_date__exact=date,
+        patient=user_profile
+    )
+    if len(patient_exist) != 0:
+        try:
+            patient_serializer = RoomPatientSerializer(
+                patient_exist, many=True).data
+            return Response({
+                "status": "success",
+                "data": patient_serializer[0],
+                "message": "patient info loaded"
+            })
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": f"failed to provide data: {e}"
+            })
+    else:
+        try:
+
+            return Response({
+                "status": "success",
+                "data": [],
+            })
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": f"failed to provide data: {e}"
             })
 
 

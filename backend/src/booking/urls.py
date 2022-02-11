@@ -14,6 +14,8 @@ urlpatterns = [
 
     path("room-detail/", views.RoomDetailTime.as_view(), name="room-detail"),
 
+    path("room/<str:roomId>/patient/",
+         views.get_patient_info, name="patient-info"),
 
 
 
@@ -24,9 +26,8 @@ urlpatterns = [
     path("admin-room/", views.AdminAddRoom.as_view(), name="admin-room"),
     path("admin/<str:roomId>/managment/",
          views.GetAllBookedSlotView.as_view(), name="admin-managment"),
-
     path("admin/<str:roomId>/assign/",
-         views.AdminAssignPatient.as_view(), name="admin-assign")
+         views.AdminAssignPatient.as_view(), name="admin-assign"),
 
 
 ]
