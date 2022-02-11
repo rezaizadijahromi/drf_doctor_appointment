@@ -125,14 +125,17 @@ class MyTokenObtainPairView(TokenObtainPairView):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def users(request):
+    import math
     query = request.query_params.get('q') or ''
     users = User.objects.filter(
         Q(userprofile__name__icontains=query) |
         Q(userprofile__username__icontains=query)
     ).order_by("id")
-
+    size = 10
     page = request.query_params.get('page')
-    paginator = Paginator(users, 2)
+    paginator = Paginator(users, size)
+    is_ended = False
+    total_pages = math.ceil(users.count() / size)
 
     try:
         users = paginator.page(page)
@@ -140,19 +143,30 @@ def users(request):
         users = paginator.page(1)
     except EmptyPage:
         users = paginator.page(paginator.num_pages)
+        is_ended = True
 
     if page == None:
         page = 1
     page = int(page)
-    print("Page: ", page)
     serializer = UserSerializer(users, many=True)
 
     try:
-        return Response({
-            "status": "success",
-            "data": serializer.data,
-            "message": "Data loaded successfully"
-        })
+        if is_ended:
+            return Response({
+                "status": "success",
+                "data": serializer.data,
+                "page": int(paginator.num_pages),
+                "pages": total_pages,
+                "message": "Data loaded successfully"
+            })
+        else:
+            return Response({
+                "status": "success",
+                "data": serializer.data,
+                "page": int(paginator.num_pages),
+                "pages": total_pages,
+                "message": "Data loaded successfully"
+            })
     except Exception as e:
         return Response({
             "status": "error",

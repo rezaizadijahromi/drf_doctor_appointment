@@ -45,6 +45,7 @@ import { useTheme } from "@mui/material/styles";
 
 import { makeStyles } from "@mui/styles";
 import { Box } from "@mui/system";
+import { Pagination } from "@mui/material";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -99,6 +100,11 @@ const SlotManagment = ({ match }) => {
 	const [message, setMessage] = useState("");
 	const [messageVarient, setMessageVarient] = useState("info");
 	const [load, setLoad] = useState(false);
+	const [page, setPage] = useState(1);
+	const [pages, setPages] = useState(10);
+	const handleChange = (event, value) => {
+		setPage(value);
+	};
 
 	const [timeSlots, setTimeSlots] = useState([
 		{
@@ -162,7 +168,7 @@ const SlotManagment = ({ match }) => {
 		setPersonName(e.target.value);
 	};
 
-	const slotsList = async () => {
+	const slotsList = async (page) => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
 		if (userLocal) {
@@ -171,24 +177,34 @@ const SlotManagment = ({ match }) => {
 					Authorization: `Bearer ${userLocal.data.access}`,
 				},
 			};
-
-			const response = await axios.get(
-				`${apiConfig.baseUrl}/booking/admin/${idRoute}/managment/`,
-				config
-			);
+			var response;
+			if (page === 1) {
+				response = await axios.get(
+					`${apiConfig.baseUrl}/booking/admin/${idRoute}/managment/`,
+					config
+				);
+			} else {
+				response = await axios.get(
+					`${apiConfig.baseUrl}/booking/admin/${idRoute}/managment/?page=${page}`,
+					config
+				);
+			}
 
 			setLoad(true);
 			await sleep(500);
-
+			console.log(response.data);
 			if (response.data.status === "success") {
 				setMessage(response.data.message);
-				setMessageVarient("error");
+				setMessageVarient("success");
 				setLoad(false);
 				setTimeSlots(response.data.data);
+				setPage(response.data.page);
+				setPages(response.data.pages);
 			} else {
 				setMessage(response.data.message);
 				setMessageVarient("error");
 				setLoad(false);
+				setPages(response.data.pages);
 			}
 		}
 	};
@@ -357,11 +373,6 @@ const SlotManagment = ({ match }) => {
 	const [start, setStart] = useState();
 	const [end, setEnd] = useState();
 
-	const handelTime = (e) => {
-		console.log(e.target.value);
-		setStart(e.target.value);
-	};
-
 	const NumberFormatCustom = React.forwardRef(function NumberFormatCustom(
 		props,
 		ref
@@ -400,9 +411,9 @@ const SlotManagment = ({ match }) => {
 	};
 
 	useEffect(() => {
-		slotsList();
+		slotsList(page);
 		userList();
-	}, []);
+	}, [page]);
 
 	return (
 		<>
@@ -720,6 +731,13 @@ const SlotManagment = ({ match }) => {
 					</TableContainer>
 				</>
 			)}
+
+			<Pagination
+				count={pages}
+				page={page}
+				onChange={handleChange}
+				style={{ marginTop: 50, marginLeft: "45%", marginBottom: "20px" }}
+			/>
 		</>
 	);
 };

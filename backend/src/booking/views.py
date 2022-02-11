@@ -1,5 +1,6 @@
 import datetime
 from itertools import count
+import math
 import random
 import os
 from urllib import response
@@ -21,6 +22,8 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from users.models import UserProfile
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 from .slot_generator import slot_generator
 
@@ -837,27 +840,59 @@ class AdminView(views.APIView):
 
 class GetAllBookedSlotView(views.APIView):
     permission_classes = [IsAdminUser, ]
+    import math
 
     def get(self, request, roomId):
         try:
+            size = 10
             room = Room.objects.get(id__exact=roomId)
             now = datetime.datetime.now().date()
             slots = Booking.objects.filter(room=room, booking_date=now).order_by(
                 "-is_pending", "-admin_did_accept", "start_timing")
 
+            page = request.query_params.get('page')
+            paginator = Paginator(slots, size)
+            is_ended = False
+
+            total_pages = math.ceil(slots.count() / size)
+
+            try:
+                slots = paginator.page(page)
+            except PageNotAnInteger:
+                slots = paginator.page(1)
+            except EmptyPage:
+                slots = paginator.page(paginator.num_pages)
+                is_ended = True
+
+            if page == None:
+                page = 1
+
             serializer = RoomDetailBookSerializer(slots, many=True).data
 
             if len(serializer) > 0:
-                return Response({
-                    "status": "success",
-                    "message": "",
-                    "data": serializer
-                })
+                if is_ended:
+                    return Response({
+                        "status": "success",
+                        "message": "",
+                        "data": serializer,
+                        "page": int(paginator.num_pages),
+                        "pages": total_pages
+                    })
+                else:
+                    return Response({
+                        "status": "success",
+                        "message": "",
+                        "data": serializer,
+                        "page": int(page),
+                        "pages": total_pages
+                    })
             else:
                 return Response({
                     "status": "success",
                     "message": "No data",
-                    "data": []
+                    "data": [],
+                    "page": int(page),
+                    "pages": total_pages
                 })
         except Exception as e:
             return Response({
@@ -892,6 +927,20 @@ class GetAllBookedSlotView(views.APIView):
                     room=room,
                     booking_date=booking_date
                 ).order_by("-is_pending", "-admin_did_accept")
+
+            page = request.query_params.get('slots')
+            paginator = Paginator(slots, 10)
+
+            try:
+                slots = paginator.page(page)
+            except PageNotAnInteger:
+                slots = paginator.page(1)
+            except EmptyPage:
+                slots = paginator.page(paginator.num_pages)
+
+            if page == None:
+                page = 1
+
             serializer = BookingSerializer(slots, many=True).data
 
             if len(serializer) > 0:

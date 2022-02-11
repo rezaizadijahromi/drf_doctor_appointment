@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { apiConfig } from "../config";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -28,8 +28,6 @@ const useStyles = makeStyles((theme) => ({
 	rowColor2: { color: "#a9a9a9", backgroundColor: "#a9a9a9" },
 }));
 
-let PageSize = 2;
-
 const UserList = () => {
 	const classes = useStyles();
 	let navigate = useNavigate();
@@ -38,6 +36,7 @@ const UserList = () => {
 	const [messageVarient, setMessageVarient] = useState("info");
 	const [load, setLoad] = useState(false);
 	const [page, setPage] = React.useState(1);
+	const [pages, setPages] = useState(10);
 	const handleChange = (event, value) => {
 		setPage(value);
 	};
@@ -80,9 +79,13 @@ const UserList = () => {
 			if (response.data) {
 				setUsers(response.data.data);
 				setLoad(false);
+				setPage(response.data.page);
+				setPages(response.data.pages);
 			} else {
 				setMessage(response.data.message);
 				setMessageVarient("error");
+				setPage(response.data.page);
+				setPages(response.data.pages);
 			}
 		} else {
 			navigate("/");
@@ -189,7 +192,12 @@ const UserList = () => {
 					</Table>
 				</TableContainer>
 			)}
-			<Pagination count={10} page={page} onChange={handleChange} />
+			<Pagination
+				count={pages}
+				page={page}
+				onChange={handleChange}
+				style={{ marginTop: 50, marginLeft: "35%" }}
+			/>
 		</>
 	);
 };
