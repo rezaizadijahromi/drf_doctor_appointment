@@ -59,15 +59,51 @@ const SlotList = ({ match }) => {
 	const [messageVarient, setMessageVarient] = useState("info");
 	const [loadSlotList, setLoadSlotList] = useState(false);
 	const [getPost, setGetPost] = useState(false);
+	const [patient, setPatiant] = useState({
+		id: "",
+		patient_name: "",
+		patient_image: "",
+		is_pending: true,
+		admin_did_accept: false,
+	});
 	let navigate = useNavigate();
+
+	console.log("patient", patient);
 
 	let { id } = useParams();
 
 	const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 	const statusUser = userLocal.data.is_superuser;
 
+	const patientDataLoad = async () => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+		if (userLocal) {
+			const config = {
+				headers: {
+					Authorization: `Bearer ${userLocal.data.access}`,
+				},
+			};
+
+			try {
+				const response = await axios.post(
+					`${apiConfig.baseUrl}/booking/room/${id}/patient/`,
+					{ date: date },
+					config
+				);
+
+				console.log(response.data.data);
+				if (response.data.status) {
+					setPatiant(response.data.data);
+				}
+			} catch (error) {
+				console.log("Some error happen in patient loader");
+			}
+		}
+	};
+
 	const slotListData = useCallback(async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+		console.log(userLocal.data);
 
 		setCurrentUser(userLocal.data.profile.name);
 
@@ -267,6 +303,7 @@ const SlotList = ({ match }) => {
 
 	useEffect(() => {
 		slotListData();
+		patientDataLoad();
 	}, []);
 
 	const handelDate = (newVal) => {
@@ -304,6 +341,7 @@ const SlotList = ({ match }) => {
 				statusUser={statusUser}
 				idValue={id}
 				findNearestSlot={findNearestSlot}
+				patient={patient}
 			/>
 		</>
 	);

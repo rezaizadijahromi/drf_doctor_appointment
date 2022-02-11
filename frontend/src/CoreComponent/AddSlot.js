@@ -186,19 +186,27 @@ const AddSlot = () => {
 						<div class="top-txt">Add New Item</div>
 						<div class="half-div">
 							<div class="add-product">
-								<div class="info">id:</div>
+								<div class="info" style={{ textAlign: "right" }}>
+									id:
+								</div>
 								<div>
 									<Typography>{slot.id}</Typography>
 								</div>
-								<div class="info">Room Name:</div>
+								<div class="info" style={{ textAlign: "right" }}>
+									Room Name:
+								</div>
 								<div>
 									<Typography>{slot.room_name}</Typography>
 								</div>
-								<div class="info">Doctor Name:</div>
+								<div class="info" style={{ textAlign: "right" }}>
+									Doctor Name:
+								</div>
 								<div>
 									<Typography>{slot.doctor_name}</Typography>
 								</div>
-								<div class="info">Description:</div>
+								<div class="info" style={{ textAlign: "right" }}>
+									Description:
+								</div>
 								<div>
 									<Typography>{slot.description}</Typography>
 								</div>
@@ -212,7 +220,7 @@ const AddSlot = () => {
 							</div>
 						</div>
 					</div>
-					<div class="on-store">
+					<div class="on-store" style={{ marginTop: "50px" }}>
 						<div class="top-txt">Rooms</div>
 
 						<Box
