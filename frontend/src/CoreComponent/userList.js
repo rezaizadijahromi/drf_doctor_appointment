@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { apiConfig } from "../config";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -11,7 +11,7 @@ import Paper from "@mui/material/Paper";
 
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
-import { Button } from "@mui/material";
+import { Button, Pagination } from "@mui/material";
 
 import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,8 @@ const useStyles = makeStyles((theme) => ({
 	rowColor2: { color: "#a9a9a9", backgroundColor: "#a9a9a9" },
 }));
 
+let PageSize = 2;
+
 const UserList = () => {
 	const classes = useStyles();
 	let navigate = useNavigate();
@@ -35,23 +37,25 @@ const UserList = () => {
 	const [message, setMessage] = useState("");
 	const [messageVarient, setMessageVarient] = useState("info");
 	const [load, setLoad] = useState(false);
+	const [page, setPage] = React.useState(1);
+	const handleChange = (event, value) => {
+		setPage(value);
+	};
 
 	let [users, setUsers] = useState([
 		{
-			results: {
-				username: "",
+			username: "",
+			id: "1",
+			profile: {
+				username: "username",
 				id: "1",
-				profile: {
-					username: "username",
-					id: "1",
-				},
-				email: "email@gmail.com",
-				is_superuser: false,
 			},
+			email: "email@gmail.com",
+			is_superuser: false,
 		},
 	]);
 
-	const userList = async () => {
+	const userList = async (page) => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
 		if (userLocal && (userLocal.data.is_superuser || userLocal.data.is_staff)) {
@@ -60,14 +64,21 @@ const UserList = () => {
 					Authorization: `Bearer ${userLocal.data.access}`,
 				},
 			};
-
-			const response = await axios.get(`${apiConfig.baseUrl}/users/`, config);
+			var response;
+			if (page === 1) {
+				response = await axios.get(`${apiConfig.baseUrl}/users/`, config);
+			} else {
+				response = await axios.get(
+					`${apiConfig.baseUrl}/users/?page=${page}`,
+					config
+				);
+			}
 
 			setLoad(true);
 			await sleep(500);
 
 			if (response.data) {
-				setUsers(response.data.results);
+				setUsers(response.data.data);
 				setLoad(false);
 			} else {
 				setMessage(response.data.message);
@@ -79,12 +90,8 @@ const UserList = () => {
 	};
 
 	useEffect(() => {
-		userList();
-	}, []);
-
-	// users.map((user) => {
-	// 	console.log(user.is_superuser);
-	// });
+		userList(page);
+	}, [page]);
 
 	const deleteHandler = async (id) => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
@@ -118,7 +125,6 @@ const UserList = () => {
 	return (
 		<>
 			{message && <Message variant={messageVarient}>{message}</Message>}
-
 			{load ? (
 				<Loader />
 			) : (
@@ -183,6 +189,7 @@ const UserList = () => {
 					</Table>
 				</TableContainer>
 			)}
+			<Pagination count={10} page={page} onChange={handleChange} />
 		</>
 	);
 };
