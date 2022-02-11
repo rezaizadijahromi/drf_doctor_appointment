@@ -69,5 +69,12 @@ class Booking(models.Model):
             patient = None
         return patient
 
+    def patient_image(self):
+        try:
+            patient = self.patient.profile_pic.url
+        except:
+            patient = None
+        return patient
+
     def __str__(self):
         return f"From: {self.start_timing} - To:{self.end_timing}"

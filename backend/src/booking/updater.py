@@ -20,13 +20,12 @@ def send_reminder():
     try:
         now = datetime.datetime.now()
 
-
         for room in Room.objects.all():
-            booking = Booking.objects.filter(is_pending=False, booking_date=now, room=room)
-
+            booking = Booking.objects.filter(
+                is_pending=False, booking_date=now, room=room)
 
             now = datetime.datetime.now()
-            now_5_10 = now + datetime.timedelta(minutes = 10)
+            now_5_10 = now + datetime.timedelta(minutes=10)
 
             # print(now.today().time())
             # print(now_5_10.time())
@@ -57,25 +56,26 @@ def send_reminder():
     except Exception as e:
         print("Some error occured: "+str(e))
 
+
 def accpet_request():
     try:
         now = datetime.datetime.now()
-        now_5_10 = now + datetime.timedelta(minutes = 10)
-
+        now_5_10 = now + datetime.timedelta(minutes=10)
 
         for room in Room.objects.all():
             print(room)
             booking = Booking.objects.filter(
-                is_pending=True,admin_did_accept=False, booking_date=datetime.date.today(),room=room
+                is_pending=True, admin_did_accept=False, booking_date=datetime.date.today(), room=room
             )
 
             if not booking.exists():
                 print("No data to take action upon")
             else:
-                slots = booking.filter(start_timing__gte=now, start_timing__lte=now_5_10)
+                slots = booking.filter(
+                    start_timing__gte=now, start_timing__lte=now_5_10)
 
                 if not slots.exists():
-                    print("This slot doesn't have any pending request") 
+                    print("This slot doesn't have any pending request")
                 else:
                     y = min(slots.values_list('created_at', flat=True))
                     accept = slots.get(created_at=y)
@@ -95,6 +95,6 @@ def accpet_request():
 
 
 def startfunc():
-    scheduler.add_job(send_reminder, "interval",minutes=10)
-    scheduler.add_job(accpet_request, "interval",minutes=10)
+    scheduler.add_job(send_reminder, "interval", minutes=5)
+    scheduler.add_job(accpet_request, "interval", minutes=5)
     scheduler.start()
