@@ -13,6 +13,7 @@ import {
 	Container,
 	Button,
 	Pagination,
+	Box,
 } from "@mui/material";
 
 import { NavLink } from "react-router-dom";
@@ -191,14 +192,19 @@ const Home = () => {
 					</Grid>
 				</Container>
 			</main>
-			<div>
-				<Pagination
-					count={pages}
-					page={page}
-					onChange={handleChange}
-					style={{ marginTop: 50, marginLeft: "45%", marginBottom: "20px" }}
-				/>
-			</div>
+
+			{page > 0 ? (
+				<Box
+					display="flex"
+					justifyContent="center"
+					alignItems="center"
+					minHeight="10vh"
+				>
+					<Pagination count={pages} page={page} onChange={handleChange} />
+				</Box>
+			) : (
+				<div></div>
+			)}
 		</React.Fragment>
 	);
 };
