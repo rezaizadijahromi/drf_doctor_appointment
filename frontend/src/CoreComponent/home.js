@@ -12,9 +12,15 @@ import {
 	CardMedia,
 	Container,
 	Button,
+	Pagination,
 } from "@mui/material";
 
 import { NavLink } from "react-router-dom";
+import SelectInput from "@mui/material/Select/SelectInput";
+
+function sleep(time) {
+	return new Promise((resolve) => setTimeout(resolve, time));
+}
 
 const useStyles = makeStyles((theme) => ({
 	card: {
@@ -59,28 +65,65 @@ const Home = () => {
 			image: "",
 		},
 	]);
+	const [message, setMessage] = useState("");
+	const [messageVarient, setMessageVarient] = useState("info");
+	const [load, setLoad] = useState(false);
+	const [page, setPage] = useState(1);
+	const [pages, setPages] = useState(10);
+	const handleChange = (event, value) => {
+		setPage(value);
+	};
 
 	const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
-	const roomData = async () => {
+	const roomData = async (page) => {
 		if (userLocal) {
 			const config = {
 				headers: {
 					Authorization: `Bearer ${userLocal.data.access}`,
 				},
 			};
+			try {
+				var response;
+				if (page === 1) {
+					response = await axios.get(
+						`${apiConfig.baseUrl}/booking/room/`,
+						config
+					);
+				} else {
+					response = await axios.get(
+						`${apiConfig.baseUrl}/booking/room/?page=${page}`,
+						config
+					);
+				}
+				setLoad(true);
+				await sleep(500);
 
-			const data = await axios.get(
-				`${apiConfig.baseUrl}/booking/room/`,
-				config
-			);
-			setRooms(data.data);
+				if (response.data.satus === "success") {
+					setLoad(false);
+					setMessage(response.data.message);
+					setMessageVarient("info");
+					setRooms(response.data.data);
+					setPage(response.data.page);
+					setPages(response.data.pages);
+				} else {
+					setLoad(false);
+					setMessageVarient("info");
+					setMessage(response.data.message);
+					setRooms(response.data.data);
+					setPage(response.data.page);
+					setPages(response.data.pages);
+				}
+			} catch (error) {
+				setMessage("Some error accure");
+				setMessageVarient("error");
+			}
 		}
 	};
 
 	useEffect(() => {
-		roomData();
-	}, []);
+		roomData(page);
+	}, [page]);
 
 	return (
 		<React.Fragment>
@@ -148,6 +191,14 @@ const Home = () => {
 					</Grid>
 				</Container>
 			</main>
+			<div>
+				<Pagination
+					count={pages}
+					page={page}
+					onChange={handleChange}
+					style={{ marginTop: 50, marginLeft: "45%", marginBottom: "20px" }}
+				/>
+			</div>
 		</React.Fragment>
 	);
 };

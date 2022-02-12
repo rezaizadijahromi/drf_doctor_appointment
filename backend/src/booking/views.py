@@ -35,9 +35,58 @@ class RoomView(views.APIView):
 
     def get(self, request):
         permission_classes = [AllowAny]
-        rooms = Room.objects.all()
-        serializer = RoomSerializer(rooms, many=True)
-        return Response(serializer.data)
+        try:
+            import math
+            size = 6
+            rooms = Room.objects.all()
+            page = request.query_params.get("page")
+            paginator = Paginator(rooms, size)
+            total_pages = math.ceil(rooms.count() / size)
+            is_ended = False
+
+            try:
+                rooms = paginator.page(page)
+            except PageNotAnInteger:
+                rooms = paginator.page(1)
+            except EmptyPage:
+                rooms = paginator.page(paginator.num_pages)
+                is_ended = True
+
+            if page == None:
+                page = 1
+
+            serializer = RoomSerializer(rooms, many=True)
+
+            if len(serializer.data) > 0:
+                if is_ended:
+                    return Response({
+                        "status": "success",
+                        "data": serializer.data,
+                        "message": "",
+                        "page": int(paginator.num_pages),
+                        "pages": total_pages
+                    })
+                else:
+                    return Response({
+                        "status": "success",
+                        "data": serializer.data,
+                        "message": "",
+                        "page": int(page),
+                        "pages": total_pages
+                    })
+            else:
+                return Response({
+                    "status": "success",
+                    "data": [],
+                    "message": "No data",
+                    "page": int(paginator.num_pages),
+                    "pages": total_pages
+                })
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": f"Error: {e}"
+            })
 
     def post(self, request):
         permission_classes = [IsAdminUser, ]
