@@ -447,6 +447,19 @@ const SlotListComponent = ({
 																		{docInfo.doctor_name}
 																	</Typography>
 																</div>
+
+																<div
+																	class="info"
+																	style={{ textAlign: "center" }}
+																>
+																	Meeting
+																</div>
+																<div>
+																	<Typography style={{ textAlign: "center" }}>
+																		{patient.end_timing} -{" "}
+																		{patient.start_timing}{" "}
+																	</Typography>
+																</div>
 																<div
 																	class="info"
 																	style={{ textAlign: "center" }}
@@ -465,6 +478,7 @@ const SlotListComponent = ({
 																	color="warning"
 																	className={classes.buttons}
 																	style={{ marginTop: 50, marginRight: "37%" }}
+																	onClick={() => handleDeleteSlot(patient.id)}
 																>
 																	Cancell
 																</Button>
