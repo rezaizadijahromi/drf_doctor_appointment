@@ -15,6 +15,7 @@ import { Button, Pagination } from "@mui/material";
 
 import { makeStyles } from "@mui/styles";
 import { useNavigate } from "react-router-dom";
+import { Box } from "@mui/system";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -192,12 +193,18 @@ const UserList = () => {
 					</Table>
 				</TableContainer>
 			)}
-			<Pagination
-				count={pages}
-				page={page}
-				onChange={handleChange}
-				style={{ marginTop: 50, marginLeft: "35%" }}
-			/>
+			{page > 0 ? (
+				<Box
+					display="flex"
+					justifyContent="center"
+					alignItems="center"
+					minHeight="10vh"
+				>
+					<Pagination count={pages} page={page} onChange={handleChange} />
+				</Box>
+			) : (
+				<div></div>
+			)}
 		</>
 	);
 };

@@ -39,5 +39,5 @@ class RoomPatientSerializer(serializers.ModelSerializer):
         fields = (
             "id", "booking_date",
             "patient", "is_pending", "admin_did_accept",
-            "patient_name", "patient_image"
+            "patient_name", "patient_image", "start_timing", "end_timing"
         )

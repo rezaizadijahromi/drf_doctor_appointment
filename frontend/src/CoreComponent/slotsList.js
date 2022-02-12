@@ -65,6 +65,8 @@ const SlotList = ({ match }) => {
 		patient_image: "",
 		is_pending: true,
 		admin_did_accept: false,
+		start_timing: "",
+		end_timing: "",
 	});
 	let navigate = useNavigate();
 
@@ -224,6 +226,7 @@ const SlotList = ({ match }) => {
 
 			if (response.data.status === "success") {
 				slotListData();
+				patientDataLoad();
 				await sleep(500);
 				setLoadSlotList(false);
 				setMessage(response.data.message);
@@ -265,6 +268,7 @@ const SlotList = ({ match }) => {
 			await sleep(500);
 
 			if (response) {
+				patientDataLoad();
 				slotListData();
 				await sleep(500);
 				setLoadSlotList(false);
