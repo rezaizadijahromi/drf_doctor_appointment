@@ -6,10 +6,7 @@ import { makeStyles } from "@mui/styles";
 
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
-import "./profile.css";
 import { CardMedia } from "@mui/material";
-
-import "./adminProfile.css";
 import { NavLink } from "react-router-dom";
 import avatar from "./static/avatar.png";
 
@@ -52,6 +49,109 @@ const useStyles = makeStyles((theme) => ({
 		marginBottom: theme.spacing(2),
 		width: 200,
 	},
+
+	newProduct: {
+		border: "1px solid black",
+		borderRadius: "20px",
+		margin: "5% 5%",
+		padding: "20px",
+		direction: "rtl",
+	},
+	textInput: {
+		direction: "rtl",
+		display: "inline-block",
+		border: 0,
+		/* border-bottom: 1px solid #333 */
+		// width: "150px",
+		height: "50px",
+		fontSize: "10px",
+		color: "#333",
+		borderRadius: "10px",
+		boxShadow: "0 1px 5px rgba(0, 0, 0, 0.2)",
+		padding: "20px",
+		margin: "5px 0 15px 0",
+		width: "100%",
+	},
+	emailInput: {
+		direction: "rtl",
+		display: "inline-block",
+		border: 0,
+		/* border-bottom: 1px solid #333 */
+		// width: "150px",
+		height: "50px",
+		fontSize: "10px",
+		color: "#333",
+		borderRadius: "10px",
+		boxShadow: "0 1px 5px rgba(0, 0, 0, 0.2)",
+		padding: "20px",
+		margin: "5px 0 15px 0",
+		width: "100%",
+	},
+	passwordInput: {
+		direction: "rtl",
+		display: "inline-block",
+		border: 0,
+		/* border-bottom: 1px solid #333 */
+		// width: "150px",
+		height: "50px",
+		fontSize: "10px",
+		color: "#333",
+		borderRadius: "10px",
+		boxShadow: "0 1px 5px rgba(0, 0, 0, 0.2)",
+		padding: "20px",
+		margin: "5px 0 15px 0",
+		width: "100%",
+	},
+	multiInput: {
+		direction: "rtl",
+		border: "0",
+		fontSize: "10px",
+		color: "#333",
+		borderRadius: "10px",
+		boxShadow: "0 1px 5px rgba(0, 0, 0, 0.2)",
+		padding: "20px",
+		margin: "5px 0 15px 0",
+		width: "570px",
+	},
+	topText: {
+		textAlign: "right",
+		fontSize: "22px",
+		fontWeight: "bold",
+	},
+	halfDiv: {
+		display: "flex",
+		justifyContent: "center",
+	},
+	info: {
+		fontFamily: "IRANSans",
+		fontWeight: "bold",
+		fontSize: "16px",
+		textAlign: "center",
+	},
+	inText: {
+		fontFamily: "IRANSans",
+		width: "90%",
+		display: "block",
+	},
+	forImage: {
+		width: "35%",
+		margin: "15px",
+		marginTop: "50px",
+	},
+	onStore: {
+		direction: "rtl",
+		border: "1px black solid",
+		borderRadius: "20px",
+		margin: "0% 5%",
+		marginTop: "20px",
+		padding: "20px",
+	},
+	topTitle: {
+		fontSize: "30px",
+		fontWeight: "bold",
+		textAlign: "center",
+		marginBottom: "10px",
+	},
 }));
 
 const AddRoom = () => {
@@ -82,26 +182,56 @@ const AddRoom = () => {
 	const [description, setDescription] = useState("");
 	let [image, setImage] = useState(avatar);
 	const [result, setResult] = useState(avatar);
+	const [page, setPage] = useState(1);
+	const [pages, setPages] = useState(10);
+	const handleChange = (event, value) => {
+		setPage(value);
+	};
 
 	const roomList = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
 		if (userLocal) {
 			const config = {
 				headers: {
 					Authorization: `Bearer ${userLocal.data.access}`,
 				},
 			};
+			try {
+				var response;
+				if (page === 1) {
+					response = await axios.get(
+						`${apiConfig.baseUrl}/booking/room/`,
+						config
+					);
+				} else {
+					response = await axios.get(
+						`${apiConfig.baseUrl}/booking/room/?page=${page}`,
+						config
+					);
+				}
+				setLoad(true);
+				await sleep(500);
 
-			const response = await axios.get(
-				`${apiConfig.baseUrl}/booking/room/`,
-				config
-			);
-
-			setLoad(true);
-			await sleep(1000);
-
-			setLoad(false);
-			setRoom(response.data.slice(0, 4));
+				if (response.data.satus === "success") {
+					setLoad(false);
+					setMessage(response.data.message);
+					setMessageVarient("info");
+					setRoom(response.data.data.slice(0, 4));
+					setPage(response.data.page);
+					setPages(response.data.pages);
+				} else {
+					setLoad(false);
+					setMessageVarient("info");
+					setMessage(response.data.message);
+					setRoom(response.data.data.slice(0, 4));
+					setPage(response.data.page);
+					setPages(response.data.pages);
+				}
+			} catch (error) {
+				setMessage("Some error accure");
+				setMessageVarient("error");
+			}
 		}
 	};
 
@@ -175,32 +305,39 @@ const AddRoom = () => {
 				<Loader />
 			) : (
 				<div>
-					<div class="top-title">Admin Page RIJ</div>
-					<div class="new-product">
-						<div class="top-txt">Add New Item</div>
-						<div class="half-div">
-							<div class="add-product">
-								<div class="info">Room Name:</div>
+					<div className={classes.topTitle}>Admin Page RIJ</div>
+					<div className={classes.newProduct}>
+						<div className={classes.halfDiv}>
+							<div
+								style={{
+									width: "60%",
+									borderLeft: "dotted 1px #808080",
+									marginLeft: "30px",
+									margin: "20px",
+									padding: "10px",
+								}}
+							>
+								<div className={classes.info}>Room Name:</div>
 								<div>
 									<input
 										type="text"
-										class="in-text"
+										className={classes.textInput}
 										onChange={(e) => setRoomName(e.target.value)}
 									/>
 								</div>
-								<div class="info">Doctor Name:</div>
+								<div className={classes.info}>Doctor Name:</div>
 								<div>
 									<input
 										type="text"
-										class="in-text"
+										className={classes.textInput}
 										onChange={(e) => setDoctorName(e.target.value)}
 									/>
 								</div>
 
-								<div class="info">Description:</div>
+								<div className={classes.info}>Description:</div>
 								<div>
 									<textarea
-										class="multi"
+										className={classes.multiInput}
 										rows="10"
 										cols="60"
 										name="description"
@@ -208,7 +345,7 @@ const AddRoom = () => {
 									></textarea>
 								</div>
 							</div>
-							<div className="forimg">
+							<div className={classes.forImage}>
 								{image !== "null" ? (
 									<CardMedia
 										component="img"
@@ -260,8 +397,8 @@ const AddRoom = () => {
 							Add
 						</Button>
 					</div>
-					<div class="on-store">
-						<div class="top-txt">Rooms</div>
+					<div className={classes.onStore}>
+						<div className={classes.topText}>Rooms</div>
 						{room.map((r, index) => (
 							<div class="card" onClick={() => handelData(r)}>
 								<img src={r.image} alt="doctor" />

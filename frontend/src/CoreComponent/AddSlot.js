@@ -13,7 +13,6 @@ import { makeStyles } from "@mui/styles";
 
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
-import "./profile.css";
 import { CardMedia } from "@mui/material";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +21,6 @@ import LocalizationProvider from "@mui/lab/LocalizationProvider";
 import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import { Box } from "@mui/system";
 import avatar from "./static/avatar.png";
-import "./adminProfile.css";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -63,6 +61,52 @@ const useStyles = makeStyles((theme) => ({
 		marginBottom: theme.spacing(2),
 		width: 200,
 	},
+	newProduct: {
+		border: "1px solid black",
+		borderRadius: "20px",
+		margin: "5% 5%",
+		padding: "20px",
+		direction: "rtl",
+	},
+	topText: {
+		textAlign: "right",
+		fontSize: "22px",
+		fontWeight: "bold",
+	},
+	halfDiv: {
+		display: "flex",
+		justifyContent: "center",
+	},
+	info: {
+		fontFamily: "IRANSans",
+		fontWeight: "bold",
+		fontSize: "16px",
+		textAlign: "center",
+	},
+	inText: {
+		fontFamily: "IRANSans",
+		width: "90%",
+		display: "block",
+	},
+	forImage: {
+		width: "35%",
+		margin: "15px",
+		marginTop: "50px",
+	},
+	onStore: {
+		direction: "rtl",
+		border: "1px black solid",
+		borderRadius: "20px",
+		margin: "0% 5%",
+		marginTop: "20px",
+		padding: "20px",
+	},
+	topTitle: {
+		fontSize: "30px",
+		fontWeight: "bold",
+		textAlign: "center",
+		marginBottom: "10px",
+	},
 }));
 
 const AddSlot = () => {
@@ -75,7 +119,7 @@ const AddSlot = () => {
 	const [slot, setSlot] = useState({
 		id: "",
 		room_name: "",
-		descroption: "",
+		description: "",
 		doctor_name: "",
 		image: avatar,
 	});
@@ -181,37 +225,53 @@ const AddSlot = () => {
 				<Loader />
 			) : (
 				<div>
-					<div class="top-title">Admin Page RIJ</div>
-					<div class="new-product">
-						<div class="top-txt">Add New Item</div>
-						<div class="half-div">
-							<div class="add-product">
-								<div class="info" style={{ textAlign: "right" }}>
+					<div
+						style={{
+							fontSize: "30px",
+							fontWeight: "bold",
+							textAlign: "center",
+							marginBottom: "10px",
+						}}
+					>
+						Add New Slot
+					</div>
+					<div className={classes.newProduct}>
+						<div className={classes.halfDiv}>
+							<div
+								style={{
+									width: "60%",
+									borderLeft: "dotted 1px #808080",
+									marginLeft: "30px",
+									margin: "20px",
+									padding: "10px",
+								}}
+							>
+								<div className={classes.info} style={{ textAlign: "right" }}>
 									id:
 								</div>
 								<div>
 									<Typography>{slot.id}</Typography>
 								</div>
-								<div class="info" style={{ textAlign: "right" }}>
+								<div className={classes.info} style={{ textAlign: "right" }}>
 									Room Name:
 								</div>
 								<div>
 									<Typography>{slot.room_name}</Typography>
 								</div>
-								<div class="info" style={{ textAlign: "right" }}>
+								<div className={classes.info} style={{ textAlign: "right" }}>
 									Doctor Name:
 								</div>
 								<div>
 									<Typography>{slot.doctor_name}</Typography>
 								</div>
-								<div class="info" style={{ textAlign: "right" }}>
+								<div ClassName={classes.info} style={{ textAlign: "right" }}>
 									Description:
 								</div>
 								<div>
 									<Typography>{slot.description}</Typography>
 								</div>
 							</div>
-							<div className="forimg">
+							<div className={classes.forImage}>
 								<CardMedia
 									component="img"
 									src={slot.image}
@@ -220,9 +280,8 @@ const AddSlot = () => {
 							</div>
 						</div>
 					</div>
-					<div class="on-store" style={{ marginTop: "50px" }}>
-						<div class="top-txt">Rooms</div>
-
+					<div class={classes.onStore} style={{ marginTop: "50px" }}>
+						<div class={classes.topText}>Rooms</div>
 						<Box
 							component="form"
 							sx={{
