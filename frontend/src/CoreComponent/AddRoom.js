@@ -9,6 +9,7 @@ import Loader from "../Component/Loader";
 import { CardMedia } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import avatar from "./static/avatar.png";
+import { useNavigate } from "react-router-dom";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -182,11 +183,7 @@ const AddRoom = () => {
 	const [description, setDescription] = useState("");
 	let [image, setImage] = useState(avatar);
 	const [result, setResult] = useState(avatar);
-	const [page, setPage] = useState(1);
-	const [pages, setPages] = useState(10);
-	const handleChange = (event, value) => {
-		setPage(value);
-	};
+	let navigate = useNavigate();
 
 	const roomList = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
@@ -198,18 +195,11 @@ const AddRoom = () => {
 				},
 			};
 			try {
-				var response;
-				if (page === 1) {
-					response = await axios.get(
-						`${apiConfig.baseUrl}/booking/room/`,
-						config
-					);
-				} else {
-					response = await axios.get(
-						`${apiConfig.baseUrl}/booking/room/?page=${page}`,
-						config
-					);
-				}
+				const response = await axios.get(
+					`${apiConfig.baseUrl}/booking/room/`,
+					config
+				);
+
 				setLoad(true);
 				await sleep(500);
 
@@ -218,15 +208,11 @@ const AddRoom = () => {
 					setMessage(response.data.message);
 					setMessageVarient("info");
 					setRoom(response.data.data.slice(0, 4));
-					setPage(response.data.page);
-					setPages(response.data.pages);
 				} else {
 					setLoad(false);
 					setMessageVarient("info");
 					setMessage(response.data.message);
 					setRoom(response.data.data.slice(0, 4));
-					setPage(response.data.page);
-					setPages(response.data.pages);
 				}
 			} catch (error) {
 				setMessage("Some error accure");
@@ -260,8 +246,8 @@ const AddRoom = () => {
 				setMessage(response.data.message);
 				setMessageVarient("success");
 				roomList();
-
 				setResult(avatar);
+				navigate("/");
 			} else {
 				setMessage(response.data.message);
 				setMessageVarient("error");
@@ -291,6 +277,11 @@ const AddRoom = () => {
 	const handelData = (value) => {
 		console.log(value);
 		setSlot(value);
+	};
+
+	const handelNavigate = (e) => {
+		e.preventDefault();
+		navigate("/");
 	};
 
 	useEffect(() => {
@@ -397,14 +388,47 @@ const AddRoom = () => {
 							Add
 						</Button>
 					</div>
-					<div className={classes.onStore}>
+					<div
+						style={{
+							direction: "rtl",
+							border: "1px black solid",
+							borderRadius: "20px",
+							margin: "0% 5%",
+							marginTop: "20px",
+							padding: "20px",
+						}}
+					>
 						<div className={classes.topText}>Rooms</div>
 						{room.map((r, index) => (
-							<div class="card" onClick={() => handelData(r)}>
-								<img src={r.image} alt="doctor" />
-								<hr />
+							<div
+								style={{
+									position: "relative",
+									/*border: 2px dashed black,*/
+									display: "inline-block",
+									width: "20%",
+									margin: "10px",
+									backgroundColor: "#ffffff",
+									borderRadius: "10px",
+									padding: "5px",
+								}}
+								onClick={() => handelData(r)}
+							>
+								<img
+									src={r.image}
+									alt="doctor"
+									style={{
+										position: "relative",
+										width: "200px",
+										height: "150px",
+									}}
+								/>
+								<hr
+									style={{ margin: "0px 15px", border: "1px solid #047aed" }}
+								/>
 								<section>
-									<h2>Room Code: {r.id.substring(1, 10)}</h2>
+									<h2 style={{ margin: 0 }}>
+										Room Code: {r.id.substring(1, 10)}
+									</h2>
 								</section>
 
 								<section>
@@ -438,6 +462,7 @@ const AddRoom = () => {
 								marginRight: "20px",
 							}}
 							variant="outlined"
+							onClick={handelNavigate}
 						>
 							More
 						</Button>

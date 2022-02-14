@@ -93,15 +93,21 @@ class RoomView(views.APIView):
 
         try:
             data = request.data
+
             room_name = data["room_name"]
             description = data["description"]
             doctor_name = data["doctor_name"]
             room_pic = data["image"]
 
-            doctor = UserProfile.objects.get(
-                username=doctor_name
-            )
-
+            try:
+                doctor = UserProfile.objects.get(
+                    username=doctor_name
+                )
+            except Exception:
+                return Response({
+                    "status": "error",
+                    "message": "doctor name does'nt exist"
+                })
             if room_name is not None:
                 room = Room.objects.create(
                     room_name=room_name,
