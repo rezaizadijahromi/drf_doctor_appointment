@@ -99,7 +99,7 @@ const Home = () => {
 				}
 				setLoad(true);
 				await sleep(500);
-
+				console.log(response.data.data);
 				if (response.data.satus === "success") {
 					setLoad(false);
 					setMessage(response.data.message);

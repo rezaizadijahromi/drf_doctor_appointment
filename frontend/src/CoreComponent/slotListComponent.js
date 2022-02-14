@@ -16,7 +16,6 @@ import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
 import { makeStyles } from "@mui/styles";
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
-import "./adminProfile.css";
 
 import { NavLink } from "react-router-dom";
 
@@ -142,6 +141,52 @@ const useStyles = makeStyles((theme) => ({
 		overflowY: "scroll",
 		overflowX: "hidden",
 		height: 430,
+	},
+	newProduct: {
+		border: "1px solid black",
+		borderRadius: "20px",
+		// margin: "5% 5%",
+		padding: "20px",
+		direction: "rtl",
+	},
+	topText: {
+		textAlign: "right",
+		fontSize: "22px",
+		fontWeight: "bold",
+	},
+	halfDiv: {
+		display: "flex",
+		justifyContent: "center",
+	},
+	info: {
+		fontFamily: "IRANSans",
+		fontWeight: "bold",
+		fontSize: "16px",
+		textAlign: "center",
+	},
+	inText: {
+		fontFamily: "IRANSans",
+		width: "90%",
+		display: "block",
+	},
+	forImage: {
+		width: "35%",
+		margin: "15px",
+		marginTop: "50px",
+	},
+	onStore: {
+		direction: "rtl",
+		border: "1px black solid",
+		borderRadius: "20px",
+		margin: "0% 5%",
+		marginTop: "20px",
+		padding: "20px",
+	},
+	topTitle: {
+		fontSize: "30px",
+		fontWeight: "bold",
+		textAlign: "center",
+		marginBottom: "10px",
 	},
 	"@global": {
 		"*::-webkit-scrollbar": {
@@ -403,19 +448,24 @@ const SlotListComponent = ({
 									<Box className={classes.outerbox2}>
 										<Paper
 											className={classes.paper2}
-											style={{ width: "1375px" }}
+											style={{ width: "1375px", height: "475px" }}
 											elevation={3}
 										>
-											<Box m={3}>
+											<Box m={3} pt={1}>
 												<Grid item xs={12}>
-													<div class="new-product">
-														<div class="half-div">
+													<div className={classes.newProduct}>
+														<div className={classes.halfDiv}>
 															<div
-																class="add-product"
-																style={{ direction: "rtl" }}
+																style={{
+																	direction: "rtl",
+																	width: "70%",
+																	borderLeft: "dotted 1px #808080",
+																	margin: "20px",
+																	padding: "10px",
+																}}
 															>
 																<div
-																	class="info"
+																	className={classes.info}
 																	style={{ textAlign: "center" }}
 																>
 																	Slot id
@@ -426,7 +476,7 @@ const SlotListComponent = ({
 																	</Typography>
 																</div>
 																<div
-																	class="info"
+																	className={classes.info}
 																	style={{ textAlign: "center" }}
 																>
 																	Patient Name
@@ -437,7 +487,7 @@ const SlotListComponent = ({
 																	</Typography>
 																</div>
 																<div
-																	class="info"
+																	className={classes.info}
 																	style={{ textAlign: "center" }}
 																>
 																	Doctor Name
@@ -449,7 +499,7 @@ const SlotListComponent = ({
 																</div>
 
 																<div
-																	class="info"
+																	className={classes.info}
 																	style={{ textAlign: "center" }}
 																>
 																	Meeting
@@ -461,7 +511,7 @@ const SlotListComponent = ({
 																	</Typography>
 																</div>
 																<div
-																	class="info"
+																	className={classes.info}
 																	style={{ textAlign: "center" }}
 																>
 																	Status
@@ -483,14 +533,17 @@ const SlotListComponent = ({
 																	Cancell
 																</Button>
 															</div>
-															<div className="forimg" style={{ width: "20%" }}>
+															<div
+																className={classes.forImage}
+																style={{ width: "20%" }}
+															>
 																<CardMedia
 																	component="img"
 																	src={patient.patient_image}
 																	style={{
 																		objectFit: "contain",
 																		height: 350,
-																		width: 300,
+																		width: 250,
 																	}}
 																></CardMedia>
 															</div>

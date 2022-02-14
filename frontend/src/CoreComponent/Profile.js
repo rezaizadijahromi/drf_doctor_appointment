@@ -7,7 +7,6 @@ import { makeStyles } from "@mui/styles";
 
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
-import "./profile.css";
 import { CardMedia } from "@mui/material";
 import { height, style } from "@mui/system";
 
@@ -38,6 +37,83 @@ const useStyles = makeStyles((theme) => ({
 		height: 300,
 		width: 350,
 		border: "1px solid #808080",
+	},
+	userInformation: {
+		border: "1px solid black",
+		borderRadius: "20px",
+		margin: "5% 5%",
+		padding: "20px",
+		direction: "rtl",
+	},
+	textInput: {
+		direction: "rtl",
+		display: "inline-block",
+		border: 0,
+		/* border-bottom: 1px solid #333 */
+		// width: "150px",
+		height: "50px",
+		fontSize: "10px",
+		color: "#333",
+		borderRadius: "10px",
+		boxShadow: "0 1px 5px rgba(0, 0, 0, 0.2)",
+		padding: "20px",
+		margin: "5px 0 15px 0",
+		width: "100%",
+	},
+	emailInput: {
+		direction: "rtl",
+		display: "inline-block",
+		border: 0,
+		/* border-bottom: 1px solid #333 */
+		// width: "150px",
+		height: "50px",
+		fontSize: "10px",
+		color: "#333",
+		borderRadius: "10px",
+		boxShadow: "0 1px 5px rgba(0, 0, 0, 0.2)",
+		padding: "20px",
+		margin: "5px 0 15px 0",
+		width: "100%",
+	},
+	passwordInput: {
+		direction: "rtl",
+		display: "inline-block",
+		border: 0,
+		/* border-bottom: 1px solid #333 */
+		// width: "150px",
+		height: "50px",
+		fontSize: "10px",
+		color: "#333",
+		borderRadius: "10px",
+		boxShadow: "0 1px 5px rgba(0, 0, 0, 0.2)",
+		padding: "20px",
+		margin: "5px 0 15px 0",
+		width: "100%",
+	},
+	topText: {
+		textAlign: "right",
+		fontSize: "22px",
+		fontWeight: "bold",
+	},
+	halfDiv: {
+		display: "flex",
+		justifyContent: "center",
+	},
+	info: {
+		fontFamily: "IRANSans",
+		fontWeight: "bold",
+		fontSize: "16px",
+		textAlign: "center",
+	},
+	inText: {
+		fontFamily: "IRANSans",
+		width: "90%",
+		display: "block",
+	},
+	forImage: {
+		width: "35%",
+		margin: "15px",
+		marginTop: "50px",
 	},
 }));
 
@@ -230,55 +306,67 @@ const Profile = () => {
 			{load ? (
 				<Loader />
 			) : (
-				<div className="userInformation">
-					<div className="top-text">User Information:</div>
+				<div className={classes.userInformation}>
+					<div className={classes.topText}>User Information:</div>
 
-					<div className="half-div">
-						<div className="information">
-							<div className="info">Username</div>
-							<Form.Control
-								className="intext"
-								type="text"
-								value={username}
-								onChange={(e) => setUsername(e.target.value)}
-							></Form.Control>
+					<div className={classes.halfDiv}>
+						<div
+							style={{
+								width: "70%",
+								borderLeft: "dotted 1px #808080",
+								margin: "20px",
+								padding: "10px",
+							}}
+						>
+							<div className={classes.topText}>
+								<div className={classes.info}>Username</div>
+								<div>
+									<Form.Control
+										className={classes.textInput}
+										type="text"
+										value={username}
+										onChange={(e) => setUsername(e.target.value)}
+									></Form.Control>
+								</div>
 
-							<div className="info">Email</div>
-							<Form.Control
-								type="email"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-							></Form.Control>
+								<div className={classes.info}>Email</div>
+								<Form.Control
+									className={classes.emailInput}
+									type="email"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+								></Form.Control>
 
-							<div className="info">Password</div>
-							<Form.Control
-								className="intext"
-								type="text"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-							></Form.Control>
+								<div className={classes.info}>Password</div>
+								<Form.Control
+									className={classes.textInput}
+									type="text"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+								></Form.Control>
 
-							<div className="info">Confirm your password</div>
-							<Form.Control
-								className="intext"
-								type="text"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-							></Form.Control>
+								<div className={classes.info}>Confirm your password</div>
+								<Form.Control
+									className={classes.textInput}
+									type="text"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+								></Form.Control>
 
-							<div className={classes.alignment}>
-								<Button
-									color="primary"
-									variant="contained"
-									onClick={changeEmail}
-									className={classes.updateButton}
-								>
-									Update
-								</Button>
+								<div className={classes.alignment}>
+									<Button
+										color="primary"
+										variant="contained"
+										onClick={changeEmail}
+										className={classes.updateButton}
+									>
+										Update
+									</Button>
+								</div>
 							</div>
 						</div>
 
-						<div className="forimg">
+						<div className={classes.forImage}>
 							<CardMedia
 								style={{ objectFit: "contain", height: 350, width: 350 }}
 								component="img"
