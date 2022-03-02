@@ -124,10 +124,8 @@ const SlotManagment = ({ match }) => {
 
 	let [users, setUsers] = useState([
 		{
-			results: {
-				username: "",
-				id: "1",
-			},
+			username: "",
+			id: "1",
 		},
 	]);
 	const [personName, setPersonName] = useState([]);
@@ -155,7 +153,7 @@ const SlotManagment = ({ match }) => {
 			await sleep(500);
 
 			if (response.data) {
-				setUsers(response.data.results);
+				setUsers(response.data.data);
 				setLoad(false);
 			} else {
 				setMessage(response.data.message);

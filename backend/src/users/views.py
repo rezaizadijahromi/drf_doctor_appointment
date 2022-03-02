@@ -174,6 +174,35 @@ def users(request):
         })
 
 
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def users_admin(request):
+    try:
+        users = User.objects.filter(
+            is_superuser=True,
+            is_staff=True
+        )
+        serializer = UserSerializer(users, many=True)
+
+        if len(serializer.data) > 0:
+            return Response({
+                "status": "success",
+                "data": serializer.data,
+                "message": ""
+            })
+        else:
+            return Response({
+                "status": "success",
+                "data": [],
+                "message": "No users"
+            })
+    except Exception as e:
+        return Response({
+            "status": "error",
+            "message": f"erro is: {e}"
+        })
+
+
 class UserProfileUpdateViewV2(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserProfileSerializer

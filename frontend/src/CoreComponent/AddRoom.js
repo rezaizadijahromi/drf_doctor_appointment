@@ -1,14 +1,24 @@
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { apiConfig } from "../config";
-import { Button, Input, Link } from "@mui/material";
+import {
+	Button,
+	FormControl,
+	Input,
+	Link,
+	MenuItem,
+	Select,
+} from "@mui/material";
 import { makeStyles } from "@mui/styles";
-
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputLabel from "@mui/material/InputLabel";
 import Message from "../Component/Message";
 import Loader from "../Component/Loader";
 import { CardMedia } from "@mui/material";
 import { NavLink } from "react-router-dom";
 import avatar from "./static/avatar.png";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@emotion/react";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -111,7 +121,7 @@ const useStyles = makeStyles((theme) => ({
 		boxShadow: "0 1px 5px rgba(0, 0, 0, 0.2)",
 		padding: "20px",
 		margin: "5px 0 15px 0",
-		width: "570px",
+		width: "700px",
 	},
 	topText: {
 		textAlign: "right",
@@ -154,8 +164,30 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+
+const MenuProps = {
+	PaperProps: {
+		style: {
+			maxHeight: ITEM_HEIGHT * 3 + ITEM_PADDING_TOP,
+			width: 50,
+		},
+	},
+};
+
+function getStyles(name, personName, theme) {
+	return {
+		fontWeight:
+			personName.indexOf(name) === -1
+				? theme.typography.fontWeightRegular
+				: theme.typography.fontWeightMedium,
+	};
+}
+
 const AddRoom = () => {
 	const classes = useStyles();
+	const theme = useTheme();
 	const [message, setMessage] = useState("");
 	const [messageVarient, setMessageVarient] = useState("");
 	const [load, setLoad] = useState(false);
@@ -182,10 +214,49 @@ const AddRoom = () => {
 	const [description, setDescription] = useState("");
 	let [image, setImage] = useState(avatar);
 	const [result, setResult] = useState(avatar);
-	const [page, setPage] = useState(1);
-	const [pages, setPages] = useState(10);
-	const handleChange = (event, value) => {
-		setPage(value);
+	let navigate = useNavigate();
+
+	let [users, setUsers] = useState([
+		{
+			username: "",
+			id: "1",
+		},
+	]);
+	const [personName, setPersonName] = useState([]);
+	const handelNameSet = (e) => {
+		setPersonName(e.target.value);
+	};
+
+	const userList = async () => {
+		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+
+		if (userLocal && (userLocal.data.is_superuser || userLocal.data.is_staff)) {
+			const config = {
+				headers: {
+					Authorization: `Bearer ${userLocal.data.access}`,
+				},
+			};
+			try {
+				const response = await axios.get(
+					`${apiConfig.baseUrl}/users/admin_users/`,
+					config
+				);
+
+				setLoad(true);
+				await sleep(500);
+
+				if (response.data) {
+					setUsers(response.data.data);
+					setLoad(false);
+				} else {
+					setMessage(response.data.message);
+					setMessageVarient("error");
+				}
+			} catch (error) {
+				setMessage("Some error happen");
+				setMessageVarient("error");
+			}
+		}
 	};
 
 	const roomList = async () => {
@@ -198,18 +269,11 @@ const AddRoom = () => {
 				},
 			};
 			try {
-				var response;
-				if (page === 1) {
-					response = await axios.get(
-						`${apiConfig.baseUrl}/booking/room/`,
-						config
-					);
-				} else {
-					response = await axios.get(
-						`${apiConfig.baseUrl}/booking/room/?page=${page}`,
-						config
-					);
-				}
+				const response = await axios.get(
+					`${apiConfig.baseUrl}/booking/room/`,
+					config
+				);
+
 				setLoad(true);
 				await sleep(500);
 
@@ -218,15 +282,11 @@ const AddRoom = () => {
 					setMessage(response.data.message);
 					setMessageVarient("info");
 					setRoom(response.data.data.slice(0, 4));
-					setPage(response.data.page);
-					setPages(response.data.pages);
 				} else {
 					setLoad(false);
 					setMessageVarient("info");
 					setMessage(response.data.message);
 					setRoom(response.data.data.slice(0, 4));
-					setPage(response.data.page);
-					setPages(response.data.pages);
 				}
 			} catch (error) {
 				setMessage("Some error accure");
@@ -246,7 +306,7 @@ const AddRoom = () => {
 			e.preventDefault();
 			let formData = new FormData();
 			formData.append("room_name", roomName);
-			formData.append("doctor_name", doctorName);
+			formData.append("doctor_name", personName);
 			formData.append("description", description);
 			formData.append("image", image);
 
@@ -260,8 +320,8 @@ const AddRoom = () => {
 				setMessage(response.data.message);
 				setMessageVarient("success");
 				roomList();
-
 				setResult(avatar);
+				navigate("/");
 			} else {
 				setMessage(response.data.message);
 				setMessageVarient("error");
@@ -293,8 +353,14 @@ const AddRoom = () => {
 		setSlot(value);
 	};
 
+	const handelNavigate = (e) => {
+		e.preventDefault();
+		navigate("/");
+	};
+
 	useEffect(() => {
 		roomList();
+		userList();
 	}, []);
 
 	return (
@@ -326,20 +392,56 @@ const AddRoom = () => {
 									/>
 								</div>
 								<div className={classes.info}>Doctor Name:</div>
+
 								<div>
+									<FormControl
+										sx={{
+											m: 1,
+											width: "695px",
+											height: "40px",
+											marginTop: "0px",
+											paddingBottom: "10px",
+											marginBottom: "30px",
+										}}
+										style={{
+											color: "#333",
+											// borderRadius: "10px",
+											boxShadow: "0 1px 15px rgba(0, 0, 0, 0.2)",
+											height: "55px",
+										}}
+									>
+										<InputLabel id="demo-multiple-name-label">Name</InputLabel>
+										<Select
+											onChange={handelNameSet}
+											input={<OutlinedInput label="Name" />}
+											MenuProps={MenuProps}
+										>
+											{users.map((name) => (
+												<MenuItem
+													key={slot.id}
+													value={name.username}
+													style={getStyles(name, personName, theme)}
+												>
+													{name.username}
+												</MenuItem>
+											))}
+										</Select>
+									</FormControl>
+								</div>
+								{/* <div>
 									<input
 										type="text"
 										className={classes.textInput}
 										onChange={(e) => setDoctorName(e.target.value)}
 									/>
-								</div>
+								</div> */}
 
 								<div className={classes.info}>Description:</div>
 								<div>
 									<textarea
 										className={classes.multiInput}
 										rows="10"
-										cols="60"
+										cols="80"
 										name="description"
 										onChange={(e) => setDescription(e.target.value)}
 									></textarea>
@@ -397,14 +499,47 @@ const AddRoom = () => {
 							Add
 						</Button>
 					</div>
-					<div className={classes.onStore}>
+					<div
+						style={{
+							direction: "rtl",
+							border: "1px black solid",
+							borderRadius: "20px",
+							margin: "0% 5%",
+							marginTop: "20px",
+							padding: "20px",
+						}}
+					>
 						<div className={classes.topText}>Rooms</div>
 						{room.map((r, index) => (
-							<div class="card" onClick={() => handelData(r)}>
-								<img src={r.image} alt="doctor" />
-								<hr />
+							<div
+								style={{
+									position: "relative",
+									/*border: 2px dashed black,*/
+									display: "inline-block",
+									width: "20%",
+									margin: "10px",
+									backgroundColor: "#ffffff",
+									borderRadius: "10px",
+									padding: "5px",
+								}}
+								onClick={() => handelData(r)}
+							>
+								<img
+									src={r.image}
+									alt="doctor"
+									style={{
+										position: "relative",
+										width: "200px",
+										height: "150px",
+									}}
+								/>
+								<hr
+									style={{ margin: "0px 15px", border: "1px solid #047aed" }}
+								/>
 								<section>
-									<h2>Room Code: {r.id.substring(1, 10)}</h2>
+									<h2 style={{ margin: 0 }}>
+										Room Code: {r.id.substring(1, 10)}
+									</h2>
 								</section>
 
 								<section>
@@ -438,6 +573,7 @@ const AddRoom = () => {
 								marginRight: "20px",
 							}}
 							variant="outlined"
+							onClick={handelNavigate}
 						>
 							More
 						</Button>
