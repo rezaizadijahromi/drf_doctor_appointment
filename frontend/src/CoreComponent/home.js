@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 
 import { NavLink } from "react-router-dom";
-import SelectInput from "@mui/material/Select/SelectInput";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -78,7 +77,7 @@ const Home = () => {
 	const userLocal = JSON.parse(localStorage.getItem("userInfo"));
 
 	const roomData = async (page) => {
-		if (userLocal) {
+		if (userLocal != null) {
 			const config = {
 				headers: {
 					Authorization: `Bearer ${userLocal.data.access}`,
@@ -99,7 +98,6 @@ const Home = () => {
 				}
 				setLoad(true);
 				await sleep(500);
-				console.log(response.data.data);
 				if (response.data.satus === "success") {
 					setLoad(false);
 					setMessage(response.data.message);
@@ -119,6 +117,34 @@ const Home = () => {
 				setMessage("Some error accure");
 				setMessageVarient("error");
 			}
+		}else if (userLocal == null){
+				var response
+				if (page === 1) {
+					response = await axios.get(
+						`${apiConfig.baseUrl}/booking/room/`,
+					);
+				} else {
+					response = await axios.get(
+						`${apiConfig.baseUrl}/booking/room/?page=${page}`
+					);
+				}
+				setLoad(true);
+				await sleep(500);
+				if (response.data.satus === "success") {
+					setLoad(false);
+					setMessage(response.data.message);
+					setMessageVarient("info");
+					setRooms(response.data.data);
+					setPage(response.data.page);
+					setPages(response.data.pages);
+				} else {
+					setLoad(false);
+					setMessageVarient("info");
+					setMessage(response.data.message);
+					setRooms(response.data.data);
+					setPage(response.data.page);
+					setPages(response.data.pages);
+				}
 		}
 	};
 
@@ -157,8 +183,8 @@ const Home = () => {
 											Doctor Name: {r.doctor_name}
 										</Typography>
 									</CardContent>
-
-									<nav>
+									
+									{userLocal ? (<nav>
 										<Link
 											color="textPrimary"
 											href="#"
@@ -168,8 +194,19 @@ const Home = () => {
 										>
 											Go To Room
 										</Link>
-									</nav>
-									{userLocal.data.is_superuser && (
+									</nav>) : (<nav>
+										<Link
+											color="textPrimary"
+											href="#"
+											className={classes.link}
+											component={NavLink}
+											to={"/signin"}
+										>
+											Go To Room
+										</Link>
+									</nav>)}
+									
+									{userLocal && userLocal.data.is_superuser && (
 										<Button size="small" variant="outlined">
 											<Link
 												color="textPrimary"
@@ -182,10 +219,6 @@ const Home = () => {
 											</Link>
 										</Button>
 									)}
-
-									{/* <CardActions>
-                    <NavLink to={`room/${r.id}/`}>Go To Room</NavLink>
-                  </CardActions> */}
 								</Card>
 							</Grid>
 						))}

@@ -349,7 +349,6 @@ const AddRoom = () => {
 	const { resulter, uploader } = useDisplayImage();
 
 	const handelData = (value) => {
-		console.log(value);
 		setSlot(value);
 	};
 

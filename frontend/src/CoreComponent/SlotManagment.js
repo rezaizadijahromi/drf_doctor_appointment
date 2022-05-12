@@ -190,7 +190,6 @@ const SlotManagment = ({ match }) => {
 
 			setLoad(true);
 			await sleep(500);
-			console.log(response.data);
 			if (response.data.status === "success") {
 				setMessage(response.data.message);
 				setMessageVarient("success");
@@ -313,7 +312,6 @@ const SlotManagment = ({ match }) => {
 					config
 				);
 
-				console.log(response.data);
 
 				if (response.data.status === "success") {
 					slotsList();

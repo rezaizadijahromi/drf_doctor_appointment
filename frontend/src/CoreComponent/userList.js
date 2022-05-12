@@ -99,7 +99,6 @@ const UserList = () => {
 
 	const deleteHandler = async (id) => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
-		console.log(userLocal);
 
 		if (userLocal) {
 			const config = {

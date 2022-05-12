@@ -148,55 +148,7 @@ function Navbar() {
 									open={Boolean(anchorElUser)}
 									onClose={handleCloseUserMenu}
 								>
-									{user || user.is_superuser ? (
-										<>
-											<MenuItem
-												style={{
-													display: "block",
-													textDecoration: "None",
-													padding: 0,
-													margin: 0,
-												}}
-												onClick={handleCloseUserMenu}
-											>
-												<Link
-													textAlign="center"
-													style={{ display: "block", textDecoration: "None" }}
-													color="textPrimary"
-													href="#"
-													className={classes.link}
-													component={NavLink}
-													to="/profile"
-												>
-													Profile
-												</Link>
-											</MenuItem>
-											<MenuItem
-												style={{
-													display: "block",
-													textDecoration: "None",
-													padding: 0,
-													margin: 0,
-												}}
-												onClick={handleCloseUserMenu}
-											>
-												<Link
-													textAlign="center"
-													style={{ display: "block", textDecoration: "None" }}
-													color="textPrimary"
-													href="#"
-													className={classes.link}
-													component={NavLink}
-													to="/create"
-													onClick={handleLogout}
-												>
-													Logout
-												</Link>
-											</MenuItem>
-										</>
-									) : (
-										<div></div>
-									)}
+									
 
 									{user.is_superuser && (
 										<>
@@ -244,6 +196,57 @@ function Navbar() {
 												</Link>
 											</MenuItem>
 										</>
+									)}
+
+
+{user || user.is_superuser ? (
+										<>
+											<MenuItem
+												style={{
+													display: "block",
+													textDecoration: "None",
+													padding: 0,
+													margin: 0,
+												}}
+												onClick={handleCloseUserMenu}
+											>
+												<Link
+													textAlign="center"
+													style={{ display: "block", textDecoration: "None" }}
+													color="textPrimary"
+													href="#"
+													className={classes.link}
+													component={NavLink}
+													to="/profile"
+												>
+													Profile
+												</Link>
+											</MenuItem>
+											<MenuItem
+												style={{
+													display: "block",
+													textDecoration: "None",
+													padding: 0,
+													margin: 0,
+												}}
+												onClick={handleCloseUserMenu}
+											>
+												<Link
+													textAlign="center"
+													style={{ display: "block", textDecoration: "None" }}
+													color="textPrimary"
+													href="#"
+													className={classes.link}
+													component={NavLink}
+													to="/create"
+													onClick={handleLogout}
+												>
+													Logout
+												</Link>
+											</MenuItem>
+										</>
+									) : (
+										<div></div>
 									)}
 								</Menu>
 							</Box>

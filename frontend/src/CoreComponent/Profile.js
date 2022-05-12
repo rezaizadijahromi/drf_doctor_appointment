@@ -145,7 +145,6 @@ const Profile = () => {
 				config
 			);
 
-			console.log(response.data);
 			setLoad(true);
 			await sleep(500);
 			if (response.data) {
@@ -191,7 +190,6 @@ const Profile = () => {
 				setLoad(false);
 				setMessage(response.data.message);
 				setMessageVarient("error");
-				console.log(response.data.message);
 			}
 		}
 	};
@@ -224,7 +222,6 @@ const Profile = () => {
 				setLoad(false);
 				setMessage(response.data.message);
 				setMessageVarient("error");
-				console.log(response.data.message);
 			}
 		}
 	};
@@ -236,7 +233,6 @@ const Profile = () => {
 		const formData = new FormData();
 		formData.append("profile_pic", file);
 
-		console.log(image);
 		try {
 			const config = {
 				headers: {
@@ -263,11 +259,9 @@ const Profile = () => {
 				setMessageVarient("error");
 			}
 		} catch (error) {
-			console.log(error);
 		}
 	};
 
-	console.log(image);
 
 	const deleteProfilePicture = async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
@@ -283,7 +277,6 @@ const Profile = () => {
 			config
 		);
 
-		console.log(response.data);
 
 		if (response.data) {
 			profileData();
