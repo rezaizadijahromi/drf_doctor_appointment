@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 
 import { NavLink } from "react-router-dom";
-import SelectInput from "@mui/material/Select/SelectInput";
 
 function sleep(time) {
 	return new Promise((resolve) => setTimeout(resolve, time));
@@ -76,9 +75,10 @@ const Home = () => {
 	};
 
 	const userLocal = JSON.parse(localStorage.getItem("userInfo"));
+	console.log(userLocal);
 
 	const roomData = async (page) => {
-		if (userLocal) {
+		if (userLocal != null) {
 			const config = {
 				headers: {
 					Authorization: `Bearer ${userLocal.data.access}`,
@@ -119,6 +119,35 @@ const Home = () => {
 				setMessage("Some error accure");
 				setMessageVarient("error");
 			}
+		}else if (userLocal == null){
+				var response
+				if (page === 1) {
+					response = await axios.get(
+						`${apiConfig.baseUrl}/booking/room/`,
+					);
+				} else {
+					response = await axios.get(
+						`${apiConfig.baseUrl}/booking/room/?page=${page}`
+					);
+				}
+				setLoad(true);
+				await sleep(500);
+				console.log(response.data.data);
+				if (response.data.satus === "success") {
+					setLoad(false);
+					setMessage(response.data.message);
+					setMessageVarient("info");
+					setRooms(response.data.data);
+					setPage(response.data.page);
+					setPages(response.data.pages);
+				} else {
+					setLoad(false);
+					setMessageVarient("info");
+					setMessage(response.data.message);
+					setRooms(response.data.data);
+					setPage(response.data.page);
+					setPages(response.data.pages);
+				}
 		}
 	};
 
@@ -169,7 +198,7 @@ const Home = () => {
 											Go To Room
 										</Link>
 									</nav>
-									{userLocal.data.is_superuser && (
+									{userLocal && userLocal.data.is_superuser && (
 										<Button size="small" variant="outlined">
 											<Link
 												color="textPrimary"
@@ -182,10 +211,6 @@ const Home = () => {
 											</Link>
 										</Button>
 									)}
-
-									{/* <CardActions>
-                    <NavLink to={`room/${r.id}/`}>Go To Room</NavLink>
-                  </CardActions> */}
 								</Card>
 							</Grid>
 						))}

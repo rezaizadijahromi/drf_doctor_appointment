@@ -34,7 +34,7 @@ from .serializer import BookingSerializer, RoomPatientSerializer, RoomSerializer
 class RoomView(views.APIView):
 
     def get(self, request):
-        permission_classes = [AllowAny]
+        permission_classes = [AllowAny, ]
         try:
             import math
             size = 6
