@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-=$o9*inz2l)oo@-!it$$#ba+g8bx$32+^j6=2x=99bib&(92mc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['drf-doctor-appointment.herokuapp.com']
 
 
 # Application definition
@@ -126,14 +126,22 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'drf_doctor',
-        'USER': 'postgres',
-        'PASSWORD': 'aloneking',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'drf_doctor',
+#         'USER': 'postgres',
+#         'PASSWORD': 'aloneking',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
