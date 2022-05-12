@@ -219,7 +219,7 @@ class RoomDetailTime(views.APIView):
 class RoomDetail(views.APIView):
 
     def get(self, request, roomId):
-        permission_classes = [AllowAny, ]
+        permission_classes = [IsAuthenticated, ]
 
         try:
             time = datetime.datetime.today().time()
