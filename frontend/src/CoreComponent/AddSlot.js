@@ -198,7 +198,6 @@ const AddSlot = () => {
 				payload,
 				config
 			);
-			console.log(response);
 			setLoad(true);
 			await sleep(500);
 

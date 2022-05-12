@@ -218,9 +218,9 @@ class RoomDetailTime(views.APIView):
 
 class RoomDetail(views.APIView):
 
-    permission_classes = [IsAuthenticated]
-
     def get(self, request, roomId):
+        permission_classes = [AllowAny, ]
+
         try:
             time = datetime.datetime.today().time()
             date = datetime.datetime.now().date()
@@ -295,6 +295,7 @@ class RoomDetail(views.APIView):
             })
 
     def post(self, request, roomId):
+        permission_classes = [IsAuthenticated, ]
         try:
             now = datetime.datetime.now().date()
             data = request.data.get("date")

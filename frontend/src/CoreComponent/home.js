@@ -75,7 +75,6 @@ const Home = () => {
 	};
 
 	const userLocal = JSON.parse(localStorage.getItem("userInfo"));
-	console.log(userLocal);
 
 	const roomData = async (page) => {
 		if (userLocal != null) {
@@ -99,7 +98,6 @@ const Home = () => {
 				}
 				setLoad(true);
 				await sleep(500);
-				console.log(response.data.data);
 				if (response.data.satus === "success") {
 					setLoad(false);
 					setMessage(response.data.message);
@@ -132,7 +130,6 @@ const Home = () => {
 				}
 				setLoad(true);
 				await sleep(500);
-				console.log(response.data.data);
 				if (response.data.satus === "success") {
 					setLoad(false);
 					setMessage(response.data.message);
@@ -186,8 +183,8 @@ const Home = () => {
 											Doctor Name: {r.doctor_name}
 										</Typography>
 									</CardContent>
-
-									<nav>
+									
+									{userLocal ? (<nav>
 										<Link
 											color="textPrimary"
 											href="#"
@@ -197,7 +194,18 @@ const Home = () => {
 										>
 											Go To Room
 										</Link>
-									</nav>
+									</nav>) : (<nav>
+										<Link
+											color="textPrimary"
+											href="#"
+											className={classes.link}
+											component={NavLink}
+											to={"/signin"}
+										>
+											Go To Room
+										</Link>
+									</nav>)}
+									
 									{userLocal && userLocal.data.is_superuser && (
 										<Button size="small" variant="outlined">
 											<Link

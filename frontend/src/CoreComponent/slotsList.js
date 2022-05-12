@@ -16,7 +16,6 @@ const SlotList = ({ match }) => {
 		newTime.getMonth() + 1
 	}-${newTime.getDate()}`;
 
-	// console.log(todayDate);
 
 	// 2022-1-6T12:57:32
 	// '2014-08-18T21:11:54'
@@ -70,7 +69,6 @@ const SlotList = ({ match }) => {
 	});
 	let navigate = useNavigate();
 
-	console.log("patient", patient);
 
 	let { id } = useParams();
 
@@ -93,7 +91,6 @@ const SlotList = ({ match }) => {
 					config
 				);
 
-				console.log(response.data.data);
 				if (response.data.status) {
 					setPatiant(response.data.data);
 				}
@@ -105,7 +102,6 @@ const SlotList = ({ match }) => {
 
 	const slotListData = useCallback(async () => {
 		const userLocal = JSON.parse(localStorage.getItem("userInfo"));
-		console.log(userLocal.data);
 
 		setCurrentUser(userLocal.data.profile.name);
 
