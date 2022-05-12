@@ -105,7 +105,7 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "build")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -158,7 +158,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
 
-
 LANGUAGE_CODE = 'en-us'
 
 # TIME_ZONE = 'UTC'
@@ -168,7 +167,6 @@ LANGUAGE_CODE = 'en-us'
 # USE_TZ = True
 
 TIME_ZONE = 'Asia/Tehran'
-
 
 
 USE_I18N = True
@@ -186,11 +184,16 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'punisherrij@gmail.com'
 EMAIL_HOST_PASSWORD = 'mrstones2000'
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+ROOT_URLCONF = 'project.urls'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'build/static')
+]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 MEDIA_URL = '/media/'
@@ -209,4 +212,3 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4578",
     "http://localhost:9680",
 ]
-
