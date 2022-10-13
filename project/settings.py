@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-=$o9*inz2l)oo@-!it$$#ba+g8bx$32+^j6=2x=99bib&(92mc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['drf-doctor-appointment.herokuapp.com']
+ALLOWED_HOSTS = ['drf-doctor-appointment.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -131,6 +131,16 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'de2kasie019241',
+#         'USER': 'ahqoqjqcwqehgs',
+#         'PASSWORD': 'ec2631106b7668649df1d78bd10ef616ad530c0a16238a2693df04afcbb67698',
+#         'HOST': 'ec2-107-22-238-112.compute-1.amazonaws.com',
+#         'PORT':  5432
+#     }
+# }
 
 # DATABASES = {
 #     'default': {
